@@ -1,0 +1,45 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="#E1E1E1"
+    tools:context=".MainActivity" >
+    
+    
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:background="#ff0000"
+        android:layout_margin="50dp"
+        android:text="@string/hello_world_cn"
+        
+    />
+
+    <Button
+        android:id="@+id/btn1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textView"
+        android:layout_alignRight="@id/textView"
+        android:layout_below="@id/textView"
+        android:text="点我" />
+    
+    <!-- 
+    <com.example.showgifimage.MyGifView   
+       android:id="@+id/gif_mainLoad"
+       android:layout_below="@id/btn1"
+       android:gravity="center"
+       android:layout_height="wrap_content"  
+       android:layout_width="match_parent"  
+       android:layout_margin="20dp"  
+       />   
+    -->
+    
+</RelativeLayout>
