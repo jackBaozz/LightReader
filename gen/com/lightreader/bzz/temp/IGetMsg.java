@@ -1,6 +1,6 @@
 /*
  * This file is auto-generated.  DO NOT MODIFY.
- * Original file: D:\\Users\\Asus\\eclipse_workspace\\LightReader\\src\\com\\lightreader\\bzz\\temp\\IGetMsg.aidl
+ * Original file: D:\\工作文件夹\\易读\\LightReader\\src\\com\\lightreader\\bzz\\temp\\IGetMsg.aidl
  */
 package com.lightreader.bzz.temp;
 public interface IGetMsg extends android.os.IInterface
