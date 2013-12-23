@@ -10,16 +10,16 @@ import android.view.Window;
 public class StartPage extends Activity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
-		//this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);//去掉信息栏
-		this.requestWindowFeature(Window.FEATURE_NO_TITLE);// 去掉标题栏,不显示应用程序名字
+		//this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);//鍏ㄥ睆
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);//鍘绘帀绋嬪簭鍚嶇殑title
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
         Handler handler = new Handler();
-        handler.postDelayed(new loadhandler(), 3000);//延迟3秒后,再跳转到另一个Activity
+        handler.postDelayed(new loadhandler(), 3000);//寤惰繜3绉掑悗璺宠浆鍒板叾浠朅ctivity
     }
 	
 	
-	//延迟加载线程
+	//寤惰繜璺宠浆鐨刟ctivity
     class loadhandler implements Runnable{
         public void run() {
             //startActivity(new Intent(getApplication(),MainActivity.class));
