@@ -10,7 +10,7 @@
     <!-- 
     <include
         android:id="@+id/gz_top"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         layout="@layout/gzmgr_top_panel" />
  	-->
@@ -87,29 +87,30 @@
 				<!-- tab1 content -->
                 <LinearLayout
                     android:id="@+id/unhanlderLayout1"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:orientation="vertical" >
 					<GridView
 			            android:id="@+id/main_grid_localBooks"
-			            android:layout_width="fill_parent"
-			            android:layout_height="fill_parent"
+			            android:layout_width="match_parent"
+			            android:layout_height="match_parent"
 			            android:background="#DCDCDC"
 			            android:gravity="center"
-			            android:horizontalSpacing="2dip"
+			            android:horizontalSpacing="15dp"
+			            android:verticalSpacing="15dp"
 			            android:numColumns="3"
-			            android:verticalSpacing="2dip" >
+			             >
 			        </GridView>
                 </LinearLayout>
 				<!-- tab2 content -->
                 <LinearLayout
                     android:id="@+id/unhanlderLayout2"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:orientation="vertical" >
                     <Button
                         android:id="@+id/gzbtn_handlering_refresh"
-                        android:layout_width="fill_parent"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="刷新2" />
 					<TextView
@@ -120,19 +121,19 @@
 					    android:textSize="10dp" />
                     <ListView
                             android:id="@+id/gz_handleringListView"
-                            android:layout_width="fill_parent"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content" >
                     </ListView>
                 </LinearLayout>
 				<!-- tab3 content -->
                 <LinearLayout
                     android:id="@+id/unhanlderLayout3"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:orientation="vertical" >
                     <Button
                         android:id="@+id/gzbtn_handled_refresh"
-                        android:layout_width="fill_parent"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="刷新3" />
                     <TextView
@@ -143,7 +144,7 @@
 					    android:textSize="10dp" />
                     <ListView
                             android:id="@+id/gzgzbtn_handled_ListView"
-                            android:layout_width="fill_parent"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content" >
                     </ListView>
                 </LinearLayout>

@@ -1,12 +1,14 @@
 package com.lightreader.bzz.Activity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,14 +19,17 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.SimpleAdapter;
 import android.widget.TabHost;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.TabHost.OnTabChangeListener;
 
 import com.lightreader.bzz.image.MyGifView;
 
@@ -39,8 +44,8 @@ public class MainActivity extends Activity {
 	private TabHost tabHost = null;
 	
 	private GridView mainGridLocalBooks = null; //本地书库的布局
-	
-	
+	private String[] item = { "唐僧", "孙悟空 ", "猪八戒", "沙和尚" };//数据个数,本地书本个数
+	private SimpleAdapter adapter;//书本适配器
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +110,28 @@ public class MainActivity extends Activity {
 		types.add(BitmapFactory.decodeResource(getResources(),R.drawable.bt_soundeffect_equallizerunit_rock_hl));
 		types.add(BitmapFactory.decodeResource(getResources(),R.drawable.bt_soundeffect_equallizerunit_voice_hl));
 		//mainGridLocalBooks.setAdapter(new MyMain2GridAdapter(inflater,types,screenWidth,screenHeight));
+		
+		// 创建一个ArrayList列表,内部存的是HashMap列表
+	    ArrayList<HashMap<String, Object>> listItems = new ArrayList<HashMap<String, Object>>();
+		// 将数组信息分别存入ArrayList中
+		int length = item.length;
+		for (int i = 0; i < length; i++) {
+			HashMap<String, Object> map = new HashMap<String, Object>();
+			//map.put("image", item[i]);
+			map.put("image", R.drawable.book_style);
+			listItems.add(map);
+		}
+		// 设定一个适配器
+		adapter = new SimpleAdapter(this, listItems, R.layout.books_item, new String[] { "image" }, new int[] { R.id.item_imageView});
+		// 对GridView进行适配
+		mainGridLocalBooks.setAdapter(adapter);
+		// 设置GridView的监听器
+		mainGridLocalBooks.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+				String str = "这次妖精把" + item[position] + "抓住了!";
+			}
+		});
 		
 		
 	}
