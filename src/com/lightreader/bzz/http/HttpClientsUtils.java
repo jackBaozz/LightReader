@@ -42,8 +42,8 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 
 /***
- * HttpÍ¨ĞÅÖĞµÄPOSTºÍGETÇëÇó·½Ê½µÄ²»Í¬¡£GET°Ñ²ÎÊı·ÅÔÚURL×Ö·û´®ºóÃæ£¬´«µİ¸ø·şÎñÆ÷¡£
- * ¶øPOST·½·¨µÄ²ÎÊıÊÇ·ÅÔÚHttpÇëÇóÖĞ£¬Ö÷ÒªÓÃÓÚÊÖ»ú¶ÔHttp·ÃÎÊÌá¹©¹«¹²µÄ·ÃÎÊÀà¶ÔÏó¡£
+ * Httpé€šä¿¡ä¸­çš„POSTå’ŒGETè¯·æ±‚æ–¹å¼çš„ä¸åŒã€‚GETæŠŠå‚æ•°æ”¾åœ¨URLå­—ç¬¦ä¸²åé¢ï¼Œä¼ é€’ç»™æœåŠ¡å™¨ã€‚
+ * è€ŒPOSTæ–¹æ³•çš„å‚æ•°æ˜¯æ”¾åœ¨Httpè¯·æ±‚ä¸­ï¼Œä¸»è¦ç”¨äºæ‰‹æœºå¯¹Httpè®¿é—®æä¾›å…¬å…±çš„è®¿é—®ç±»å¯¹è±¡ã€‚
  * 
  * @author hlj,bzz
  * @date
@@ -52,465 +52,465 @@ import android.net.wifi.WifiManager;
 
 @SuppressWarnings({"unused"})
 public class HttpClientsUtils {
-	/* Ö´ĞĞdownfileºó£¬µÃµ½ÏÂÔØÎÄ¼şµÄ´óĞ¡ */
-	private long contentLength;
-	/* ·µ»ØÁ¬½ÓÊ§°ÜĞÅÏ¢ * */
-	private String strResult = "·şÎñÆ÷ÎŞ·¨Á¬½Ó£¬Çë¼ì²éÍøÂç";
-	/* http ÇëÇóÍ·²ÎÊı */
-	private HttpParams httpParams;
-	/* httpClient ¶ÔÏó */
-	private DefaultHttpClient httpClient;
+        /* æ‰§è¡Œdownfileåï¼Œå¾—åˆ°ä¸‹è½½æ–‡ä»¶çš„å¤§å° */
+        private long contentLength;
+        /* è¿”å›è¿æ¥å¤±è´¥ä¿¡æ¯ * */
+        private String strResult = "æœåŠ¡å™¨æ— æ³•è¿æ¥ï¼Œè¯·æ£€æŸ¥ç½‘ç»œ";
+        /* http è¯·æ±‚å¤´å‚æ•° */
+        private HttpParams httpParams;
+        /* httpClient å¯¹è±¡ */
+        private DefaultHttpClient httpClient;
 
-	/* µÃµ½ÉÏÏÂÎÄ */
-	private Context context;
-	
-	private Activity activity = null;
+        /* å¾—åˆ°ä¸Šä¸‹æ–‡ */
+        private Context context;
+        
+        private Activity activity = null;
 
-	public HttpClientsUtils(Activity activity) {
-		this.context = activity.getBaseContext();
-		this.activity = activity;
-		getHttpClient();
-	}
+        public HttpClientsUtils(Activity activity) {
+                this.context = activity.getBaseContext();
+                this.activity = activity;
+                getHttpClient();
+        }
 
-	/**
-	 * Ìá¹©GETĞÎÊ½µÄ·ÃÎÊÍøÂçÇëÇó doGet ²ÎÊıÊ¾Àı£º Map params=new HashMap();
-	 * params.put("usename","helijun"); params.put("password","123456");
-	 * httpClient.doGet(url,params)£»
-	 * 
-	 * @param url
-	 *            ÇëÇóµØÖ·
-	 * @param params
-	 *            ÇëÇó²ÎÊı
-	 * @return ·µ»Ø String jsonResult;
-	 * 
-	 * **/
-	
-	public String doGet(String url, Map params) {
-		/* ½¨Á¢HTTPGet¶ÔÏó */
-		String paramStr = "";
-		if (params == null)
-			params = new HashMap();
-		/* µü´úÇëÇó²ÎÊı¼¯ºÏ */
-		Iterator iter = params.entrySet().iterator();
-		while (iter.hasNext()) {
-			Map.Entry entry = (Map.Entry) iter.next();
-			Object key = entry.getKey();
-			String val = nullToString(entry.getValue());
-			paramStr += paramStr = "&" + key + "=" + URLEncoder.encode(val);
-		}
-		if (!paramStr.equals("")) {
-			paramStr = paramStr.replaceFirst("&", "?");
-			url += paramStr;
-		}
-		return doGet(url);
-	}
+        /**
+         * æä¾›GETå½¢å¼çš„è®¿é—®ç½‘ç»œè¯·æ±‚ doGet å‚æ•°ç¤ºä¾‹ï¼š Map params=new HashMap();
+         * params.put("usename","helijun"); params.put("password","123456");
+         * httpClient.doGet(url,params)ï¼›
+         * 
+         * @param url
+         *            è¯·æ±‚åœ°å€
+         * @param params
+         *            è¯·æ±‚å‚æ•°
+         * @return è¿”å› String jsonResult;
+         * 
+         * **/
+        
+        public String doGet(String url, Map params) {
+                /* å»ºç«‹HTTPGetå¯¹è±¡ */
+                String paramStr = "";
+                if (params == null)
+                        params = new HashMap();
+                /* è¿­ä»£è¯·æ±‚å‚æ•°é›†åˆ */
+                Iterator iter = params.entrySet().iterator();
+                while (iter.hasNext()) {
+                        Map.Entry entry = (Map.Entry) iter.next();
+                        Object key = entry.getKey();
+                        String val = nullToString(entry.getValue());
+                        paramStr += paramStr = "&" + key + "=" + URLEncoder.encode(val);
+                }
+                if (!paramStr.equals("")) {
+                        paramStr = paramStr.replaceFirst("&", "?");
+                        url += paramStr;
+                }
+                return doGet(url);
+        }
 
-	/**
-	 * Ìá¹©GETĞÎÊ½µÄ·ÃÎÊÍøÂçÇëÇó doGet ²ÎÊıÊ¾Àı£º Map params=new HashMap();
-	 * params.put("usename","gongshuanglin"); params.put("password","123456");
-	 * httpClient.doGet(url,params)£»
-	 * 
-	 * @param url
-	 *            ÇëÇóµØÖ·
-	 * @param params
-	 *            ÇëÇó²ÎÊı
-	 * @return ·µ»Ø String jsonResult;
-	 * 
-	 */
-	public String doGet(String url, List<NameValuePair> params) {
-		/* ½¨Á¢HTTPGet¶ÔÏó */
-		String paramStr = "";
-		if (params == null)
-			params = new ArrayList<NameValuePair>();
-		/* µü´úÇëÇó²ÎÊı¼¯ºÏ */
+        /**
+         * æä¾›GETå½¢å¼çš„è®¿é—®ç½‘ç»œè¯·æ±‚ doGet å‚æ•°ç¤ºä¾‹ï¼š Map params=new HashMap();
+         * params.put("usename","gongshuanglin"); params.put("password","123456");
+         * httpClient.doGet(url,params)ï¼›
+         * 
+         * @param url
+         *            è¯·æ±‚åœ°å€
+         * @param params
+         *            è¯·æ±‚å‚æ•°
+         * @return è¿”å› String jsonResult;
+         * 
+         */
+        public String doGet(String url, List<NameValuePair> params) {
+                /* å»ºç«‹HTTPGetå¯¹è±¡ */
+                String paramStr = "";
+                if (params == null)
+                        params = new ArrayList<NameValuePair>();
+                /* è¿­ä»£è¯·æ±‚å‚æ•°é›†åˆ */
 
-		for (NameValuePair obj : params) {
-			paramStr += paramStr = "&" + obj.getName() + "=" + URLEncoder.encode(obj.getValue());
-		}
-		if (!paramStr.equals("")) {
-			paramStr = paramStr.replaceFirst("&", "?");
-			url += paramStr;
-		}
-		return doGet(url);
-	}
+                for (NameValuePair obj : params) {
+                        paramStr += paramStr = "&" + obj.getName() + "=" + URLEncoder.encode(obj.getValue());
+                }
+                if (!paramStr.equals("")) {
+                        paramStr = paramStr.replaceFirst("&", "?");
+                        url += paramStr;
+                }
+                return doGet(url);
+        }
 
-	/**
-	 * Ìá¹©GETĞÎÊ½µÄ·ÃÎÊÍøÂçÇëÇó doGet ²ÎÊıÊ¾Àı£º
-	 * 
-	 * @param url
-	 *            ÇëÇóµØÖ·
-	 * @return ·µ»Ø String jsonResult;
-	 * 
-	 */
-	public String doGet(String url) {
-		/* ´´½¨HttpGet¶ÔÏó */
-		HttpGet httpRequest = new HttpGet(url);
-		httpRequest.setHeaders(this.getHeader());
-		try {
-			/* ±£³Ö»á»°Session */
-			/* ÉèÖÃCookie */
-			MyHttpCookies li = new MyHttpCookies(context);
-			CookieStore cs = li.getuCookie();
-			/* µÚÒ»´ÎÇëÇóApp±£´æµÄCookieÎª¿Õ£¬ËùÒÔÊ²Ã´Ò²²»×ö£¬Ö»ÓĞµ±APPµÄCookie²»Îª¿ÕµÄÊ±¡£°ÑÇëÇëÇóµÄCooke·Å½øÈ¥ */
-			if (cs != null) {
-				httpClient.setCookieStore(li.getuCookie());
-			}
+        /**
+         * æä¾›GETå½¢å¼çš„è®¿é—®ç½‘ç»œè¯·æ±‚ doGet å‚æ•°ç¤ºä¾‹ï¼š
+         * 
+         * @param url
+         *            è¯·æ±‚åœ°å€
+         * @return è¿”å› String jsonResult;
+         * 
+         */
+        public String doGet(String url) {
+                /* åˆ›å»ºHttpGetå¯¹è±¡ */
+                HttpGet httpRequest = new HttpGet(url);
+                httpRequest.setHeaders(this.getHeader());
+                try {
+                        /* ä¿æŒä¼šè¯Session */
+                        /* è®¾ç½®Cookie */
+                        MyHttpCookies li = new MyHttpCookies(context);
+                        CookieStore cs = li.getuCookie();
+                        /* ç¬¬ä¸€æ¬¡è¯·æ±‚Appä¿å­˜çš„Cookieä¸ºç©ºï¼Œæ‰€ä»¥ä»€ä¹ˆä¹Ÿä¸åšï¼Œåªæœ‰å½“APPçš„Cookieä¸ä¸ºç©ºçš„æ—¶ã€‚æŠŠè¯·è¯·æ±‚çš„Cookeæ”¾è¿›å» */
+                        if (cs != null) {
+                                httpClient.setCookieStore(li.getuCookie());
+                        }
 
-			/* ±£³Ö»á»°Session end */
+                        /* ä¿æŒä¼šè¯Session end */
 
-			/* ·¢ËÍÇëÇó²¢µÈ´ıÏìÓ¦ */
-			HttpResponse httpResponse = httpClient.execute(httpRequest);
-			/* Èô×´Ì¬ÂëÎª200 ok */
-			if (httpResponse.getStatusLine().getStatusCode() == 200) {
-				/* ¶Á·µ»ØÊı¾İ */
-				strResult = EntityUtils.toString(httpResponse.getEntity());
+                        /* å‘é€è¯·æ±‚å¹¶ç­‰å¾…å“åº” */
+                        HttpResponse httpResponse = httpClient.execute(httpRequest);
+                        /* è‹¥çŠ¶æ€ç ä¸º200 ok */
+                        if (httpResponse.getStatusLine().getStatusCode() == 200) {
+                                /* è¯»è¿”å›æ•°æ® */
+                                strResult = EntityUtils.toString(httpResponse.getEntity());
 
-				/* Ö´ĞĞ³É¹¦Ö®ºóµÃµ½ */
-				/* ³É¹¦Ö®ºó°Ñ·µ»Ø³É¹¦µÄCookis±£´æAPPÖĞ */
-				/* ÇëÇó³É¹¦Ö®ºó£¬Ã¿´Î¶¼ÉèÖÃCookis¡£±£Ö¤Ã¿´ÎÇëÇó¶¼ÊÇ×îĞÂµÄCookis */
-				li.setuCookie(httpClient.getCookieStore());
+                                /* æ‰§è¡ŒæˆåŠŸä¹‹åå¾—åˆ° */
+                                /* æˆåŠŸä¹‹åæŠŠè¿”å›æˆåŠŸçš„Cookisä¿å­˜APPä¸­ */
+                                /* è¯·æ±‚æˆåŠŸä¹‹åï¼Œæ¯æ¬¡éƒ½è®¾ç½®Cookisã€‚ä¿è¯æ¯æ¬¡è¯·æ±‚éƒ½æ˜¯æœ€æ–°çš„Cookis */
+                                li.setuCookie(httpClient.getCookieStore());
 
-			} else {
-				strResult = "Error Response: " + httpResponse.getStatusLine().toString();
-			}
-		} catch (ClientProtocolException e) {
-			strResult = nullToString(e.getMessage());
-			e.printStackTrace();
-		} catch (IOException e) {
-			strResult = nullToString(e.getMessage());
-			e.printStackTrace();
-		} catch (Exception e) {
-			strResult = nullToString(e.getMessage());
-			e.printStackTrace();
-		} finally {
-			httpRequest.abort();
-			this.shutDownClient();
-		}
-		return strResult;
-	}
+                        } else {
+                                strResult = "Error Response: " + httpResponse.getStatusLine().toString();
+                        }
+                } catch (ClientProtocolException e) {
+                        strResult = nullToString(e.getMessage());
+                        e.printStackTrace();
+                } catch (IOException e) {
+                        strResult = nullToString(e.getMessage());
+                        e.printStackTrace();
+                } catch (Exception e) {
+                        strResult = nullToString(e.getMessage());
+                        e.printStackTrace();
+                } finally {
+                        httpRequest.abort();
+                        this.shutDownClient();
+                }
+                return strResult;
+        }
 
-	/**
-	 * Ìá¹©PostĞÎÊ½µÄ·ÃÎÊÍøÂçÇëÇó Post ²ÎÊıÊ¾Àı£º doPost ²ÎÊıÊ¾Àı List<NameValuePair> paramlist =
-	 * new ArrayList<NameValuePair>(); paramlist(new
-	 * BasicNameValuePair("email","xxx@123.com")); paramlist(new
-	 * BasicNameValuePair("address", "123abc"));
-	 * httpClient.doPost(url,paramlist);
-	 * 
-	 * @param url
-	 *            ÇëÇóµØÖ·
-	 * @param params
-	 *            ÇëÇó²ÎÊı
-	 * @return ·µ»Ø String jsonResult;
-	 * **/
+        /**
+         * æä¾›Postå½¢å¼çš„è®¿é—®ç½‘ç»œè¯·æ±‚ Post å‚æ•°ç¤ºä¾‹ï¼š doPost å‚æ•°ç¤ºä¾‹ List<NameValuePair> paramlist =
+         * new ArrayList<NameValuePair>(); paramlist(new
+         * BasicNameValuePair("email","xxx@123.com")); paramlist(new
+         * BasicNameValuePair("address", "123abc"));
+         * httpClient.doPost(url,paramlist);
+         * 
+         * @param url
+         *            è¯·æ±‚åœ°å€
+         * @param params
+         *            è¯·æ±‚å‚æ•°
+         * @return è¿”å› String jsonResult;
+         * **/
 
-	public String doPost(String url, List<NameValuePair> params) {
-		/* ½¨Á¢HTTPPost¶ÔÏó */
+        public String doPost(String url, List<NameValuePair> params) {
+                /* å»ºç«‹HTTPPostå¯¹è±¡ */
 
-		HttpPost httpRequest = new HttpPost(url);
-		// ÉèÖÃÇëÇóHeaderĞÅÏ¢¡¢
-		httpRequest.setHeaders(this.getHeader());
-		try {
-			/** Ìí¼ÓÇëÇó²ÎÊıµ½ÇëÇó¶ÔÏó */
-			// boolean upFileFlag = false;// ÊÇ·ñÓĞÎÄ¼şÉÏ´«
-			// MultipartEntity mpEntity = new MultipartEntity(
-			// HttpMultipartMode.BROWSER_COMPATIBLE);
-			// for (NameValuePair param : params) {
-			// ContentBody contentBody = null;
-			// File file = new File(param.getValue());
-			// if (file.isFile()) {
-			// contentBody = new FileBody(file);
-			// upFileFlag = true;
-			// } else {
-			// contentBody = new StringBody(param.getValue(), Charset
-			// .forName(HTTP.UTF_8));
-			// }
-			// mpEntity.addPart(param.getName(), contentBody);
-			// }
-			//
-			// if (upFileFlag == true) {// ÎÄ¼ş ÉÏ´«
-			// httpRequest.setEntity(mpEntity);
-			// } else {
-			/* Ìí¼ÓÇëÇó²ÎÊıµ½ÇëÇó¶ÔÏó */
-			httpRequest.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
-			// }
+                HttpPost httpRequest = new HttpPost(url);
+                // è®¾ç½®è¯·æ±‚Headerä¿¡æ¯ã€
+                httpRequest.setHeaders(this.getHeader());
+                try {
+                        /** æ·»åŠ è¯·æ±‚å‚æ•°åˆ°è¯·æ±‚å¯¹è±¡ */
+                        // boolean upFileFlag = false;// æ˜¯å¦æœ‰æ–‡ä»¶ä¸Šä¼ 
+                        // MultipartEntity mpEntity = new MultipartEntity(
+                        // HttpMultipartMode.BROWSER_COMPATIBLE);
+                        // for (NameValuePair param : params) {
+                        // ContentBody contentBody = null;
+                        // File file = new File(param.getValue());
+                        // if (file.isFile()) {
+                        // contentBody = new FileBody(file);
+                        // upFileFlag = true;
+                        // } else {
+                        // contentBody = new StringBody(param.getValue(), Charset
+                        // .forName(HTTP.UTF_8));
+                        // }
+                        // mpEntity.addPart(param.getName(), contentBody);
+                        // }
+                        //
+                        // if (upFileFlag == true) {// æ–‡ä»¶ ä¸Šä¼ 
+                        // httpRequest.setEntity(mpEntity);
+                        // } else {
+                        /* æ·»åŠ è¯·æ±‚å‚æ•°åˆ°è¯·æ±‚å¯¹è±¡ */
+                        httpRequest.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
+                        // }
 
-			/* ±£³Ö»á»°Session */
-			/* ÉèÖÃCookie */
-			MyHttpCookies li = new MyHttpCookies(context);
-			CookieStore cs = li.getuCookie();
-			/* µÚÒ»´ÎÇëÇóApp±£´æµÄCookieÎª¿Õ£¬ËùÒÔÊ²Ã´Ò²²»×ö£¬Ö»ÓĞµ±APPµÄCookie²»Îª¿ÕµÄÊ±¡£°ÑÇëÇëÇóµÄCooke·Å½øÈ¥ */
-			if (cs != null) {
-				httpClient.setCookieStore(li.getuCookie());
-			}
+                        /* ä¿æŒä¼šè¯Session */
+                        /* è®¾ç½®Cookie */
+                        MyHttpCookies li = new MyHttpCookies(context);
+                        CookieStore cs = li.getuCookie();
+                        /* ç¬¬ä¸€æ¬¡è¯·æ±‚Appä¿å­˜çš„Cookieä¸ºç©ºï¼Œæ‰€ä»¥ä»€ä¹ˆä¹Ÿä¸åšï¼Œåªæœ‰å½“APPçš„Cookieä¸ä¸ºç©ºçš„æ—¶ã€‚æŠŠè¯·è¯·æ±‚çš„Cookeæ”¾è¿›å» */
+                        if (cs != null) {
+                                httpClient.setCookieStore(li.getuCookie());
+                        }
 
-			/* ±£³Ö»á»°Session end */
-			/* ·¢ËÍÇëÇó²¢µÈ´ıÏìÓ¦ */
+                        /* ä¿æŒä¼šè¯Session end */
+                        /* å‘é€è¯·æ±‚å¹¶ç­‰å¾…å“åº” */
 
-			HttpResponse httpResponse = httpClient.execute(httpRequest);
+                        HttpResponse httpResponse = httpClient.execute(httpRequest);
 
-			/* Èô×´Ì¬ÂëÎª200 ok */
-			if (httpResponse.getStatusLine().getStatusCode() == 200) {
-				/* ¶Á·µ»ØÊı¾İ */
-				strResult = EntityUtils.toString(httpResponse.getEntity());
+                        /* è‹¥çŠ¶æ€ç ä¸º200 ok */
+                        if (httpResponse.getStatusLine().getStatusCode() == 200) {
+                                /* è¯»è¿”å›æ•°æ® */
+                                strResult = EntityUtils.toString(httpResponse.getEntity());
 
-				/* Ö´ĞĞ³É¹¦Ö®ºóµÃµ½ */
-				/* ³É¹¦Ö®ºó°Ñ·µ»Ø³É¹¦µÄCookis±£´æAPPÖĞ */
-				// ÇëÇó³É¹¦Ö®ºó£¬Ã¿´Î¶¼ÉèÖÃCookis¡£±£Ö¤Ã¿´ÎÇëÇó¶¼ÊÇ×îĞÂµÄCookis
-				li.setuCookie(httpClient.getCookieStore());
-				/* ÉèÖÃCookie end */
-			} else {
-				strResult = "Error Response: " + httpResponse.getStatusLine().toString();
-			}
-		} catch (ClientProtocolException e) {
-			strResult = "";
-			// strResult = e.getMessage().toString();
-			e.printStackTrace();
-		} catch (IOException e) {
-			strResult = "";
-			// strResult = e.getMessage().toString();
-			e.printStackTrace();
-		} catch (Exception e) {
-			strResult = "";
-			// strResult = e.getMessage().toString();
-			e.printStackTrace();
-		} finally {
-			httpRequest.abort();
-			this.shutDownClient();
-		}
-		return strResult;
-	}
+                                /* æ‰§è¡ŒæˆåŠŸä¹‹åå¾—åˆ° */
+                                /* æˆåŠŸä¹‹åæŠŠè¿”å›æˆåŠŸçš„Cookisä¿å­˜APPä¸­ */
+                                // è¯·æ±‚æˆåŠŸä¹‹åï¼Œæ¯æ¬¡éƒ½è®¾ç½®Cookisã€‚ä¿è¯æ¯æ¬¡è¯·æ±‚éƒ½æ˜¯æœ€æ–°çš„Cookis
+                                li.setuCookie(httpClient.getCookieStore());
+                                /* è®¾ç½®Cookie end */
+                        } else {
+                                strResult = "Error Response: " + httpResponse.getStatusLine().toString();
+                        }
+                } catch (ClientProtocolException e) {
+                        strResult = "";
+                        // strResult = e.getMessage().toString();
+                        e.printStackTrace();
+                } catch (IOException e) {
+                        strResult = "";
+                        // strResult = e.getMessage().toString();
+                        e.printStackTrace();
+                } catch (Exception e) {
+                        strResult = "";
+                        // strResult = e.getMessage().toString();
+                        e.printStackTrace();
+                } finally {
+                        httpRequest.abort();
+                        this.shutDownClient();
+                }
+                return strResult;
+        }
 
-	/** µÃµ½ apache http HttpClient¶ÔÏó **/
-	public DefaultHttpClient getHttpClient() {
-		/* ´´½¨ HttpParams ÒÔÓÃÀ´ÉèÖÃ HTTP ²ÎÊı */
-		httpParams = new BasicHttpParams();
-		/* ÉèÖÃÁ¬½Ó³¬Ê±ºÍ Socket ³¬Ê±£¬ÒÔ¼° Socket »º´æ´óĞ¡ */
-		HttpConnectionParams.setConnectionTimeout(httpParams, 20 * 1000);
-		HttpConnectionParams.setSoTimeout(httpParams, 20 * 1000);
-		HttpConnectionParams.setSocketBufferSize(httpParams, 8192);
-		HttpClientParams.setRedirecting(httpParams, true);
-		/*
-		 * ´´½¨Ò»¸ö HttpClient ÊµÀı //Ôö¼Ó×Ô¶¯Ñ¡ÔñÍøÂç£¬×ÔÊÊÓ¦cmwap¡¢CMNET¡¢wifi»ò3G
-		 */
-		MyHttpCookies li = new MyHttpCookies(context);
-		String proxyStr = li.getHttpProxyStr();
-		if (proxyStr != null && proxyStr.trim().length() > 0) {
-			HttpHost proxy = new HttpHost(proxyStr, 80);
-			httpClient.getParams().setParameter(ConnRouteParams.DEFAULT_PROXY, proxy);
-		}
-		/*
-		 * ×¢Òâ HttpClient httpClient = new HttpClient(); ÊÇCommons HttpClient
-		 */
-		httpClient = new DefaultHttpClient(httpParams);
-		httpClient.setHttpRequestRetryHandler(requestRetryHandler);
+        /** å¾—åˆ° apache http HttpClientå¯¹è±¡ **/
+        public DefaultHttpClient getHttpClient() {
+                /* åˆ›å»º HttpParams ä»¥ç”¨æ¥è®¾ç½® HTTP å‚æ•° */
+                httpParams = new BasicHttpParams();
+                /* è®¾ç½®è¿æ¥è¶…æ—¶å’Œ Socket è¶…æ—¶ï¼Œä»¥åŠ Socket ç¼“å­˜å¤§å° */
+                HttpConnectionParams.setConnectionTimeout(httpParams, 20 * 1000);
+                HttpConnectionParams.setSoTimeout(httpParams, 20 * 1000);
+                HttpConnectionParams.setSocketBufferSize(httpParams, 8192);
+                HttpClientParams.setRedirecting(httpParams, true);
+                /*
+                 * åˆ›å»ºä¸€ä¸ª HttpClient å®ä¾‹ //å¢åŠ è‡ªåŠ¨é€‰æ‹©ç½‘ç»œï¼Œè‡ªé€‚åº”cmwapã€CMNETã€wifiæˆ–3G
+                 */
+                MyHttpCookies li = new MyHttpCookies(context);
+                String proxyStr = li.getHttpProxyStr();
+                if (proxyStr != null && proxyStr.trim().length() > 0) {
+                        HttpHost proxy = new HttpHost(proxyStr, 80);
+                        httpClient.getParams().setParameter(ConnRouteParams.DEFAULT_PROXY, proxy);
+                }
+                /*
+                 * æ³¨æ„ HttpClient httpClient = new HttpClient(); æ˜¯Commons HttpClient
+                 */
+                httpClient = new DefaultHttpClient(httpParams);
+                httpClient.setHttpRequestRetryHandler(requestRetryHandler);
 
-		return httpClient;
+                return httpClient;
 
-	}
+        }
 
-	/** µÃµ½Éè±¸ĞÅÏ¢¡¢ÏµÍ³°æ±¾¡¢Çı¶¯ÀàĞÍ **/
-	private Header[] getHeader() {
-		/** ÇëÇóÍ·ĞÅÏ¢ end **/
-		MyHttpCookies li = new MyHttpCookies(context);
-		return li.getHttpHeader();
-	}
+        /** å¾—åˆ°è®¾å¤‡ä¿¡æ¯ã€ç³»ç»Ÿç‰ˆæœ¬ã€é©±åŠ¨ç±»å‹ **/
+        private Header[] getHeader() {
+                /** è¯·æ±‚å¤´ä¿¡æ¯ end **/
+                MyHttpCookies li = new MyHttpCookies(context);
+                return li.getHttpHeader();
+        }
 
-	/** Ïú»ÙHTTPCLient **/
-	public void shutDownClient() {
-		httpClient.getConnectionManager().shutdown();
-	}
+        /** é”€æ¯HTTPCLient **/
+        public void shutDownClient() {
+                httpClient.getConnectionManager().shutdown();
+        }
 
-	// /**
-	// * Ìá¹©GETĞÎÊ½µÄ·ÃÎÊÍøÂçÇëÇó doGet ²ÎÊıÊ¾Àı£º
-	// *
-	// * @param url
-	// * ÇëÇóµØÖ·
-	// * @return ·µ»Ø String jsonResult;
-	// *
-	// */
-	// public InputStream doDownFile(String url) {
-	// /** ´´½¨HttpGet¶ÔÏó **/
-	// HttpGet httpRequest = new HttpGet(url);
-	// httpRequest.setHeaders(this.getHeader());
-	// try {
-	// /** ±£³Ö»á»°Session **/
-	// /** ÉèÖÃCookie **/
-	// MyHttpCookies li = new MyHttpCookies(context);
-	// CookieStore cs = li.getuCookie();
-	// /** µÚÒ»´ÎÇëÇóApp±£´æµÄCookieÎª¿Õ£¬ËùÒÔÊ²Ã´Ò²²»×ö£¬Ö»ÓĞµ±APPµÄCookie²»Îª¿ÕµÄÊ±¡£°ÑÇëÇëÇóµÄCooke·Å½øÈ¥ **/
-	// if (cs != null) {
-	// httpClient.setCookieStore(li.getuCookie());
-	// }
-	// /** ±£³Ö»á»°Session end **/
-	// /* ·¢ËÍÇëÇó²¢µÈ´ıÏìÓ¦ */
-	// HttpResponse httpResponse = httpClient.execute(httpRequest);
-	// /* Èô×´Ì¬ÂëÎª200 ok */
-	// if (httpResponse.getStatusLine().getStatusCode() == 200) {
-	// /** Ö´ĞĞ³É¹¦Ö®ºóµÃµ½ **/
-	// /** ³É¹¦Ö®ºó°Ñ·µ»Ø³É¹¦µÄCookis±£´æAPPÖĞ **/
-	// // ÇëÇó³É¹¦Ö®ºó£¬Ã¿´Î¶¼ÉèÖÃCookis¡£±£Ö¤Ã¿´ÎÇëÇó¶¼ÊÇ×îĞÂµÄCookis
-	// li.setuCookie(httpClient.getCookieStore());
-	// this.contentLength = httpResponse.getEntity()
-	// .getContentLength();
-	// /* ¶Á·µ»ØÊı¾İ */
-	// return httpResponse.getEntity().getContent();
-	// } else {
-	// strResult = "Error Response: "
-	// + httpResponse.getStatusLine().toString();
-	// }
-	// } catch (ClientProtocolException e) {
-	// strResult = e.getMessage().toString();
-	// e.printStackTrace();
-	// } catch (IOException e) {
-	// strResult = e.getMessage().toString();
-	// e.printStackTrace();
-	// } catch (Exception e) {
-	// strResult = e.getMessage().toString();
-	// e.printStackTrace();
-	// } finally {
-	// // httpRequest.abort();
-	// // this.shutDownClient();
-	// }
-	// this.contentLength = 0;
-	// return null;
-	// }
+        // /**
+        // * æä¾›GETå½¢å¼çš„è®¿é—®ç½‘ç»œè¯·æ±‚ doGet å‚æ•°ç¤ºä¾‹ï¼š
+        // *
+        // * @param url
+        // * è¯·æ±‚åœ°å€
+        // * @return è¿”å› String jsonResult;
+        // *
+        // */
+        // public InputStream doDownFile(String url) {
+        // /** åˆ›å»ºHttpGetå¯¹è±¡ **/
+        // HttpGet httpRequest = new HttpGet(url);
+        // httpRequest.setHeaders(this.getHeader());
+        // try {
+        // /** ä¿æŒä¼šè¯Session **/
+        // /** è®¾ç½®Cookie **/
+        // MyHttpCookies li = new MyHttpCookies(context);
+        // CookieStore cs = li.getuCookie();
+        // /** ç¬¬ä¸€æ¬¡è¯·æ±‚Appä¿å­˜çš„Cookieä¸ºç©ºï¼Œæ‰€ä»¥ä»€ä¹ˆä¹Ÿä¸åšï¼Œåªæœ‰å½“APPçš„Cookieä¸ä¸ºç©ºçš„æ—¶ã€‚æŠŠè¯·è¯·æ±‚çš„Cookeæ”¾è¿›å» **/
+        // if (cs != null) {
+        // httpClient.setCookieStore(li.getuCookie());
+        // }
+        // /** ä¿æŒä¼šè¯Session end **/
+        // /* å‘é€è¯·æ±‚å¹¶ç­‰å¾…å“åº” */
+        // HttpResponse httpResponse = httpClient.execute(httpRequest);
+        // /* è‹¥çŠ¶æ€ç ä¸º200 ok */
+        // if (httpResponse.getStatusLine().getStatusCode() == 200) {
+        // /** æ‰§è¡ŒæˆåŠŸä¹‹åå¾—åˆ° **/
+        // /** æˆåŠŸä¹‹åæŠŠè¿”å›æˆåŠŸçš„Cookisä¿å­˜APPä¸­ **/
+        // // è¯·æ±‚æˆåŠŸä¹‹åï¼Œæ¯æ¬¡éƒ½è®¾ç½®Cookisã€‚ä¿è¯æ¯æ¬¡è¯·æ±‚éƒ½æ˜¯æœ€æ–°çš„Cookis
+        // li.setuCookie(httpClient.getCookieStore());
+        // this.contentLength = httpResponse.getEntity()
+        // .getContentLength();
+        // /* è¯»è¿”å›æ•°æ® */
+        // return httpResponse.getEntity().getContent();
+        // } else {
+        // strResult = "Error Response: "
+        // + httpResponse.getStatusLine().toString();
+        // }
+        // } catch (ClientProtocolException e) {
+        // strResult = e.getMessage().toString();
+        // e.printStackTrace();
+        // } catch (IOException e) {
+        // strResult = e.getMessage().toString();
+        // e.printStackTrace();
+        // } catch (Exception e) {
+        // strResult = e.getMessage().toString();
+        // e.printStackTrace();
+        // } finally {
+        // // httpRequest.abort();
+        // // this.shutDownClient();
+        // }
+        // this.contentLength = 0;
+        // return null;
+        // }
 
-	/**
-	 * Òì³£×Ô¶¯»Ö¸´´¦Àí, Ê¹ÓÃHttpRequestRetryHandler½Ó¿ÚÊµÏÖÇëÇóµÄÒì³£»Ö¸´
-	 */
-	private static HttpRequestRetryHandler requestRetryHandler = new HttpRequestRetryHandler() {
-		// ×Ô¶¨ÒåµÄ»Ö¸´²ßÂÔ
-		public boolean retryRequest(IOException exception, int executionCount, HttpContext context) {
-			// ÉèÖÃ»Ö¸´²ßÂÔ£¬ÔÚ·¢ÉúÒì³£Ê±ºò½«×Ô¶¯ÖØÊÔN´Î
-			if (executionCount >= 3) {
-				// Èç¹û³¬¹ı×î´óÖØÊÔ´ÎÊı£¬ÄÇÃ´¾Í²»Òª¼ÌĞøÁË
-				return false;
-			}
-			if (exception instanceof NoHttpResponseException) {
-				// Èç¹û·şÎñÆ÷¶ªµôÁËÁ¬½Ó£¬ÄÇÃ´¾ÍÖØÊÔ
-				return true;
-			}
-			if (exception instanceof SSLHandshakeException) {
-				// ²»ÒªÖØÊÔSSLÎÕÊÖÒì³£
-				return false;
-			}
-			HttpRequest request = (HttpRequest) context.getAttribute(ExecutionContext.HTTP_REQUEST);
-			boolean idempotent = (request instanceof HttpEntityEnclosingRequest);
-			if (!idempotent) {
-				// Èç¹ûÇëÇó±»ÈÏÎªÊÇÃİµÈµÄ£¬ÄÇÃ´¾ÍÖØÊÔ
-				return true;
-			}
-			return false;
-		}
-	};
+        /**
+         * å¼‚å¸¸è‡ªåŠ¨æ¢å¤å¤„ç†, ä½¿ç”¨HttpRequestRetryHandleræ¥å£å®ç°è¯·æ±‚çš„å¼‚å¸¸æ¢å¤
+         */
+        private static HttpRequestRetryHandler requestRetryHandler = new HttpRequestRetryHandler() {
+                // è‡ªå®šä¹‰çš„æ¢å¤ç­–ç•¥
+                public boolean retryRequest(IOException exception, int executionCount, HttpContext context) {
+                        // è®¾ç½®æ¢å¤ç­–ç•¥ï¼Œåœ¨å‘ç”Ÿå¼‚å¸¸æ—¶å€™å°†è‡ªåŠ¨é‡è¯•Næ¬¡
+                        if (executionCount >= 3) {
+                                // å¦‚æœè¶…è¿‡æœ€å¤§é‡è¯•æ¬¡æ•°ï¼Œé‚£ä¹ˆå°±ä¸è¦ç»§ç»­äº†
+                                return false;
+                        }
+                        if (exception instanceof NoHttpResponseException) {
+                                // å¦‚æœæœåŠ¡å™¨ä¸¢æ‰äº†è¿æ¥ï¼Œé‚£ä¹ˆå°±é‡è¯•
+                                return true;
+                        }
+                        if (exception instanceof SSLHandshakeException) {
+                                // ä¸è¦é‡è¯•SSLæ¡æ‰‹å¼‚å¸¸
+                                return false;
+                        }
+                        HttpRequest request = (HttpRequest) context.getAttribute(ExecutionContext.HTTP_REQUEST);
+                        boolean idempotent = (request instanceof HttpEntityEnclosingRequest);
+                        if (!idempotent) {
+                                // å¦‚æœè¯·æ±‚è¢«è®¤ä¸ºæ˜¯å¹‚ç­‰çš„ï¼Œé‚£ä¹ˆå°±é‡è¯•
+                                return true;
+                        }
+                        return false;
+                }
+        };
 
-	public long getContentLength() {
-		return contentLength;
-	}
+        public long getContentLength() {
+                return contentLength;
+        }
 
-	/**
-	 * ¼ÙÈçobj¶ÔÏó ÊÇnull·µ»Ø""
-	 * 
-	 * @param obj
-	 * @return
-	 */
-	public static String nullToString(Object obj) {
-		if (obj == null) {
-			return "";
-		}
-		return obj.toString();
-	}
+        /**
+         * å‡å¦‚objå¯¹è±¡ æ˜¯nullè¿”å›""
+         * 
+         * @param obj
+         * @return
+         */
+        public static String nullToString(Object obj) {
+                if (obj == null) {
+                        return "";
+                }
+                return obj.toString();
+        }
 
-	/**
-	 * ÄÚ²¿ÀàÊ¹ÓÃ±äÁ¿
-	 */
-	/* ¹«ÓÃµÄHTTPÌáÊ¾Í·ĞÅÏ¢ */
-	private static Header[] httpHeader;
-	/* HTTPÁ¬½ÓµÄÍøÂç½Úµã */
-	private static String httpProxyStr;
-	/* httpÇëÇóµÄ¹«ÓÃurl²¿·Ö */
-	public static String baseurl = "http://192.168.50.56:5056/River";
+        /**
+         * å†…éƒ¨ç±»ä½¿ç”¨å˜é‡
+         */
+        /* å…¬ç”¨çš„HTTPæç¤ºå¤´ä¿¡æ¯ */
+        private static Header[] httpHeader;
+        /* HTTPè¿æ¥çš„ç½‘ç»œèŠ‚ç‚¹ */
+        private static String httpProxyStr;
+        /* httpè¯·æ±‚çš„å…¬ç”¨urléƒ¨åˆ† */
+        public static String baseurl = "http://192.168.50.56:5056/River";
 
-	public static Header[] getHttpHeader() {
-		return httpHeader;
-	}
+        public static Header[] getHttpHeader() {
+                return httpHeader;
+        }
 
-	public static void setHttpHeader(Header[] httpHeader) {
-		HttpClientsUtils.httpHeader = httpHeader;
-	}
+        public static void setHttpHeader(Header[] httpHeader) {
+                HttpClientsUtils.httpHeader = httpHeader;
+        }
 
-	public static String getHttpProxyStr() {
-		return httpProxyStr;
-	}
+        public static String getHttpProxyStr() {
+                return httpProxyStr;
+        }
 
-	public static void setHttpProxyStr(String httpProxyStr) {
-		HttpClientsUtils.httpProxyStr = httpProxyStr;
-	}
+        public static void setHttpProxyStr(String httpProxyStr) {
+                HttpClientsUtils.httpProxyStr = httpProxyStr;
+        }
 
-	public static String getBaseurl() {
-		return baseurl;
-	}
+        public static String getBaseurl() {
+                return baseurl;
+        }
 
-	public static void setBaseurl(String baseurl) {
-		HttpClientsUtils.baseurl = baseurl;
-	}
+        public static void setBaseurl(String baseurl) {
+                HttpClientsUtils.baseurl = baseurl;
+        }
 
-	class MyHttpCookies {
-		// Ã¿Ò³Êı¾İÏÔÊ¾×î´óÊı
-		private int pageSize = 10;
-		// µ±Ç°»á»°ºóµÄcokieĞÅÏ¢
-		private CookieStore uCookie = null;
-		// ÉÏÏÂÎÄ¶ÔÏó
-		Context context;
+        class MyHttpCookies {
+                // æ¯é¡µæ•°æ®æ˜¾ç¤ºæœ€å¤§æ•°
+                private int pageSize = 10;
+                // å½“å‰ä¼šè¯åçš„cokieä¿¡æ¯
+                private CookieStore uCookie = null;
+                // ä¸Šä¸‹æ–‡å¯¹è±¡
+                Context context;
 
-		public MyHttpCookies(Context context) {
-			this.context = context;
-			// yÉèÖÃÇëÇóÍ·
-			Header[] header = { new BasicHeader("PagingRows", String.valueOf(pageSize)) };
-			httpHeader = header;
-		}
+                public MyHttpCookies(Context context) {
+                        this.context = context;
+                        // yè®¾ç½®è¯·æ±‚å¤´
+                        Header[] header = { new BasicHeader("PagingRows", String.valueOf(pageSize)) };
+                        httpHeader = header;
+                }
 
-		/**
-		 * Ôö¼Ó×Ô¶¯Ñ¡ÔñÍøÂç£¬×ÔÊÊÓ¦cmwap¡¢CMNET¡¢wifi»ò3G
-		 */
-		@SuppressWarnings("static-access")
-		public void initHTTPProxy() {
-			WifiManager wifiManager = (WifiManager) (context.getSystemService(context.WIFI_SERVICE));
-			if (!wifiManager.isWifiEnabled()) {
-				Uri uri = Uri.parse("content://telephony/carriers/preferapn"); // »ñÈ¡µ±Ç°ÕıÔÚÊ¹ÓÃµÄAPN½ÓÈëµã
-				Cursor mCursor = context.getContentResolver().query(uri, null, null, null, null);
-				if (mCursor != null) {
-					mCursor.moveToNext(); // ÓÎ±êÒÆÖÁµÚÒ»Ìõ¼ÇÂ¼£¬µ±È»Ò²Ö»ÓĞÒ»Ìõ
-					httpProxyStr = mCursor.getString(mCursor.getColumnIndex("proxy"));
-				}
-			} else {
-				httpProxyStr = null;
-			}
-		}
+                /**
+                 * å¢åŠ è‡ªåŠ¨é€‰æ‹©ç½‘ç»œï¼Œè‡ªé€‚åº”cmwapã€CMNETã€wifiæˆ–3G
+                 */
+                @SuppressWarnings("static-access")
+                public void initHTTPProxy() {
+                        WifiManager wifiManager = (WifiManager) (context.getSystemService(context.WIFI_SERVICE));
+                        if (!wifiManager.isWifiEnabled()) {
+                                Uri uri = Uri.parse("content://telephony/carriers/preferapn"); // è·å–å½“å‰æ­£åœ¨ä½¿ç”¨çš„APNæ¥å…¥ç‚¹
+                                Cursor mCursor = context.getContentResolver().query(uri, null, null, null, null);
+                                if (mCursor != null) {
+                                        mCursor.moveToNext(); // æ¸¸æ ‡ç§»è‡³ç¬¬ä¸€æ¡è®°å½•ï¼Œå½“ç„¶ä¹Ÿåªæœ‰ä¸€æ¡
+                                        httpProxyStr = mCursor.getString(mCursor.getColumnIndex("proxy"));
+                                }
+                        } else {
+                                httpProxyStr = null;
+                        }
+                }
 
-		public int getPageSize() {
-			return pageSize;
-		}
+                public int getPageSize() {
+                        return pageSize;
+                }
 
-		public void setPageSize(int pageSize) {
-			this.pageSize = pageSize;
-		}
+                public void setPageSize(int pageSize) {
+                        this.pageSize = pageSize;
+                }
 
-		public CookieStore getuCookie() {
-			return uCookie;
-		}
+                public CookieStore getuCookie() {
+                        return uCookie;
+                }
 
-		public void setuCookie(CookieStore uCookie) {
-			this.uCookie = uCookie;
-		}
+                public void setuCookie(CookieStore uCookie) {
+                        this.uCookie = uCookie;
+                }
 
-		public Header[] getHttpHeader() {
-			return httpHeader;
-		}
+                public Header[] getHttpHeader() {
+                        return httpHeader;
+                }
 
-		public String getHttpProxyStr() {
-			return httpProxyStr;
-		}
-	}
+                public String getHttpProxyStr() {
+                        return httpProxyStr;
+                }
+        }
 
 }

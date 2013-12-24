@@ -6,37 +6,37 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseDao extends SQLiteOpenHelper {
 
-	// Êı¾İ¿âÃû³Æ
-	private static final String DB_NAME = "SQLiteDemo.db";
-	// Êı¾İ¿â°æ±¾
-	private static final int DB_VERSION = 1;
+        // æ•°æ®åº“åç§°
+        private static final String DB_NAME = "SQLiteDemo.db";
+        // æ•°æ®åº“ç‰ˆæœ¬
+        private static final int DB_VERSION = 1;
 
-	// ±íÃû
-	public static final String TABLE_NAME = "demo";
+        // è¡¨å
+        public static final String TABLE_NAME = "demo";
 
-	private static final String DB_CREATE = "create table " + TABLE_NAME + " (_id integer primary key autoincrement, name varchar(20), number varchar(10))";
+        private static final String DB_CREATE = "create table " + TABLE_NAME + " (_id integer primary key autoincrement, name varchar(20), number varchar(10))";
 
-	public DatabaseDao(Context context) {
-		super(context, DB_NAME, null, DB_VERSION);
+        public DatabaseDao(Context context) {
+                super(context, DB_NAME, null, DB_VERSION);
 
-	}
+        }
 
-	/**
-	 * ´´½¨±í
-	 */
-	@Override
-	public void onCreate(SQLiteDatabase db) {
-		db.execSQL(DB_CREATE);
+        /**
+         * åˆ›å»ºè¡¨
+         */
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+                db.execSQL(DB_CREATE);
 
-	}
+        }
 
-	/**
-	 * ¸üĞÂ±í
-	 */
-	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// db.execSQL("drop table if exists " + TABLE_NAME);
-		// onCreate(db);
+        /**
+         * æ›´æ–°è¡¨
+         */
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+                // db.execSQL("drop table if exists " + TABLE_NAME);
+                // onCreate(db);
 
-	}
+        }
 }

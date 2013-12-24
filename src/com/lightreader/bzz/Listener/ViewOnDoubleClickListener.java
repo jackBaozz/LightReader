@@ -6,71 +6,71 @@ import android.os.Message;
 import android.view.View;
 
 public class ViewOnDoubleClickListener {
-	
-	public static interface OnDoubleClickListener {
-		public abstract void OnSingleClick(View view);
-		public abstract void OnDoubleClick(View view);
-	}
-	
-	private View _view = null; 
-	private OnDoubleClickListener _listener = null;
-	
-	
-	public ViewOnDoubleClickListener(View view, final OnDoubleClickListener listener){
-		this._view = view;
-		this._listener = listener;
-		registerDoubleClickListener(view,listener);
-	}
-	
-	/**
-	 * ×¢²áÒ»¸öË«»÷ÊÂ¼ş
-	 * ¸Ä×ÔÍøÓÑµÄ£¬Ôö¼Ó  Handler  ´¦Àí£¬Èç¹û²»¼ÓÕâ¸ö£¬»áÒıÆğÏß³Ì°²È«Ö®Àà´íÎó¡£<br>     
-	 */
-	public void registerDoubleClickListener(View view, final OnDoubleClickListener listener){
-	    if(listener==null) return;
-	    
-	    view.setOnClickListener(new View.OnClickListener() {
-	        private static final int DOUBLE_CLICK_TIME = 350;        //Ë«»÷¼ä¸ôÊ±¼ä350ºÁÃë
-	        private boolean waitDouble = true;  
-	         
-	        private Handler handler = new Handler(){
-	            @Override
-	            public void handleMessage(Message msg) {
-	                listener.OnSingleClick((View)msg.obj);
-	            }
-	        };
-	         
-	        //µÈ´ıË«»÷
-	        public void onClick(final View v) {
-	            if(waitDouble){
-	                waitDouble = false;        //ÓëÖ´ĞĞË«»÷ÊÂ¼ş
-	                new Thread(){
-	                    public void run() {
-	                        try {
-	                            Thread.sleep(DOUBLE_CLICK_TIME);
-	                        } catch (InterruptedException e) {
-	                            e.printStackTrace();
-	                        }    
-	                        //µÈ´ıË«»÷Ê±¼ä£¬·ñÔòÖ´ĞĞµ¥»÷ÊÂ¼ş
-	                        if(!waitDouble){
-	                            //Èç¹û¹ıÁËµÈ´ıÊ±¼ä,»¹ÊÇÔ¤Ö´ĞĞË«»÷×´Ì¬£¬ÔòÊÓÎªµ¥»÷
-	                            waitDouble = true;
-	                            //Message msg = handler.obtainMessage();  
-	                            Message msg = Message.obtain();
-	                            msg.obj = v;
-	                            handler.sendMessage(msg);
-	                        }
-	                    }
-	                }.start();
-	            }else{
-	                waitDouble = true;
-	                listener.OnDoubleClick(v);    //Ö´ĞĞË«»÷
-	            }
-	        }
-	    });
-	}
+        
+        public static interface OnDoubleClickListener {
+                public abstract void OnSingleClick(View view);
+                public abstract void OnDoubleClick(View view);
+        }
+        
+        private View _view = null; 
+        private OnDoubleClickListener _listener = null;
+        
+        
+        public ViewOnDoubleClickListener(View view, final OnDoubleClickListener listener){
+                this._view = view;
+                this._listener = listener;
+                registerDoubleClickListener(view,listener);
+        }
+        
+        /**
+         * æ³¨å†Œä¸€ä¸ªåŒå‡»äº‹ä»¶
+         * æ”¹è‡ªç½‘å‹çš„ï¼Œå¢åŠ   Handler  å¤„ç†ï¼Œå¦‚æœä¸åŠ è¿™ä¸ªï¼Œä¼šå¼•èµ·çº¿ç¨‹å®‰å…¨ä¹‹ç±»é”™è¯¯ã€‚<br>     
+         */
+        public void registerDoubleClickListener(View view, final OnDoubleClickListener listener){
+            if(listener==null) return;
+            
+            view.setOnClickListener(new View.OnClickListener() {
+                private static final int DOUBLE_CLICK_TIME = 350;        //åŒå‡»é—´éš”æ—¶é—´350æ¯«ç§’
+                private boolean waitDouble = true;  
+                 
+                private Handler handler = new Handler(){
+                    @Override
+                    public void handleMessage(Message msg) {
+                        listener.OnSingleClick((View)msg.obj);
+                    }
+                };
+                 
+                //ç­‰å¾…åŒå‡»
+                public void onClick(final View v) {
+                    if(waitDouble){
+                        waitDouble = false;        //ä¸æ‰§è¡ŒåŒå‡»äº‹ä»¶
+                        new Thread(){
+                            public void run() {
+                                try {
+                                    Thread.sleep(DOUBLE_CLICK_TIME);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }    
+                                //ç­‰å¾…åŒå‡»æ—¶é—´ï¼Œå¦åˆ™æ‰§è¡Œå•å‡»äº‹ä»¶
+                                if(!waitDouble){
+                                    //å¦‚æœè¿‡äº†ç­‰å¾…æ—¶é—´,è¿˜æ˜¯é¢„æ‰§è¡ŒåŒå‡»çŠ¶æ€ï¼Œåˆ™è§†ä¸ºå•å‡»
+                                    waitDouble = true;
+                                    //Message msg = handler.obtainMessage();  
+                                    Message msg = Message.obtain();
+                                    msg.obj = v;
+                                    handler.sendMessage(msg);
+                                }
+                            }
+                        }.start();
+                    }else{
+                        waitDouble = true;
+                        listener.OnDoubleClick(v);    //æ‰§è¡ŒåŒå‡»
+                    }
+                }
+            });
+        }
 
-	
-	
-	
+        
+        
+        
 }

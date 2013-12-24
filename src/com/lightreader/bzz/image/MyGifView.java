@@ -9,31 +9,31 @@ import android.util.AttributeSet;
 import android.view.View;
 
 public class MyGifView extends View {
-	private long movieStart;
-	private Movie movie;
+        private long movieStart;
+        private Movie movie;
 
-	// ´Ë´¦±ØĞëÖØĞ´¸Ã¹¹Ôì·½·¨
-	public MyGifView(Context context, AttributeSet attributeSet,int resourceId) {
-		super(context, attributeSet);
-		// ÒÔÎÄ¼şÁ÷£¨InputStream£©¶ÁÈ¡½øgifÍ¼Æ¬×ÊÔ´
-		movie = Movie.decodeStream(getResources().openRawResource(resourceId));
-	}
+        // æ­¤å¤„å¿…é¡»é‡å†™è¯¥æ„é€ æ–¹æ³•
+        public MyGifView(Context context, AttributeSet attributeSet,int resourceId) {
+                super(context, attributeSet);
+                // ä»¥æ–‡ä»¶æµï¼ˆInputStreamï¼‰è¯»å–è¿›gifå›¾ç‰‡èµ„æº
+                movie = Movie.decodeStream(getResources().openRawResource(resourceId));
+        }
 
-	@Override
-	protected void onDraw(Canvas canvas) {
-		long curTime = android.os.SystemClock.uptimeMillis();
-		// µÚÒ»´Î²¥·Å
-		if (movieStart == 0) {
-			movieStart = curTime;
-		}
-		if (movie != null) {
-			int duraction = movie.duration();//jifÍ¼Æ¬µÄ×Ü³¤¶Ì
-			int relTime = (int) ((curTime - movieStart) % duraction);
-			movie.setTime(relTime);
-			movie.draw(canvas, 0, 0);
-			// Ç¿ÖÆÖØ»æ
-			invalidate();
-		}
-		super.onDraw(canvas);
-	}
+        @Override
+        protected void onDraw(Canvas canvas) {
+                long curTime = android.os.SystemClock.uptimeMillis();
+                // ç¬¬ä¸€æ¬¡æ’­æ”¾
+                if (movieStart == 0) {
+                        movieStart = curTime;
+                }
+                if (movie != null) {
+                        int duraction = movie.duration();//jifå›¾ç‰‡çš„æ€»é•¿çŸ­
+                        int relTime = (int) ((curTime - movieStart) % duraction);
+                        movie.setTime(relTime);
+                        movie.draw(canvas, 0, 0);
+                        // å¼ºåˆ¶é‡ç»˜
+                        invalidate();
+                }
+                super.onDraw(canvas);
+        }
 }

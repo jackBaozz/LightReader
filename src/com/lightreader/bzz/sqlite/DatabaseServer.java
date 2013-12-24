@@ -6,100 +6,100 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 public class DatabaseServer {
-	private DatabaseDao databaseDao;
+        private DatabaseDao databaseDao;
 
-	public DatabaseServer(Context context) {
-		this.databaseDao = new DatabaseDao(context);
-	}
+        public DatabaseServer(Context context) {
+                this.databaseDao = new DatabaseDao(context);
+        }
 
-	/**
-	 * ²åÈëÊı¾İ
-	 * 
-	 * @param name
-	 *            Ãû×Ö
-	 * @param number
-	 *            Êı¾İ
-	 * @return Èç¹û³É¹¦Ôò·µ»Øtrue,·ñÔò·µ»Øfalse
-	 */
-	public boolean insert(String name, String number) {
-		// ´´½¨»ò´ò¿ªÊı¾İ¿â
-		SQLiteDatabase db = databaseDao.getWritableDatabase();
+        /**
+         * æ’å…¥æ•°æ®
+         * 
+         * @param name
+         *            åå­—
+         * @param number
+         *            æ•°æ®
+         * @return å¦‚æœæˆåŠŸåˆ™è¿”å›true,å¦åˆ™è¿”å›false
+         */
+        public boolean insert(String name, String number) {
+                // åˆ›å»ºæˆ–æ‰“å¼€æ•°æ®åº“
+                SQLiteDatabase db = databaseDao.getWritableDatabase();
 
-		ContentValues cv = new ContentValues();
-		cv.put("name", name);
-		cv.put("number", number);
-		// ²åÈëÊı¾İ,·µ»Ø²åÈëÊı¾İID
-		long id = db.insert(databaseDao.TABLE_NAME, null, cv);
-		if (id != 0) {
-			return true;
-		}
+                ContentValues cv = new ContentValues();
+                cv.put("name", name);
+                cv.put("number", number);
+                // æ’å…¥æ•°æ®,è¿”å›æ’å…¥æ•°æ®ID
+                long id = db.insert(databaseDao.TABLE_NAME, null, cv);
+                if (id != 0) {
+                        return true;
+                }
 
-		return false;
-	}
+                return false;
+        }
 
-	/**
-	 * ¸üĞÂÊı¾İ
-	 * 
-	 * @param id
-	 *            Êı¾İÁĞ_id
-	 * @param number
-	 *            ÊıÁ¿
-	 * @return Èç¹û³É¹¦Ôò·µ»Øtrue,·ñÔò·µ»Øfalse
-	 */
-	public boolean update(int id, String number) {
+        /**
+         * æ›´æ–°æ•°æ®
+         * 
+         * @param id
+         *            æ•°æ®åˆ—_id
+         * @param number
+         *            æ•°é‡
+         * @return å¦‚æœæˆåŠŸåˆ™è¿”å›true,å¦åˆ™è¿”å›false
+         */
+        public boolean update(int id, String number) {
 
-		SQLiteDatabase db = databaseDao.getWritableDatabase();
+                SQLiteDatabase db = databaseDao.getWritableDatabase();
 
-		// Android×Ô´øµÄContetValues,ÀàËÆÓÚMap,Ìá¹©ÁËput(String key, XXX value)µÄ·½·¨´æÈëÊı¾İ
-		ContentValues cv = new ContentValues();
-		cv.put("number", number);
+                // Androidè‡ªå¸¦çš„ContetValues,ç±»ä¼¼äºMap,æä¾›äº†put(String key, XXX value)çš„æ–¹æ³•å­˜å…¥æ•°æ®
+                ContentValues cv = new ContentValues();
+                cv.put("number", number);
 
-		// Í¨¹ıContentValues¸üĞÂÊı¾İ±í,·µ»Ø¸üĞÂµÄIDÖµ
-		int result = db.update(databaseDao.TABLE_NAME, cv, "_id=?", new String[] { String.valueOf(id) });
+                // é€šè¿‡ContentValuesæ›´æ–°æ•°æ®è¡¨,è¿”å›æ›´æ–°çš„IDå€¼
+                int result = db.update(databaseDao.TABLE_NAME, cv, "_id=?", new String[] { String.valueOf(id) });
 
-		if (result != 0) {
-			return true;
-		}
+                if (result != 0) {
+                        return true;
+                }
 
-		return false;
-	}
+                return false;
+        }
 
-	/**
-	 * É¾³ıÊı¾İ
-	 * 
-	 * @param id
-	 *            Êı¾İÁĞ_id
-	 * @return
-	 */
-	public boolean delete(int id) {
+        /**
+         * åˆ é™¤æ•°æ®
+         * 
+         * @param id
+         *            æ•°æ®åˆ—_id
+         * @return
+         */
+        public boolean delete(int id) {
 
-		SQLiteDatabase db = databaseDao.getWritableDatabase();
+                SQLiteDatabase db = databaseDao.getWritableDatabase();
 
-		// É¾³ıÖ¸¶¨IDÖµ
-		int result = db.delete(databaseDao.TABLE_NAME, "_id=?", new String[] { String.valueOf(id) });
-		
-		if (result != 0) {
-			return true;
-		}
+                // åˆ é™¤æŒ‡å®šIDå€¼
+                int result = db.delete(databaseDao.TABLE_NAME, "_id=?", new String[] { String.valueOf(id) });
+                
+                if (result != 0) {
+                        return true;
+                }
 
-		return false;
-	}
+                return false;
+        }
 
-	/**
-	 * ²éÑ¯Êı¾İ
-	 * 
-	 * @return ·µ»ØÊı¾İÁĞ±í
-	 */
-	public Cursor fetchAll() {
+        /**
+         * æŸ¥è¯¢æ•°æ®
+         * 
+         * @return è¿”å›æ•°æ®åˆ—è¡¨
+         */
+        public Cursor fetchAll() {
 
-		SQLiteDatabase db = databaseDao.getReadableDatabase();
-		// ²éÑ¯Êı¾İ±íÖĞËùÓĞ×Ö¶Î
-		Cursor cursor = db.query(databaseDao.TABLE_NAME, null, null, null, null, null, "_id desc");
-		//db.query("user", new String[]{"id","name"}),"id=?",new String[]{"1"},String groupBy, String having, String orderBy);
-		if (cursor != null) {
-			return cursor;
-		}
-		return null;
+                SQLiteDatabase db = databaseDao.getReadableDatabase();
+                // æŸ¥è¯¢æ•°æ®è¡¨ä¸­æ‰€æœ‰å­—æ®µ
+                Cursor cursor = db.query(databaseDao.TABLE_NAME, null, null, null, null, null, "_id desc");
+                //db.query("user", new String[]{"id","name"}),"id=?",new String[]{"1"},String groupBy, String having, String orderBy);
+                if (cursor != null) {
+                        return cursor;
+                }
+                return null;
 
-	}
+        }
 }

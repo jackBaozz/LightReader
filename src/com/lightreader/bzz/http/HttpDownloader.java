@@ -14,88 +14,88 @@ import com.lightreader.bzz.file.FileUtil;
 
 
 public class HttpDownloader {
-	private URL url = null;
+        private URL url = null;
 
-	/**
-	 * ¸ù¾İURLÏÂÔØÎÄ¼ş£¬Ç°ÌáÊÇÕâ¸öÎÄ¼şµ±ÖĞµÄÄÚÈİÊÇÎÄ±¾£¬º¯ÊıµÄ·µ»ØÖµ¾ÍÊÇÎÄ¼şµ±ÖĞµÄÄÚÈİ
-	 * 1.´´½¨Ò»¸öURL¶ÔÏó
-	 * 2.Í¨¹ıURL¶ÔÏó£¬´´½¨Ò»¸öHttpURLConnection¶ÔÏó
-	 * 3.µÃµ½InputStram
-	 * 4.´ÓInputStreamµ±ÖĞ¶ÁÈ¡Êı¾İ
-	 * @param urlStr
-	 * @return
-	 */
-	public String download(String urlStr) {
-		StringBuffer sb = new StringBuffer();
-		String line = null;
-		BufferedReader buffer = null;
-		try {
-			// ´´½¨Ò»¸öURL¶ÔÏó
-			url = new URL(urlStr);
-			// ´´½¨Ò»¸öHttpÁ¬½Ó
-			HttpURLConnection urlConn = (HttpURLConnection) url
-					.openConnection();
-			// Ê¹ÓÃIOÁ÷¶ÁÈ¡Êı¾İ
-			buffer = new BufferedReader(new InputStreamReader(urlConn
-					.getInputStream()));
-			while ((line = buffer.readLine()) != null) {
-				sb.append(line);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				buffer.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return sb.toString();
-	}
+        /**
+         * æ ¹æ®URLä¸‹è½½æ–‡ä»¶ï¼Œå‰ææ˜¯è¿™ä¸ªæ–‡ä»¶å½“ä¸­çš„å†…å®¹æ˜¯æ–‡æœ¬ï¼Œå‡½æ•°çš„è¿”å›å€¼å°±æ˜¯æ–‡ä»¶å½“ä¸­çš„å†…å®¹
+         * 1.åˆ›å»ºä¸€ä¸ªURLå¯¹è±¡
+         * 2.é€šè¿‡URLå¯¹è±¡ï¼Œåˆ›å»ºä¸€ä¸ªHttpURLConnectionå¯¹è±¡
+         * 3.å¾—åˆ°InputStram
+         * 4.ä»InputStreamå½“ä¸­è¯»å–æ•°æ®
+         * @param urlStr
+         * @return
+         */
+        public String download(String urlStr) {
+                StringBuffer sb = new StringBuffer();
+                String line = null;
+                BufferedReader buffer = null;
+                try {
+                        // åˆ›å»ºä¸€ä¸ªURLå¯¹è±¡
+                        url = new URL(urlStr);
+                        // åˆ›å»ºä¸€ä¸ªHttpè¿æ¥
+                        HttpURLConnection urlConn = (HttpURLConnection) url
+                                        .openConnection();
+                        // ä½¿ç”¨IOæµè¯»å–æ•°æ®
+                        buffer = new BufferedReader(new InputStreamReader(urlConn
+                                        .getInputStream()));
+                        while ((line = buffer.readLine()) != null) {
+                                sb.append(line);
+                        }
+                } catch (Exception e) {
+                        e.printStackTrace();
+                } finally {
+                        try {
+                                buffer.close();
+                        } catch (Exception e) {
+                                e.printStackTrace();
+                        }
+                }
+                return sb.toString();
+        }
 
-	/**
-	 * ¸Ãº¯Êı·µ»ØÕûĞÎ -1£º´ú±íÏÂÔØÎÄ¼ş³ö´í 0£º´ú±íÏÂÔØÎÄ¼ş³É¹¦ 1£º´ú±íÎÄ¼şÒÑ¾­´æÔÚ
-	 */
-	public int downFile(String urlStr, String path, String fileName) {
-		InputStream inputStream = null;
-		try {
-			FileUtil fileUtils = new FileUtil();
-			
-			if (fileUtils.isFileExist(path + fileName)) {
-				return 1;
-			} else {
-				inputStream = getInputStreamFromUrl(urlStr);
-				File resultFile = fileUtils.write2SDFromInput(path,fileName, inputStream);
-				if (resultFile == null) {
-					return -1;
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return -1;
-		} finally {
-			try {
-				inputStream.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return 0;
-	}
+        /**
+         * è¯¥å‡½æ•°è¿”å›æ•´å½¢ -1ï¼šä»£è¡¨ä¸‹è½½æ–‡ä»¶å‡ºé”™ 0ï¼šä»£è¡¨ä¸‹è½½æ–‡ä»¶æˆåŠŸ 1ï¼šä»£è¡¨æ–‡ä»¶å·²ç»å­˜åœ¨
+         */
+        public int downFile(String urlStr, String path, String fileName) {
+                InputStream inputStream = null;
+                try {
+                        FileUtil fileUtils = new FileUtil();
+                        
+                        if (fileUtils.isFileExist(path + fileName)) {
+                                return 1;
+                        } else {
+                                inputStream = getInputStreamFromUrl(urlStr);
+                                File resultFile = fileUtils.write2SDFromInput(path,fileName, inputStream);
+                                if (resultFile == null) {
+                                        return -1;
+                                }
+                        }
+                } catch (Exception e) {
+                        e.printStackTrace();
+                        return -1;
+                } finally {
+                        try {
+                                inputStream.close();
+                        } catch (Exception e) {
+                                e.printStackTrace();
+                        }
+                }
+                return 0;
+        }
 
-	/**
-	 * ¸ù¾İURLµÃµ½ÊäÈëÁ÷
-	 * 
-	 * @param urlStr
-	 * @return
-	 * @throws MalformedURLException
-	 * @throws IOException
-	 */
-	public InputStream getInputStreamFromUrl(String urlStr)
-			throws MalformedURLException, IOException {
-		url = new URL(urlStr);
-		HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
-		InputStream inputStream = urlConn.getInputStream();
-		return inputStream;
-	}
+        /**
+         * æ ¹æ®URLå¾—åˆ°è¾“å…¥æµ
+         * 
+         * @param urlStr
+         * @return
+         * @throws MalformedURLException
+         * @throws IOException
+         */
+        public InputStream getInputStreamFromUrl(String urlStr)
+                        throws MalformedURLException, IOException {
+                url = new URL(urlStr);
+                HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
+                InputStream inputStream = urlConn.getInputStream();
+                return inputStream;
+        }
 }

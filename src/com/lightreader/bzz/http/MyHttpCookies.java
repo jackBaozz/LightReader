@@ -10,72 +10,72 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 
 /**
- * httpÇëÇóµÄ»º´æºÍÒ»Ğ©¹«ÓÃµÄ²ÎÊı
+ * httpè¯·æ±‚çš„ç¼“å­˜å’Œä¸€äº›å…¬ç”¨çš„å‚æ•°
  * 
  * @author helijun
  * 
  */
 public class MyHttpCookies {
-	/** Ã¿Ò³Êı¾İÏÔÊ¾×î´óÊı */
-	private static int pageSize = 10;
-	/** µ±Ç°»á»°ºóµÄcokieĞÅÏ¢ */
-	private static CookieStore uCookie = null;
-	/** ¹«ÓÃµÄHTTPÌáÊ¾Í·ĞÅÏ¢ */
-	private static Header[] httpHeader;
-	/** HTTPÁ¬½ÓµÄÍøÂç½Úµã */
-	private static String httpProxyStr;
-	/** httpÇëÇóµÄ¹«ÓÃurl²¿·Ö **/
-	public static String baseurl = "http://192.168.50.56:5056/River";
-	/** ÉÏÏÂÎÄ¶ÔÏó **/
-	Context context;
+        /** æ¯é¡µæ•°æ®æ˜¾ç¤ºæœ€å¤§æ•° */
+        private static int pageSize = 10;
+        /** å½“å‰ä¼šè¯åçš„cokieä¿¡æ¯ */
+        private static CookieStore uCookie = null;
+        /** å…¬ç”¨çš„HTTPæç¤ºå¤´ä¿¡æ¯ */
+        private static Header[] httpHeader;
+        /** HTTPè¿æ¥çš„ç½‘ç»œèŠ‚ç‚¹ */
+        private static String httpProxyStr;
+        /** httpè¯·æ±‚çš„å…¬ç”¨urléƒ¨åˆ† **/
+        public static String baseurl = "http://192.168.50.56:5056/River";
+        /** ä¸Šä¸‹æ–‡å¯¹è±¡ **/
+        Context context;
 
-	public MyHttpCookies(Context context) {
-		this.context = context;
-		/** yÉèÖÃÇëÇóÍ· **/
-		/** yÉèÖÃÇëÇóÍ· **/
-		Header[] header = { new BasicHeader("PagingRows", String.valueOf(pageSize)) };
-		httpHeader = header;
-	}
+        public MyHttpCookies(Context context) {
+                this.context = context;
+                /** yè®¾ç½®è¯·æ±‚å¤´ **/
+                /** yè®¾ç½®è¯·æ±‚å¤´ **/
+                Header[] header = { new BasicHeader("PagingRows", String.valueOf(pageSize)) };
+                httpHeader = header;
+        }
 
-	/**
-	 * Ôö¼Ó×Ô¶¯Ñ¡ÔñÍøÂç£¬×ÔÊÊÓ¦cmwap¡¢CMNET¡¢wifi»ò3G
-	 */
-	@SuppressWarnings("static-access")
-	public void initHTTPProxy() {
-		WifiManager wifiManager = (WifiManager) (context.getSystemService(context.WIFI_SERVICE));
-		if (!wifiManager.isWifiEnabled()) {
-			Uri uri = Uri.parse("content://telephony/carriers/preferapn"); // »ñÈ¡µ±Ç°ÕıÔÚÊ¹ÓÃµÄAPN½ÓÈëµã
-			Cursor mCursor = context.getContentResolver().query(uri, null, null, null, null);
-			if (mCursor != null) {
-				mCursor.moveToNext(); // ÓÎ±êÒÆÖÁµÚÒ»Ìõ¼ÇÂ¼£¬µ±È»Ò²Ö»ÓĞÒ»Ìõ
-				httpProxyStr = mCursor.getString(mCursor.getColumnIndex("proxy"));
-			}
-		} else {
-			httpProxyStr = null;
-		}
-	}
+        /**
+         * å¢åŠ è‡ªåŠ¨é€‰æ‹©ç½‘ç»œï¼Œè‡ªé€‚åº”cmwapã€CMNETã€wifiæˆ–3G
+         */
+        @SuppressWarnings("static-access")
+        public void initHTTPProxy() {
+                WifiManager wifiManager = (WifiManager) (context.getSystemService(context.WIFI_SERVICE));
+                if (!wifiManager.isWifiEnabled()) {
+                        Uri uri = Uri.parse("content://telephony/carriers/preferapn"); // è·å–å½“å‰æ­£åœ¨ä½¿ç”¨çš„APNæ¥å…¥ç‚¹
+                        Cursor mCursor = context.getContentResolver().query(uri, null, null, null, null);
+                        if (mCursor != null) {
+                                mCursor.moveToNext(); // æ¸¸æ ‡ç§»è‡³ç¬¬ä¸€æ¡è®°å½•ï¼Œå½“ç„¶ä¹Ÿåªæœ‰ä¸€æ¡
+                                httpProxyStr = mCursor.getString(mCursor.getColumnIndex("proxy"));
+                        }
+                } else {
+                        httpProxyStr = null;
+                }
+        }
 
-	public int getPageSize() {
-		return pageSize;
-	}
+        public int getPageSize() {
+                return pageSize;
+        }
 
-	public void setPageSize(int pageSize) {
-		this.pageSize = pageSize;
-	}
+        public void setPageSize(int pageSize) {
+                this.pageSize = pageSize;
+        }
 
-	public CookieStore getuCookie() {
-		return uCookie;
-	}
+        public CookieStore getuCookie() {
+                return uCookie;
+        }
 
-	public void setuCookie(CookieStore uCookie) {
-		this.uCookie = uCookie;
-	}
+        public void setuCookie(CookieStore uCookie) {
+                this.uCookie = uCookie;
+        }
 
-	public Header[] getHttpHeader() {
-		return httpHeader;
-	}
+        public Header[] getHttpHeader() {
+                return httpHeader;
+        }
 
-	public String getHttpProxyStr() {
-		return httpProxyStr;
-	}
+        public String getHttpProxyStr() {
+                return httpProxyStr;
+        }
 }
