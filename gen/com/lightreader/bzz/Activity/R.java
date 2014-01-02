@@ -8,6 +8,17 @@
 package com.lightreader.bzz.Activity;
 
 public final class R {
+    public static final class anim {
+        public static final int fadein=0x7f040000;
+        public static final int fadeout=0x7f040001;
+    }
+    public static final class array {
+        public static final int audioFile=0x7f060001;
+        public static final int imageFile=0x7f060000;
+        public static final int packageFile=0x7f060002;
+        public static final int txtFile=0x7f060004;
+        public static final int webFile=0x7f060003;
+    }
     public static final class attr {
     }
     public static final class dimen {
@@ -17,81 +28,131 @@ public final class R {
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
          */
-        public static final int activity_horizontal_margin=0x7f040000;
-        public static final int activity_vertical_margin=0x7f040001;
+        public static final int activity_horizontal_margin=0x7f050000;
+        public static final int activity_vertical_margin=0x7f050001;
     }
     public static final class drawable {
-        public static final int ad_main_load=0x7f020000;
-        public static final int bt_soundeffect_equallizerunit_bass_hl=0x7f020001;
-        public static final int bt_soundeffect_equallizerunit_classical_hl=0x7f020002;
-        public static final int bt_soundeffect_equallizerunit_dance_hl=0x7f020003;
-        public static final int bt_soundeffect_equallizerunit_folk_hl=0x7f020004;
-        public static final int bt_soundeffect_equallizerunit_highpitch_hl=0x7f020005;
-        public static final int bt_soundeffect_equallizerunit_intelligence_hl=0x7f020006;
-        public static final int bt_soundeffect_equallizerunit_jazz_hl=0x7f020007;
-        public static final int bt_soundeffect_equallizerunit_pop_hl=0x7f020008;
-        public static final int bt_soundeffect_equallizerunit_rock_hl=0x7f020009;
-        public static final int bt_soundeffect_equallizerunit_voice_hl=0x7f02000a;
-        public static final int eq_custom=0x7f02000b;
-        public static final int eq_dance=0x7f02000c;
-        public static final int eq_pop=0x7f02000d;
-        public static final int eq_rock=0x7f02000e;
-        public static final int eq_treble=0x7f02000f;
-        public static final int ic_launcher=0x7f020010;
+        public static final int aatheme=0x7f020000;
+        public static final int ad_main_load=0x7f020001;
+        public static final int audio=0x7f020002;
+        public static final int background_layout=0x7f020003;
+        public static final int big_image_1=0x7f020004;
+        public static final int book_style=0x7f020005;
+        public static final int bookfav=0x7f020006;
+        public static final int bookopen=0x7f020007;
+        public static final int books=0x7f020008;
+        public static final int bt_soundeffect_equallizerunit_bass_hl=0x7f020009;
+        public static final int bt_soundeffect_equallizerunit_classical_hl=0x7f02000a;
+        public static final int bt_soundeffect_equallizerunit_dance_hl=0x7f02000b;
+        public static final int bt_soundeffect_equallizerunit_folk_hl=0x7f02000c;
+        public static final int bt_soundeffect_equallizerunit_highpitch_hl=0x7f02000d;
+        public static final int bt_soundeffect_equallizerunit_intelligence_hl=0x7f02000e;
+        public static final int bt_soundeffect_equallizerunit_jazz_hl=0x7f02000f;
+        public static final int bt_soundeffect_equallizerunit_pop_hl=0x7f020010;
+        public static final int bt_soundeffect_equallizerunit_rock_hl=0x7f020011;
+        public static final int bt_soundeffect_equallizerunit_voice_hl=0x7f020012;
+        public static final int buttom_big_disable=0x7f020013;
+        public static final int eq_custom=0x7f020014;
+        public static final int eq_dance=0x7f020015;
+        public static final int eq_pop=0x7f020016;
+        public static final int eq_rock=0x7f020017;
+        public static final int eq_treble=0x7f020018;
+        public static final int fav=0x7f020019;
+        public static final int folder=0x7f02001a;
+        public static final int goroot=0x7f02001b;
+        public static final int home_btn_bg_d=0x7f02001c;
+        public static final int home_btn_bg_n=0x7f02001d;
+        public static final int home_btn_bg_s=0x7f02001e;
+        public static final int ic_launcher=0x7f02001f;
+        public static final int icon=0x7f020020;
+        public static final int image=0x7f020021;
+        public static final int packed=0x7f020022;
+        public static final int text=0x7f020023;
+        public static final int text_back=0x7f020024;
+        public static final int text_pre=0x7f020025;
+        public static final int toolbar_backgroun=0x7f020026;
+        public static final int tx_green_wall=0x7f020027;
+        public static final int uponelevel=0x7f020028;
+        public static final int webtext=0x7f020029;
     }
     public static final class id {
-        public static final int action_settings=0x7f08001b;
-        public static final int btn1=0x7f080011;
-        public static final int btn_endService=0x7f080017;
-        public static final int btn_getServiceData=0x7f080016;
-        public static final int btn_startService=0x7f080015;
-        public static final int gz_handleringListView=0x7f08000a;
-        public static final int gz_unhandler_ListView=0x7f080014;
-        public static final int gzbtn_handled_refresh=0x7f08000c;
-        public static final int gzbtn_handlering_refresh=0x7f080008;
-        public static final int gzbtn_unhandler_refresh=0x7f080013;
-        public static final int gzgzbtn_handled_ListView=0x7f08000e;
-        public static final int hometabs=0x7f080018;
-        public static final int main_bottom_layout_id=0x7f08000f;
-        public static final int main_grid_localBooks=0x7f080006;
-        public static final int main_middle_layout_id=0x7f080004;
-        public static final int main_top_layout_id=0x7f080000;
-        public static final int tabhost=0x7f080019;
-        public static final int textView1=0x7f080001;
-        public static final int textView2=0x7f080002;
-        public static final int textView3=0x7f080003;
-        public static final int textView33=0x7f080010;
-        public static final int unhanlderLayout=0x7f080012;
-        public static final int unhanlderLayout1=0x7f080005;
-        public static final int unhanlderLayout2=0x7f080007;
-        public static final int unhanlderLayout3=0x7f08000b;
-        public static final int view1=0x7f08001a;
-        public static final int view2=0x7f080009;
-        public static final int view3=0x7f08000d;
+        public static final int Read_list=0x7f0a001c;
+        public static final int action_settings=0x7f0a0023;
+        public static final int back=0x7f0a0018;
+        public static final int btn1=0x7f0a0011;
+        public static final int btn_endService=0x7f0a001f;
+        public static final int btn_getServiceData=0x7f0a001e;
+        public static final int btn_startService=0x7f0a001d;
+        public static final int gb2312=0x7f0a0025;
+        public static final int gz_handleringListView=0x7f0a000a;
+        public static final int gz_unhandler_ListView=0x7f0a0014;
+        public static final int gzbtn_handled_refresh=0x7f0a000c;
+        public static final int gzbtn_handlering_refresh=0x7f0a0008;
+        public static final int gzbtn_unhandler_refresh=0x7f0a0013;
+        public static final int gzgzbtn_handled_ListView=0x7f0a000e;
+        public static final int home=0x7f0a0019;
+        public static final int hometabs=0x7f0a0020;
+        public static final int item_imageView=0x7f0a0015;
+        public static final int ivFileIcon=0x7f0a001a;
+        public static final int main_bottom_layout_id=0x7f0a000f;
+        public static final int main_grid_localBooks=0x7f0a0006;
+        public static final int main_middle_layout_id=0x7f0a0004;
+        public static final int main_top_layout_id=0x7f0a0000;
+        public static final int tabhost=0x7f0a0021;
+        public static final int textView1=0x7f0a0001;
+        public static final int textView2=0x7f0a0002;
+        public static final int textView3=0x7f0a0003;
+        public static final int textView33=0x7f0a0010;
+        public static final int tvFileName=0x7f0a001b;
+        public static final int tvTitle=0x7f0a0017;
+        public static final int unhanlderLayout=0x7f0a0012;
+        public static final int unhanlderLayout1=0x7f0a0005;
+        public static final int unhanlderLayout2=0x7f0a0007;
+        public static final int unhanlderLayout3=0x7f0a000b;
+        public static final int utf8=0x7f0a0024;
+        public static final int view1=0x7f0a0022;
+        public static final int view2=0x7f0a0009;
+        public static final int view3=0x7f0a000d;
+        public static final int view_contents=0x7f0a0016;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
         public static final int activity_main_temp=0x7f030001;
-        public static final int start=0x7f030002;
-        public static final int temp=0x7f030003;
-        public static final int temp2=0x7f030004;
-        public static final int temp3=0x7f030005;
+        public static final int books_item=0x7f030002;
+        public static final int filebrowser=0x7f030003;
+        public static final int filelist=0x7f030004;
+        public static final int item=0x7f030005;
+        public static final int read_list=0x7f030006;
+        public static final int start=0x7f030007;
+        public static final int temp=0x7f030008;
+        public static final int temp2=0x7f030009;
+        public static final int temp3=0x7f03000a;
     }
     public static final class menu {
-        public static final int main=0x7f070000;
+        public static final int main=0x7f090000;
+        public static final int menu=0x7f090001;
     }
     public static final class string {
-        public static final int a=0x7f050003;
-        public static final int action_settings_cn=0x7f050001;
-        public static final int action_settings_eng=0x7f050009;
-        public static final int app_name_cn=0x7f050000;
-        public static final int app_name_eng=0x7f050008;
-        public static final int b=0x7f050004;
-        public static final int c=0x7f050005;
-        public static final int d=0x7f050006;
-        public static final int e=0x7f050007;
-        public static final int hello_world_cn=0x7f050002;
-        public static final int hello_world_eng=0x7f05000a;
+        public static final int a=0x7f070004;
+        public static final int about=0x7f07000e;
+        public static final int aboutInfo=0x7f07000d;
+        public static final int aboutOK=0x7f07000f;
+        public static final int aboutTitle=0x7f07000c;
+        public static final int action_settings_cn=0x7f070001;
+        public static final int action_settings_eng=0x7f070011;
+        public static final int app_name_cn=0x7f070000;
+        public static final int app_name_eng=0x7f070010;
+        public static final int b=0x7f070005;
+        public static final int c=0x7f070006;
+        public static final int code_gb2312=0x7f07000a;
+        public static final int code_utf8=0x7f070009;
+        public static final int d=0x7f070007;
+        public static final int e=0x7f070008;
+        public static final int hello_world_cn=0x7f070002;
+        public static final int hello_world_eng=0x7f070012;
+        public static final int imageView_default_cn=0x7f070003;
+        public static final int imageView_default_eng=0x7f070013;
+        public static final int swich_code=0x7f07000b;
     }
     public static final class style {
         /** 
@@ -115,10 +176,11 @@ public final class R {
     
  API 14 theme customizations can go here. 
          */
-        public static final int AppBaseTheme=0x7f060000;
+        public static final int AppBaseTheme=0x7f080000;
         /**  Application theme. 
  All customizations that are NOT specific to a particular API-level can go here. 
          */
-        public static final int AppTheme=0x7f060001;
+        public static final int AppTheme=0x7f080001;
+        public static final int progressBarHorizontal_color=0x7f080002;
     }
 }

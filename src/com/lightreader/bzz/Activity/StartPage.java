@@ -15,7 +15,7 @@ public class StartPage extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
         Handler handler = new Handler();
-        handler.postDelayed(new loadhandler(), 3000);//延迟3秒后跳转到其他Activity
+        handler.postDelayed(new loadhandler(), 500);//延迟3秒后跳转到其他Activity
     }
 	
 	

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="imageFile">
+    	<item>.jpg</item>
+    	<item>.jpeg</item>
+    	<item>.png</item>
+    	<item>.gif</item>
+    </string-array>
+    <string-array name="audioFile">
+    	<item>.mp3</item>
+    	<item>.wav</item>
+    	<item>.midi</item>
+    	<item>.acc</item>
+    </string-array>
+    <string-array name="packageFile">
+    	<item>.rar</item>
+    	<item>.zip</item>
+    	<item>.jar</item>
+    	<item>.apk</item>
+    </string-array>
+    <string-array name="webFile">
+    	<item>.html</item>
+    	<item>.htm</item>
+    	<item>.php</item>
+    	<item>.jsp</item>
+    </string-array>
+    <string-array name="txtFile">
+    	<item>.txt</item>
+    </string-array>
+</resources>

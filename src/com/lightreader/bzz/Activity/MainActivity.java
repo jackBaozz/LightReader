@@ -1,14 +1,16 @@
 package com.lightreader.bzz.Activity;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapRegionDecoder;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,19 +22,23 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.SimpleAdapter;
+import android.widget.SimpleAdapter.ViewBinder;
 import android.widget.TabHost;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.lightreader.bzz.image.ImageUtils;
 import com.lightreader.bzz.image.MyGifView;
 
+
+@SuppressLint("NewApi")
 public class MainActivity extends Activity {
 	private LayoutInflater inflater;
 	private TextView textView;
@@ -46,7 +52,10 @@ public class MainActivity extends Activity {
 	private GridView mainGridLocalBooks = null; //本地书库的布局
 	private String[] item = { "唐僧", "孙悟空 ", "猪八戒", "沙和尚" };//数据个数,本地书本个数
 	private SimpleAdapter adapter;//书本适配器
-	
+	private BitmapRegionDecoder bitmapRegionDecoder;
+    private Bitmap bookPlusBitmap;
+    private int listItemsLength = 0;
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		//this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);//全屏
@@ -111,7 +120,16 @@ public class MainActivity extends Activity {
 		types.add(BitmapFactory.decodeResource(getResources(),R.drawable.bt_soundeffect_equallizerunit_voice_hl));
 		//mainGridLocalBooks.setAdapter(new MyMain2GridAdapter(inflater,types,screenWidth,screenHeight));
 		
-		// 创建一个ArrayList列表,内部存的是HashMap列表
+		
+		//显示本地书库那个 "+"号的书籍(添加新书)
+		try {
+		    InputStream is = getResources().openRawResource(R.drawable.big_image_1);//获取原始数据的大图
+		    bitmapRegionDecoder = BitmapRegionDecoder.newInstance(is, true);
+		    bookPlusBitmap = ImageUtils.getBitmapFromImageRegion(bitmapRegionDecoder, 4, 5, 4, 4);
+		} catch (IOException e) {
+		    e.printStackTrace();
+		}
+		// 本地所有书籍---图片
 	    ArrayList<HashMap<String, Object>> listItems = new ArrayList<HashMap<String, Object>>();
 		// 将数组信息分别存入ArrayList中
 		int length = item.length;
@@ -121,17 +139,45 @@ public class MainActivity extends Activity {
 			map.put("image", R.drawable.book_style);
 			listItems.add(map);
 		}
+		HashMap<String, Object> mapPlus = new HashMap<String, Object>();
+		mapPlus.put("image", bookPlusBitmap);
+		listItems.add(mapPlus);//添加图书的那个图片,添加到图片队列末尾
+		listItemsLength = listItems.size();//本地所有书籍---图片的个数
+		
 		// 设定一个适配器
 		adapter = new SimpleAdapter(this, listItems, R.layout.books_item, new String[] { "image" }, new int[] { R.id.item_imageView});
+		//adapter可以绑定Bitmap数据
+		adapter.setViewBinder(new ViewBinder(){  
+	        @Override 
+			public boolean setViewValue(View view, Object data, String textRepresentation) {
+				if ((view instanceof ImageView) & (data instanceof Bitmap)) {
+					ImageView iv = (ImageView) view;
+					Bitmap bm = (Bitmap) data;
+					iv.setImageBitmap(bm);
+					return true;
+				}
+				return false;
+			}
+	    });  
+	    //this.setListAdapter(adapter);
+		
+		
 		// 对GridView进行适配
 		mainGridLocalBooks.setAdapter(adapter);
 		// 设置GridView的监听器
 		mainGridLocalBooks.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+				if(listItemsLength ==  position ){
+					//点击了最后一张图片 "+"添加本地目录,跳转到另一个intent来选择本地文件
+					Intent intent = new Intent(MainActivity.this,FileBrowserActivity.class);//  
+					MainActivity.this.startActivity(intent);//启动另一个 Activity
+				}
 				String str = "这次妖精把" + item[position] + "抓住了!";
 			}
 		});
+		
+		
 		
 		
 	}
