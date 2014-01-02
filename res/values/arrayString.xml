@@ -5,6 +5,7 @@
     	<item>.jpeg</item>
     	<item>.png</item>
     	<item>.gif</item>
+    	<item>.bmp</item>
     </string-array>
     <string-array name="audioFile">
     	<item>.mp3</item>
@@ -17,6 +18,10 @@
     	<item>.zip</item>
     	<item>.jar</item>
     	<item>.apk</item>
+    	<item>.7z</item>
+    	<item>.tar</item>
+    	<item>.tar.bz2</item>
+    	<item>.tar.gz</item>
     </string-array>
     <string-array name="webFile">
     	<item>.html</item>
@@ -26,5 +31,11 @@
     </string-array>
     <string-array name="txtFile">
     	<item>.txt</item>
+    </string-array>
+    <string-array name="pdfFile">
+    	<item>.pdf</item>
+    </string-array>
+    <string-array name="epubFile">
+    	<item>.epub</item>
     </string-array>
 </resources>

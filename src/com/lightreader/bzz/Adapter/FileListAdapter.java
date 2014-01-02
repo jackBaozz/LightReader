@@ -15,39 +15,51 @@ import com.lightreader.bzz.pojo.FileItem;
 
 public class FileListAdapter extends BaseAdapter {
 
-	ArrayList<FileItem> items;
+	ArrayList<FileItem> itemsList;
 	LayoutInflater inflater;
 
 	class ViewHolder {
-		ImageView ivFileIcon;
-		TextView tvFileName;
+		ImageView imageViewFileIcon;
+		TextView textViewFileName;
+		public ImageView getImageViewFileIcon() {
+			return imageViewFileIcon;
+		}
+		public void setImageViewFileIcon(ImageView imageViewFileIcon) {
+			this.imageViewFileIcon = imageViewFileIcon;
+		}
+		public TextView getTextViewFileName() {
+			return textViewFileName;
+		}
+		public void setTextViewFileName(TextView textViewFileName) {
+			this.textViewFileName = textViewFileName;
+		}
 	}
 	
-	public FileListAdapter(Context context,ArrayList<FileItem> items){
+	public FileListAdapter(Context context,ArrayList<FileItem> itemsList){
 		super();
 		this.inflater = LayoutInflater.from(context);
-		this.items = items;
+		this.itemsList = itemsList;
 	}
 	
 	public FileListAdapter(LayoutInflater inflater, ArrayList<FileItem> items) {
 		super();
-		this.items = items;
+		this.itemsList = items;
 		this.inflater = inflater;
 	}
 
 	public void dataChanged(ArrayList<FileItem> items) {
-		this.items = items;
+		this.itemsList = items;
 		this.notifyDataSetChanged();// 通知数据改变
 	}
 
 	@Override
 	public int getCount() {
-		return items.size();
+		return itemsList.size();
 	}
 
 	@Override
 	public Object getItem(int position) {
-		return items.get(position);
+		return itemsList.get(position);
 	}
 
 	@Override
@@ -61,16 +73,16 @@ public class FileListAdapter extends BaseAdapter {
 		if (view == null) {
 			view = inflater.inflate(R.layout.item, null);
 			holder = new ViewHolder();
-			holder.ivFileIcon = (ImageView) view.findViewById(R.id.ivFileIcon);
-			holder.tvFileName = (TextView) view.findViewById(R.id.tvFileName);
-			view.setTag(holder);
+			holder.setImageViewFileIcon((ImageView) view.findViewById(R.id.ivFileIcon));
+			holder.setTextViewFileName((TextView) view.findViewById(R.id.tvFileName));
+			view.setTag(holder);//给每一个view设置一个标签
 		} else {
 			holder = (ViewHolder) view.getTag();
 		}
-		FileItem item = items.get(position);
-
-		holder.ivFileIcon.setImageDrawable(item.getFileIcon());
-		holder.tvFileName.setText(item.getFileName());
+		FileItem fileItem = itemsList.get(position);
+	
+		holder.getImageViewFileIcon().setImageDrawable(fileItem.getFileIcon());
+		holder.getTextViewFileName().setText(fileItem.getFileName());
 		return view;
 	}
 

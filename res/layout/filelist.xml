@@ -3,41 +3,47 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical" >
-	<TextView
-	    android:id="@+id/tvTitle"
-	    android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-	    />
-    <ListView
-        android:id="@id/android:list"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_weight="1"
-        android:drawSelectorOnTop="true" />
-
+	
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:gravity="bottom"
+        android:gravity="top"
         android:orientation="horizontal" >
-
-
-
         <Button
             android:id="@+id/back"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="2.0"
-            android:text="返回上一级"
-             />
+            android:text="返回上一级" />
 
         <Button
             android:id="@+id/home"
-            android:text="sdcard目录"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="2.0"
-             />
+            android:text="sdcard目录" />
     </LinearLayout>
+    
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="3dp"
+        android:textSize="15sp"
+        android:textColor="#ffffff"
+		android:background="#4281f4"
+        />
+
+    <ListView
+        android:id="@id/android:list"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="4"
+        android:dividerHeight="1dp"
+        android:paddingLeft="3dp"
+        android:paddingRight="3dp"
+        android:drawSelectorOnTop="false" />
+
+    
 
 </LinearLayout>

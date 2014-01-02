@@ -13,11 +13,13 @@ public final class R {
         public static final int fadeout=0x7f040001;
     }
     public static final class array {
-        public static final int audioFile=0x7f060001;
-        public static final int imageFile=0x7f060000;
-        public static final int packageFile=0x7f060002;
-        public static final int txtFile=0x7f060004;
-        public static final int webFile=0x7f060003;
+        public static final int audioFile=0x7f050001;
+        public static final int epubFile=0x7f050006;
+        public static final int imageFile=0x7f050000;
+        public static final int packageFile=0x7f050002;
+        public static final int pdfFile=0x7f050005;
+        public static final int txtFile=0x7f050004;
+        public static final int webFile=0x7f050003;
     }
     public static final class attr {
     }
@@ -28,8 +30,8 @@ public final class R {
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
          */
-        public static final int activity_horizontal_margin=0x7f050000;
-        public static final int activity_vertical_margin=0x7f050001;
+        public static final int activity_horizontal_margin=0x7f060000;
+        public static final int activity_vertical_margin=0x7f060001;
     }
     public static final class drawable {
         public static final int aatheme=0x7f020000;
@@ -52,33 +54,36 @@ public final class R {
         public static final int bt_soundeffect_equallizerunit_rock_hl=0x7f020011;
         public static final int bt_soundeffect_equallizerunit_voice_hl=0x7f020012;
         public static final int buttom_big_disable=0x7f020013;
-        public static final int eq_custom=0x7f020014;
-        public static final int eq_dance=0x7f020015;
-        public static final int eq_pop=0x7f020016;
-        public static final int eq_rock=0x7f020017;
-        public static final int eq_treble=0x7f020018;
-        public static final int fav=0x7f020019;
-        public static final int folder=0x7f02001a;
-        public static final int goroot=0x7f02001b;
-        public static final int home_btn_bg_d=0x7f02001c;
-        public static final int home_btn_bg_n=0x7f02001d;
-        public static final int home_btn_bg_s=0x7f02001e;
-        public static final int ic_launcher=0x7f02001f;
-        public static final int icon=0x7f020020;
-        public static final int image=0x7f020021;
-        public static final int packed=0x7f020022;
-        public static final int text=0x7f020023;
-        public static final int text_back=0x7f020024;
-        public static final int text_pre=0x7f020025;
-        public static final int toolbar_backgroun=0x7f020026;
-        public static final int tx_green_wall=0x7f020027;
-        public static final int uponelevel=0x7f020028;
-        public static final int webtext=0x7f020029;
+        public static final int doc=0x7f020014;
+        public static final int epub=0x7f020015;
+        public static final int eq_custom=0x7f020016;
+        public static final int eq_dance=0x7f020017;
+        public static final int eq_pop=0x7f020018;
+        public static final int eq_rock=0x7f020019;
+        public static final int eq_treble=0x7f02001a;
+        public static final int fav=0x7f02001b;
+        public static final int folder=0x7f02001c;
+        public static final int goroot=0x7f02001d;
+        public static final int home_btn_bg_d=0x7f02001e;
+        public static final int home_btn_bg_n=0x7f02001f;
+        public static final int home_btn_bg_s=0x7f020020;
+        public static final int ic_launcher=0x7f020021;
+        public static final int icon=0x7f020022;
+        public static final int image=0x7f020023;
+        public static final int packed=0x7f020024;
+        public static final int pdf=0x7f020025;
+        public static final int text=0x7f020026;
+        public static final int text_back=0x7f020027;
+        public static final int text_pre=0x7f020028;
+        public static final int toolbar_backgroun=0x7f020029;
+        public static final int tx_green_wall=0x7f02002a;
+        public static final int uponelevel=0x7f02002b;
+        public static final int webtext=0x7f02002c;
     }
     public static final class id {
         public static final int Read_list=0x7f0a001c;
         public static final int action_settings=0x7f0a0023;
-        public static final int back=0x7f0a0018;
+        public static final int back=0x7f0a0017;
         public static final int btn1=0x7f0a0011;
         public static final int btn_endService=0x7f0a001f;
         public static final int btn_getServiceData=0x7f0a001e;
@@ -90,7 +95,7 @@ public final class R {
         public static final int gzbtn_handlering_refresh=0x7f0a0008;
         public static final int gzbtn_unhandler_refresh=0x7f0a0013;
         public static final int gzgzbtn_handled_ListView=0x7f0a000e;
-        public static final int home=0x7f0a0019;
+        public static final int home=0x7f0a0018;
         public static final int hometabs=0x7f0a0020;
         public static final int item_imageView=0x7f0a0015;
         public static final int ivFileIcon=0x7f0a001a;
@@ -104,7 +109,7 @@ public final class R {
         public static final int textView3=0x7f0a0003;
         public static final int textView33=0x7f0a0010;
         public static final int tvFileName=0x7f0a001b;
-        public static final int tvTitle=0x7f0a0017;
+        public static final int tvTitle=0x7f0a0019;
         public static final int unhanlderLayout=0x7f0a0012;
         public static final int unhanlderLayout1=0x7f0a0005;
         public static final int unhanlderLayout2=0x7f0a0007;
@@ -139,19 +144,20 @@ public final class R {
         public static final int aboutOK=0x7f07000f;
         public static final int aboutTitle=0x7f07000c;
         public static final int action_settings_cn=0x7f070001;
-        public static final int action_settings_eng=0x7f070011;
+        public static final int action_settings_eng=0x7f070012;
         public static final int app_name_cn=0x7f070000;
-        public static final int app_name_eng=0x7f070010;
+        public static final int app_name_eng=0x7f070011;
         public static final int b=0x7f070005;
         public static final int c=0x7f070006;
         public static final int code_gb2312=0x7f07000a;
         public static final int code_utf8=0x7f070009;
+        public static final int contentDescription=0x7f070010;
         public static final int d=0x7f070007;
         public static final int e=0x7f070008;
         public static final int hello_world_cn=0x7f070002;
-        public static final int hello_world_eng=0x7f070012;
+        public static final int hello_world_eng=0x7f070013;
         public static final int imageView_default_cn=0x7f070003;
-        public static final int imageView_default_eng=0x7f070013;
+        public static final int imageView_default_eng=0x7f070014;
         public static final int swich_code=0x7f07000b;
     }
     public static final class style {

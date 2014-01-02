@@ -11,7 +11,7 @@
             android:id="@+id/view_contents"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="25sp" >
+            android:textSize="55sp" >
         </TextView>
     </LinearLayout>
 

@@ -4,11 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Locale;
-
-import com.lightreader.bzz.Adapter.FileListAdapter;
-import com.lightreader.bzz.file.FileUtil;
-import com.lightreader.bzz.pojo.FileItem;
+import java.util.Collections;
+import java.util.List;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -21,25 +18,28 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnCreateContextMenuListener;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.lightreader.bzz.Adapter.FileListAdapter;
+import com.lightreader.bzz.file.FileComparator;
+import com.lightreader.bzz.file.FileUtil;
+import com.lightreader.bzz.pojo.FileItem;
+import com.lightreader.bzz.utils.Constant;
 
 public class FileBrowserActivity extends Activity implements android.view.View.OnClickListener {
-	private ListView lvFiles;
-	private ArrayList<FileItem> items;
-	private FileListAdapter adapter;
+	private ListView listViewFiles;
+	private ArrayList<FileItem> fileItemsList;
+	private FileListAdapter fileListAdapter;
 	private File current_dir;
 	private static final int MENUCRETEDIR = 1;
 	private static final int MENUEXIT = 2;
@@ -49,14 +49,15 @@ public class FileBrowserActivity extends Activity implements android.view.View.O
 	private static final int MENUREAD = 6;
 	private Builder builder;
 	private File selectedFile;
-	private TextView tvTitle;
+	private TextView textViewTitle;
 	private Bundle bundle;
 	private File clickedFile; 
 
 	
-	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		//this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);//全屏
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);//去掉程序名的title
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.filelist);
 		init();
@@ -68,46 +69,43 @@ public class FileBrowserActivity extends Activity implements android.view.View.O
 	}
 	
 	
-
+	//初始化方法
 	private void init() {
-		tvTitle = (TextView) findViewById(R.id.tvTitle);
-		lvFiles = (ListView) findViewById(android.R.id.list);
-		browseTo(new File("/mnt/sdcard"));
-		adapter = new FileListAdapter(this, items);
-		lvFiles.setAdapter(adapter);
-		lvFiles.setOnItemClickListener(new OnItemClickListener() {
-
+		textViewTitle = (TextView) findViewById(R.id.tvTitle);
+		listViewFiles = (ListView) findViewById(android.R.id.list);
+		browseTo(new File(Constant.DEFAULT_SDCARD_PATH));// fileItemsList 设置值  "/mnt/sdcard"
+		Collections.sort(new ArrayList(fileItemsList), new FileComparator());// 对文件夹进行排序
+		fileListAdapter = new FileListAdapter(FileBrowserActivity.this, fileItemsList);
+		listViewFiles.setAdapter(fileListAdapter);
+		listViewFiles.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> adapterView, View view,
 					int position, long arg3) {
 				// 获取被单击的item的对象
-				FileItem fi = (FileItem) adapter.getItem(position);
-				String fileName = fi.getFileName();
+				FileItem fileItem = (FileItem) fileListAdapter.getItem(position);
+				String fileName = fileItem.getFileName();
 				File file = new File(current_dir, fileName);
 				if (FileUtil.isValidFileOrDir(file)) {
-					Intent intent = new Intent(FileBrowserActivity.this,OpenFileActivity.class);
+					Intent intent = new Intent(FileBrowserActivity.this,OpenFileActivity.class);//打开新的文件
 					bundle = new Bundle();
 					bundle.putString("fileName", file.getAbsolutePath());
 					intent.putExtras(bundle);
-					startActivityForResult(intent, 0);
+					FileBrowserActivity.this.startActivityForResult(intent, 0);
 				} else {
-					browseTo(new File(current_dir, fi.getFileName()));
+					browseTo(new File(current_dir, fileItem.getFileName()));
 				}
 			}
-
 		});
 
-		// lvFiles创建上下文菜单事件
-		lvFiles.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
-
+		// listViewFiles创建上下文菜单事件
+		listViewFiles.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
 			@Override
 			public void onCreateContextMenu(ContextMenu menu, View v,
 					ContextMenuInfo menuInfo) {
 				// 获取事件源的position
 				int position = ((AdapterContextMenuInfo) menuInfo).position;
 				// 根据position获取事件源对应的文件名
-				String fileName = ((FileItem) adapter.getItem(position))
-						.getFileName();
+				String fileName = ((FileItem) fileListAdapter.getItem(position)).getFileName();
 				// 根据当前目录和文件名构建一个文件对象
 				File clickedFile = new File(current_dir, fileName);
 				// 如果该文件对象是一个文件，向上下文菜单添加两个菜单项
@@ -120,7 +118,6 @@ public class FileBrowserActivity extends Activity implements android.view.View.O
 				if (clickedFile.isDirectory() && selectedFile != null) {
 					menu.add(0, MENUPASTE, 4, "粘贴");
 				}
-
 			}
 		});
 	}
@@ -131,38 +128,30 @@ public class FileBrowserActivity extends Activity implements android.view.View.O
 		// 获取事件源对应的position
 		int position = ((AdapterContextMenuInfo) item.getMenuInfo()).position;
 		// 获取事件源对应的文件名
-		String fileName = ((FileItem) adapter.getItem(position)).getFileName();
+		String fileName = ((FileItem) fileListAdapter.getItem(position)).getFileName();
 		clickedFile = new File(current_dir, fileName);
 		switch (item.getItemId()) {
 		case MENUDELETE:
 			// 如果单击的是delete，调用clickedFile对象的delete方法
-			AlertDialog.Builder mDialog = new AlertDialog.Builder(
-					FileBrowserActivity.this);
+			AlertDialog.Builder mDialog = new AlertDialog.Builder(FileBrowserActivity.this);
 			mDialog.setTitle("删除");
 			mDialog.setIcon(android.R.drawable.ic_delete);
 			mDialog.setMessage("是否删除");
-			mDialog.setPositiveButton("确定",new DialogInterface.OnClickListener() {
+			mDialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					clickedFile.delete();
+					browseTo(current_dir);
 
-						@Override
-						public void onClick(DialogInterface dialog,
-								int which) {
-							clickedFile.delete();
-							browseTo(current_dir);
-							
-						}
-					});
-			mDialog.setNegativeButton("取消",
-					new DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog,
-								int which) {
-						}
-					});
+				}
+			});
+			mDialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+				}
+			});
 			mDialog.show();
-
 			break;
-			
 		case MENUREAD:
 			Intent intent = new Intent(FileBrowserActivity.this, ReadBookActivity.class);
 			String name = clickedFile.getAbsolutePath();
@@ -210,8 +199,8 @@ public class FileBrowserActivity extends Activity implements android.view.View.O
 	private void browseTo(File dir) {
 		// 如果dir对象是一个目录
 		if (dir.isDirectory()) {
-			// 改变标题栏的标题
-			tvTitle.setText(dir.getAbsolutePath());
+			// 改变标题栏的路径文字
+			textViewTitle.setText(dir.getAbsolutePath());
 			// 更改当前目录为指定目录
 			this.current_dir = dir;
 			// 查找dir目录中的所有子目录和文件 填充到items集合
@@ -219,13 +208,18 @@ public class FileBrowserActivity extends Activity implements android.view.View.O
 		}
 	}
 
+	
+	/**
+	 * 往(fileItems) ArrayList<FileItem>数组里添加文件列表
+	 * @param files
+	 */
 	private void fill(File[] files) {
 		// 如果items未初始化则初始化
-		if (items == null) {
-			items = new ArrayList<FileItem>();
+		if (fileItemsList == null) {
+			fileItemsList = new ArrayList<FileItem>();
 		}
 		// 清空items中所存储的原目录信息
-		items.clear();
+		fileItemsList.clear();
 		Resources res = getResources();
 
 		// 如果当前目录有父目录，则添加 返回根目录和返回上级目录
@@ -250,32 +244,33 @@ public class FileBrowserActivity extends Activity implements android.view.View.O
 					icon = res.getDrawable(R.drawable.folder);
 				} else {
 					// 如果测试为音频文件，设置图标
-					if (checkEnd(fileName,
-							res.getStringArray(R.array.audioFile))) {
-						icon = res.getDrawable(R.drawable.audio);
-					}
-					// 如果测试为图片文件，设置图标
-					else if (checkEnd(fileName,
-							res.getStringArray(R.array.imageFile))) {
-						icon = res.getDrawable(R.drawable.image);
-					} else if (checkEnd(fileName,
-							res.getStringArray(R.array.packageFile))) {
-						icon = res.getDrawable(R.drawable.packed);
-					} else if (checkEnd(fileName,
-							res.getStringArray(R.array.webFile))) {
-						icon = res.getDrawable(R.drawable.webtext);
+					if (checkEnd(fileName, res.getStringArray(R.array.audioFile))) {
+						icon = res.getDrawable(R.drawable.audio);// 音频图标
+					} else if (checkEnd(fileName, res.getStringArray(R.array.imageFile))) {
+						icon = res.getDrawable(R.drawable.image);// 图片图标
+					} else if (checkEnd(fileName, res.getStringArray(R.array.packageFile))) {
+						icon = res.getDrawable(R.drawable.packed);// 安装包图标
+					} else if (checkEnd(fileName, res.getStringArray(R.array.webFile))) {
+						icon = res.getDrawable(R.drawable.webtext);// 网络文本的图标
+					} else if (checkEnd(fileName, res.getStringArray(R.array.txtFile))) {
+						icon = res.getDrawable(R.drawable.text);// 一般文本图标
+					} else if (checkEnd(fileName, res.getStringArray(R.array.pdfFile))) {
+						icon = res.getDrawable(R.drawable.pdf);// pdf图标
+					} else if (checkEnd(fileName, res.getStringArray(R.array.epubFile))) {
+						icon = res.getDrawable(R.drawable.epub);// epub图标
 					} else {
-						icon = res.getDrawable(R.drawable.text);
+						icon = res.getDrawable(R.drawable.text);// 一般文本图标
 					}
 				}
 				// 创建fileitem对象，并添加到集合
 				FileItem item = new FileItem(fileName, icon);
-				items.add(item);
+				fileItemsList.add(item);
 			}
 		}
 		// 如果adapter不为null 则通知更新界面
-		if (adapter != null)
-			adapter.dataChanged(items);
+		if (fileListAdapter != null){
+			fileListAdapter.dataChanged(fileItemsList);
+		}
 	}
 
 	// 检查指定文件名 是否以数组中指定的扩展名结尾

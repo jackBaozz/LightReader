@@ -15,5 +15,8 @@ public class Constant {
 	public static int[] slideTitles = { R.string.a, R.string.b, R.string.c, R.string.d, R.string.e };
 	
 	//阅读器支持解码的后缀名文件类型
-	public static final String[] bookSuffix = {".txt",".epub",".pdf"};
+	public static final String[] BOOK_SUFFIX = {".txt",".epub",".pdf"};
+	//默认访问SD卡的路径
+	public static final String  DEFAULT_SDCARD_PATH = "/mnt/sdcard";
+	
 }
