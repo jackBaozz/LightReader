@@ -146,21 +146,6 @@ public class FileUtil {
 	}
 	
 	
-	//对文件进行排序
-	public int compare(FileInfo file1, FileInfo file2) {
-		// 文件夹排在前面
-		if (file1.IsDirectory && !file2.IsDirectory) {
-			return -1000;
-		} else if (!file1.IsDirectory && file2.IsDirectory) {
-			return 1000;
-		}
-		// 相同类型按名称排序
-		return file1.Name.compareTo(file2.Name);
-	}
-	
-	
-	
-	
 	
 	/** 获取SD路径 **/
 	public static String getSDPath() {
@@ -175,8 +160,8 @@ public class FileUtil {
 	/** 获取文件信息 **/
 	public static FileInfo getFileInfo(File f) {
 		FileInfo info = new FileInfo();
-		info.Name = f.getName();
-		info.IsDirectory = f.isDirectory();
+		info.setName(f.getName());
+		info.setIsDirectory(f.isDirectory());
 		calcFileContent(info, f);
 		return info;
 	}
@@ -184,7 +169,8 @@ public class FileUtil {
 	/** 计算文件内容 **/
 	private static void calcFileContent(FileInfo info, File f) {
 		if (f.isFile()) {
-			info.Size += f.length();
+			//info.Size += f.length();
+			info.setSize(info.getSize()+f.length());
 		}
 		if (f.isDirectory()) {
 			File[] files = f.listFiles();
@@ -192,11 +178,19 @@ public class FileUtil {
 				for (int i = 0; i < files.length; ++i) {
 					File tmp = files[i];
 					if (tmp.isDirectory()) {
-						info.FolderCount++;
+						//info.FolderCount++;
+						int flag = info.getFolderCount();
+						info.setFolderCount(flag++);
 					} else if (tmp.isFile()) {
-						info.FileCount++;
+						//info.FileCount++;
+						int flag = info.getFileCount();
+						info.setFileCount(flag++);
 					}
-					if (info.FileCount + info.FolderCount >= 10000) { // 超过一万不计算
+					// 超过一万不计算
+					/*if (info.FileCount + info.FolderCount >= 10000) { 
+						break;
+					}*/
+					if(info.getFileCount() + info.getFolderCount() >= 10000){
 						break;
 					}
 					calcFileContent(info, tmp);

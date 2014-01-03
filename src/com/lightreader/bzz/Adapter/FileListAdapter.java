@@ -11,11 +11,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.lightreader.bzz.Activity.R;
-import com.lightreader.bzz.pojo.FileItem;
+import com.lightreader.bzz.pojo.FileInfo;
 
 public class FileListAdapter extends BaseAdapter {
 
-	ArrayList<FileItem> itemsList;
+	ArrayList<FileInfo> itemsList;
 	LayoutInflater inflater;
 
 	class ViewHolder {
@@ -35,19 +35,19 @@ public class FileListAdapter extends BaseAdapter {
 		}
 	}
 	
-	public FileListAdapter(Context context,ArrayList<FileItem> itemsList){
+	public FileListAdapter(Context context,ArrayList<FileInfo> itemsList){
 		super();
 		this.inflater = LayoutInflater.from(context);
 		this.itemsList = itemsList;
 	}
 	
-	public FileListAdapter(LayoutInflater inflater, ArrayList<FileItem> items) {
+	public FileListAdapter(LayoutInflater inflater, ArrayList<FileInfo> items) {
 		super();
 		this.itemsList = items;
 		this.inflater = inflater;
 	}
 
-	public void dataChanged(ArrayList<FileItem> items) {
+	public void dataChanged(ArrayList<FileInfo> items) {
 		this.itemsList = items;
 		this.notifyDataSetChanged();// 通知数据改变
 	}
@@ -79,10 +79,10 @@ public class FileListAdapter extends BaseAdapter {
 		} else {
 			holder = (ViewHolder) view.getTag();
 		}
-		FileItem fileItem = itemsList.get(position);
+		FileInfo fileItem = itemsList.get(position);
 	
-		holder.getImageViewFileIcon().setImageDrawable(fileItem.getFileIcon());
-		holder.getTextViewFileName().setText(fileItem.getFileName());
+		holder.getImageViewFileIcon().setImageDrawable(fileItem.getIcon());
+		holder.getTextViewFileName().setText(fileItem.getName());
 		return view;
 	}
 

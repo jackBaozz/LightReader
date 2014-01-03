@@ -31,7 +31,7 @@
         android:padding="3dp"
         android:textSize="15sp"
         android:textColor="#ffffff"
-		android:background="#4281f4"
+		android:background="#000000"
         />
 
     <ListView

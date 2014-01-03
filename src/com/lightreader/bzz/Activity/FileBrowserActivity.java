@@ -26,6 +26,7 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -33,12 +34,12 @@ import android.widget.TextView;
 import com.lightreader.bzz.Adapter.FileListAdapter;
 import com.lightreader.bzz.file.FileComparator;
 import com.lightreader.bzz.file.FileUtil;
-import com.lightreader.bzz.pojo.FileItem;
+import com.lightreader.bzz.pojo.FileInfo;
 import com.lightreader.bzz.utils.Constant;
 
-public class FileBrowserActivity extends Activity implements android.view.View.OnClickListener {
+public class FileBrowserActivity extends BaseActivity implements android.view.View.OnClickListener {
 	private ListView listViewFiles;
-	private ArrayList<FileItem> fileItemsList;
+	private ArrayList<FileInfo> fileItemsList;
 	private FileListAdapter fileListAdapter;
 	private File current_dir;
 	private static final int MENUCRETEDIR = 1;
@@ -52,7 +53,7 @@ public class FileBrowserActivity extends Activity implements android.view.View.O
 	private TextView textViewTitle;
 	private Bundle bundle;
 	private File clickedFile; 
-
+	private Button btnBack, btnHome;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -63,18 +64,23 @@ public class FileBrowserActivity extends Activity implements android.view.View.O
 		init();
 	}
 
-	@Override
-	public void onClick(View v) {
-		
-	}
+	
 	
 	
 	//初始化方法
 	private void init() {
+		btnBack = (Button) findViewById(R.id.back);
+		btnHome = (Button) findViewById(R.id.home);
+		btnBack.setOnClickListener(this);
+		btnHome.setOnClickListener(this);
+		
+		
+		
 		textViewTitle = (TextView) findViewById(R.id.tvTitle);
 		listViewFiles = (ListView) findViewById(android.R.id.list);
 		browseTo(new File(Constant.DEFAULT_SDCARD_PATH));// fileItemsList 设置值  "/mnt/sdcard"
-		Collections.sort(new ArrayList(fileItemsList), new FileComparator());// 对文件夹进行排序
+		Collections.sort(fileItemsList, new FileComparator());// 对文件夹进行排序
+		//Collections.reverse(fileItemsList);//倒序排序
 		fileListAdapter = new FileListAdapter(FileBrowserActivity.this, fileItemsList);
 		listViewFiles.setAdapter(fileListAdapter);
 		listViewFiles.setOnItemClickListener(new OnItemClickListener() {
@@ -82,8 +88,8 @@ public class FileBrowserActivity extends Activity implements android.view.View.O
 			public void onItemClick(AdapterView<?> adapterView, View view,
 					int position, long arg3) {
 				// 获取被单击的item的对象
-				FileItem fileItem = (FileItem) fileListAdapter.getItem(position);
-				String fileName = fileItem.getFileName();
+				FileInfo fileItem = (FileInfo) fileListAdapter.getItem(position);
+				String fileName = fileItem.getName();
 				File file = new File(current_dir, fileName);
 				if (FileUtil.isValidFileOrDir(file)) {
 					Intent intent = new Intent(FileBrowserActivity.this,OpenFileActivity.class);//打开新的文件
@@ -92,7 +98,7 @@ public class FileBrowserActivity extends Activity implements android.view.View.O
 					intent.putExtras(bundle);
 					FileBrowserActivity.this.startActivityForResult(intent, 0);
 				} else {
-					browseTo(new File(current_dir, fileItem.getFileName()));
+					browseTo(new File(current_dir, fileItem.getName()));
 				}
 			}
 		});
@@ -105,7 +111,7 @@ public class FileBrowserActivity extends Activity implements android.view.View.O
 				// 获取事件源的position
 				int position = ((AdapterContextMenuInfo) menuInfo).position;
 				// 根据position获取事件源对应的文件名
-				String fileName = ((FileItem) fileListAdapter.getItem(position)).getFileName();
+				String fileName = ((FileInfo) fileListAdapter.getItem(position)).getName();
 				// 根据当前目录和文件名构建一个文件对象
 				File clickedFile = new File(current_dir, fileName);
 				// 如果该文件对象是一个文件，向上下文菜单添加两个菜单项
@@ -128,7 +134,7 @@ public class FileBrowserActivity extends Activity implements android.view.View.O
 		// 获取事件源对应的position
 		int position = ((AdapterContextMenuInfo) item.getMenuInfo()).position;
 		// 获取事件源对应的文件名
-		String fileName = ((FileItem) fileListAdapter.getItem(position)).getFileName();
+		String fileName = ((FileInfo) fileListAdapter.getItem(position)).getName();
 		clickedFile = new File(current_dir, fileName);
 		switch (item.getItemId()) {
 		case MENUDELETE:
@@ -183,9 +189,24 @@ public class FileBrowserActivity extends Activity implements android.view.View.O
 		return super.onContextItemSelected(item);
 	}
 
+	
+	
+	//按钮事件的监听器
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.back:
+			browseUpLevel();
+			break;
+		case R.id.home:
+			browseRoot();
+			break;
+		}
+	}
+	
 	// 浏览根目录
 	private void browseRoot() {
-		browseTo(new File("/mnt/sdcard"));
+		browseTo(new File(Constant.DEFAULT_SDCARD_PATH));
 	}
 
 	// 浏览上级目录
@@ -216,7 +237,7 @@ public class FileBrowserActivity extends Activity implements android.view.View.O
 	private void fill(File[] files) {
 		// 如果items未初始化则初始化
 		if (fileItemsList == null) {
-			fileItemsList = new ArrayList<FileItem>();
+			fileItemsList = new ArrayList<FileInfo>();
 		}
 		// 清空items中所存储的原目录信息
 		fileItemsList.clear();
@@ -263,7 +284,7 @@ public class FileBrowserActivity extends Activity implements android.view.View.O
 					}
 				}
 				// 创建fileitem对象，并添加到集合
-				FileItem item = new FileItem(fileName, icon);
+				FileInfo item = new FileInfo(fileName, icon);
 				fileItemsList.add(item);
 			}
 		}
@@ -299,6 +320,9 @@ public class FileBrowserActivity extends Activity implements android.view.View.O
 		menu.add(0, MENUEXIT, 2, "取消").setIcon(android.R.drawable.ic_menu_close_clear_cancel);
 		return super.onCreateOptionsMenu(menu);
 	}
+	
+	
+	
 	
 
 	// 系统菜单的单击事件
