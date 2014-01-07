@@ -55,7 +55,7 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 		//this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);//全屏
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);//去掉程序名的title
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.filelist);
+		setContentView(R.layout.file_list);
 		init();
 	}
 
@@ -187,7 +187,7 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 			bundle.putString("CURRENTPASTEFILEPATH", clickedFile.getPath());
 			bundle.putString("ACTION", "CPOY");
 			copyIntent.putExtras(bundle);
-			copyIntent.setClass(FileBrowserActivity.this, PasteFileActivity.class);
+			copyIntent.setClass(FileBrowserActivity.this, null);
 			// 打开一个Activity并等待结果
 			FileBrowserActivity.this.startActivityForResult(copyIntent, 0);
 			break;
