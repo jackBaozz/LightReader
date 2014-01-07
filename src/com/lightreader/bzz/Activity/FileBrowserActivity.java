@@ -14,10 +14,13 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.View.OnCreateContextMenuListener;
 import android.view.Window;
@@ -42,9 +45,9 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 	private File current_dir;
 	private Builder builder;
 	private File selectedFile;
+	private File clickedFile; 
 	private TextView textViewTitle;
 	private Bundle bundle;
-	private File clickedFile; 
 	private Button btnBack, btnHome;
 	
 	@Override
@@ -93,47 +96,62 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 			}
 		});
 
-		// listViewFiles创建上下文菜单事件
+		// listViewFiles创建上下文菜单监听(文件长按事件)
 		listViewFiles.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
 			@Override
-			public void onCreateContextMenu(ContextMenu menu, View v,
-					ContextMenuInfo menuInfo) {
+			public void onCreateContextMenu(ContextMenu menu, View v,ContextMenuInfo menuInfo) {
 				// 获取事件源的position
-				int position = ((AdapterContextMenuInfo) menuInfo).position;
+				int position = ((AdapterView.AdapterContextMenuInfo) menuInfo).position;
 				// 根据position获取事件源对应的文件名
 				String fileName = ((FileInfo) fileListAdapter.getItem(position)).getName();
 				// 根据当前目录和文件名构建一个文件对象
 				File clickedFile = new File(current_dir, fileName);
+				menu.setHeaderTitle(fileName);//设置标题
 				// 如果该文件对象是一个文件，向上下文菜单添加两个菜单项
 				// 如果该文件对象是一个目录，且之前执行过复制动作（selectedFile不为null），则向菜单中添加一个菜单项
-				menu.add(0, Constant.MENU_DELETE, 3, "删除");
+				//menu.add(0, Constant.INT_MENU_DELETE, 3, Constant.STRING_FILE_DELETE);
+				menu.add(0, Constant.INT_MENU_RENAME, 1, Constant.STRING_FILE_RENAME);
+				menu.add(0, Constant.INT_MENU_COPY, 2, Constant.STRING_FILE_COPY);
+				menu.add(0, Constant.INT_MENU_MOVE, 3, Constant.STRING_FILE_MOVE);
+				menu.add(0, Constant.INT_MENU_DELETE, 4, Constant.STRING_FILE_DELETE);
+				menu.add(0, Constant.INT_MENU_DETAILS, 5, Constant.STRING_FILE_DETAILS);
+				//如果选择的是文件
+				/*
 				if (clickedFile.isFile()) {
-					menu.add(0,Constant.MENU_READ,1,"翻书效果阅读");
-					menu.add(0,Constant.MENU_COPY, 2, "复制");
+					menu.add(0,Constant.MENU_READ,1,Constant.FILE_READ);
+					menu.add(0,Constant.MENU_COPY, 2, Constant.FILE_COPY);
 				}
+				*/
+				//如果选择的是文件夹,且有复制了其他文件
+				/*
 				if (clickedFile.isDirectory() && selectedFile != null) {
-					menu.add(0, Constant.MENU_PASTE, 4, "粘贴");
-				}
+					menu.add(0, Constant.MENU_PASTE, 4, Constant.FILE_PASTE);
+				}*/
 			}
 		});
 	}
 
-	// 上下文菜单的单击事件
+	// 上下文菜单的单击事件(文件长按事件)
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		// 获取事件源对应的position
-		int position = ((AdapterContextMenuInfo) item.getMenuInfo()).position;
+		int position = ((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position;
 		// 获取事件源对应的文件名
-		String fileName = ((FileInfo) fileListAdapter.getItem(position)).getName();
+		FileInfo fileInfo = (FileInfo)fileListAdapter.getItem(position);
+		String fileName = fileInfo.getName();
 		clickedFile = new File(current_dir, fileName);
 		switch (item.getItemId()) {
-		case Constant.MENU_DELETE:
+		case Constant.INT_MENU_RENAME:
+			//重命名
+			FileUtil.renameFile(this, clickedFile, fileCallBackHandler, R.layout.file_rename, R.id.file_name);
+			break;
+		case Constant.INT_MENU_DELETE:
 			// 如果单击的是delete，调用clickedFile对象的delete方法
 			AlertDialog.Builder mDialog = new AlertDialog.Builder(FileBrowserActivity.this);
-			mDialog.setTitle("删除");
+			mDialog.setTitle(Constant.STRING_FILE_DELETE);
 			mDialog.setIcon(android.R.drawable.ic_delete);
-			mDialog.setMessage("是否删除");
-			mDialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+			mDialog.setMessage(Constant.STRING_FILE_ISORNOT_DELETE);
+			mDialog.setPositiveButton(Constant.STRING_FILE_OK, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					clickedFile.delete();
@@ -141,14 +159,14 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 
 				}
 			});
-			mDialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+			mDialog.setNegativeButton(Constant.STRING_FILE_CANCEL, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 				}
 			});
 			mDialog.show();
 			break;
-		case Constant.MENU_READ:
+		case Constant.INT_MENU_READ:
 			Intent intent = new Intent(FileBrowserActivity.this, ReadBookActivity.class);
 			String name = clickedFile.getAbsolutePath();
 			FileInputStream in;
@@ -161,11 +179,19 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 				e1.printStackTrace();
 			}
 			break;
-		case Constant.MENU_COPY:
+		case Constant.INT_MENU_COPY:
 			// 如果单击的是copy，则将clickedFile对象，设置为选中对象（selectedFile）
-			selectedFile = clickedFile;
+			//selectedFile = clickedFile;
+			Intent copyIntent = new Intent();
+			Bundle bundle = new Bundle();
+			bundle.putString("CURRENTPASTEFILEPATH", clickedFile.getPath());
+			bundle.putString("ACTION", "CPOY");
+			copyIntent.putExtras(bundle);
+			copyIntent.setClass(FileBrowserActivity.this, PasteFileActivity.class);
+			// 打开一个Activity并等待结果
+			FileBrowserActivity.this.startActivityForResult(copyIntent, 0);
 			break;
-		case Constant.MENU_PASTE:
+		case Constant.INT_MENU_PASTE:
 			// 如果单击的是粘贴，则调用工具类的保存方法，从selectedFile向toFile复制
 			File toFile = new File(clickedFile, selectedFile.getName());
 			try {
@@ -206,11 +232,12 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 		}
 	}
 	
-	// 浏览上级目录
+	// 浏览本级目录
 	private void browseCurrent() {
 		if (current_dir != null) {
 			browseTo(current_dir);
 		}else{
+			//本级指针为空,则指向默认的路径
 			browseTo(new File(Constant.DEFAULT_SDCARD_PATH));
 		}
 	}
@@ -314,54 +341,37 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 		return true;
 	}*/
 	
-	// 创建系统菜单
+	// 创建MENU菜单
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// 向menu中添加menuitem
-		menu.add(0, Constant.MENU_BACK, 1, "返回上一级").setIcon(android.R.drawable.ic_menu_revert);
-		menu.add(0, Constant.MENU_BACKHOME, 2, "SDCARD目录").setIcon(android.R.drawable.ic_menu_myplaces);
-		menu.add(0, Constant.MENU_FRESH, 3, "刷新").setIcon(android.R.drawable.ic_menu_rotate);
-		menu.add(0, Constant.MENU_CRETEDIR, 4, "创建文件夹").setIcon(android.R.drawable.ic_menu_add);
-		menu.add(0, Constant.MENU_EXIT, 5, "取消").setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+		//getMenuInflater().inflate(R.menu.menu, menu);
+		menu.add(0, Constant.INT_MENU_BACK, 1, "返回上一级").setIcon(android.R.drawable.ic_menu_revert);
+		menu.add(0, Constant.INT_MENU_BACKHOME, 2, "SDCARD目录").setIcon(android.R.drawable.ic_menu_myplaces);
+		menu.add(0, Constant.INT_MENU_FRESH, 3, "刷新").setIcon(android.R.drawable.ic_menu_rotate);
+		menu.add(0, Constant.INT_MENU_CRETEDIR, 4, "新建文件夹").setIcon(android.R.drawable.ic_menu_add);
+		menu.add(0, Constant.INT_MENU_EXIT, 5, "取消").setIcon(android.R.drawable.ic_menu_close_clear_cancel);
 		return super.onCreateOptionsMenu(menu);
 	}
 	
-	/*@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		// TODO Auto-generated method stub
-		super.onCreateContextMenu(menu, v, menuInfo);
-		menu.setHeaderTitle("asdasd");
-		menu.add(0, 1, 1, getString(111));
-		menu.add(0, 2, 2, getString(222));
-		menu.add(0, 3, 3, getString(333));
-		menu.add(0, 4, 4, getString(444));
-		menu.add(0, 5, 5, getString(555));
-	}*/
-	
-	
 
-	
-
-
-
-
-	// 系统菜单的单击事件
+	// MENU菜单的单击事件
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		final EditText etInput = new EditText(this);
 		switch (item.getItemId()) {
-		case Constant.MENU_BACK:
+		case Constant.INT_MENU_BACK:
 			browseUpLevel();
 			break;
-		case Constant.MENU_BACKHOME:
+		case Constant.INT_MENU_BACKHOME:
 			browseRoot();
 			break;
-		case Constant.MENU_FRESH:
+		case Constant.INT_MENU_FRESH:
 			browseCurrent();
 			break;
-		case Constant.MENU_EXIT:
+		case Constant.INT_MENU_EXIT:
 			break;
-		case Constant.MENU_CRETEDIR:
+		case Constant.INT_MENU_CRETEDIR:
 			// 如果单击创建文件夹，弹出对话框
 			builder = new Builder(this);
 			builder.setTitle("新建文件夹")// 设置对话框标题
@@ -392,5 +402,22 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 		}
 		return super.onOptionsItemSelected(item);
 	}
+	
+	
+	
+	
+	/**
+	 * 重命名回调委托  or  创建文件夹回调委托
+	 */
+	private Handler fileCallBackHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			if (msg.what == 0)
+				browseTo(current_dir);
+		}
+	};
 
+	
+	
+	
 }

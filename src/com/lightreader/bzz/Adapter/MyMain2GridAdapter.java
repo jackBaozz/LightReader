@@ -26,12 +26,12 @@ private ArrayList<String> textList;
 		// TODO Auto-generated constructor stub
 		
 		textList=new ArrayList<String>();
-		textList.add(Constant.MAIM_ALL_TEXT);
-		textList.add(Constant.MAIM_LIKE_TEXT);
-//		textList.add(Constant.MAIM_DONWLOAD_TEXT);
-		textList.add(Constant.MAIM_SETTING_TEXT);
-//		textList.add(Constant.MAIM_SEARCH_TEXT);
-		textList.add(Constant.MAIM_EXIT_TEXT);
+		textList.add(Constant.STRING_MAIM_ALL_TEXT);
+		textList.add(Constant.STRING_MAIM_LIKE_TEXT);
+//		textList.add(Constant.STRING_MAIM_DONWLOAD_TEXT);
+		textList.add(Constant.STRING_MAIM_SETTING_TEXT);
+//		textList.add(Constant.STRING_MAIM_SEARCH_TEXT);
+		textList.add(Constant.STRING_MAIM_EXIT_TEXT);
 	}
 	public int getCount() {
 		// TODO Auto-generated method stub

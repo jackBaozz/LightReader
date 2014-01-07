@@ -25,7 +25,7 @@ public class OpenFileActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.filebrowser);
+		setContentView(R.layout.file_browser);
 
 		try {
 			Intent intent = getIntent();

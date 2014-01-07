@@ -10,11 +10,25 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.Locale;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.os.Environment;
+import android.os.Handler;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.lightreader.bzz.pojo.FileInfo;
+import com.lightreader.bzz.utils.Constant;
 
 public class FileUtil {
 	private String SDPATH;
@@ -158,42 +172,42 @@ public class FileUtil {
 	}
 
 	/** 获取文件信息 **/
-	public static FileInfo getFileInfo(File f) {
+	public static FileInfo getFileInfo(File file) {
 		FileInfo info = new FileInfo();
-		info.setName(f.getName());
-		info.setIsDirectory(f.isDirectory());
-		calcFileContent(info, f);
+		info.setName(file.getName());
+		info.setIsDirectory(file.isDirectory());
+		calcFileContent(info, file);
 		return info;
 	}
 
 	/** 计算文件内容 **/
-	private static void calcFileContent(FileInfo info, File f) {
-		if (f.isFile()) {
+	private static void calcFileContent(FileInfo fileInfo, File file) {
+		if (file.isFile()) {
 			//info.Size += f.length();
-			info.setSize(info.getSize()+f.length());
+			fileInfo.setSize(fileInfo.getSize()+file.length());
 		}
-		if (f.isDirectory()) {
-			File[] files = f.listFiles();
+		if (file.isDirectory()) {
+			File[] files = file.listFiles();
 			if (files != null && files.length > 0) {
 				for (int i = 0; i < files.length; ++i) {
 					File tmp = files[i];
 					if (tmp.isDirectory()) {
 						//info.FolderCount++;
-						int flag = info.getFolderCount();
-						info.setFolderCount(flag++);
+						int flag = fileInfo.getFolderCount();
+						fileInfo.setFolderCount(flag++);
 					} else if (tmp.isFile()) {
 						//info.FileCount++;
-						int flag = info.getFileCount();
-						info.setFileCount(flag++);
+						int flag = fileInfo.getFileCount();
+						fileInfo.setFileCount(flag++);
 					}
 					// 超过一万不计算
 					/*if (info.FileCount + info.FolderCount >= 10000) { 
 						break;
 					}*/
-					if(info.getFileCount() + info.getFolderCount() >= 10000){
+					if(fileInfo.getFileCount() + fileInfo.getFolderCount() >= 10000){
 						break;
 					}
-					calcFileContent(info, tmp);
+					calcFileContent(fileInfo, tmp);
 				}
 			}
 		}
@@ -291,6 +305,158 @@ public class FileUtil {
 		}
 		type += "/*";
 		return type;
+	}
+	
+	
+	/**
+	 * 获取一个文件夹下的所有文件
+	 * @param activity
+	 * @param path
+	 * @return
+	 */
+	public static ArrayList<FileInfo> getFiles(Activity activity, String path) {
+		File f = new File(path);
+		File[] files = f.listFiles();
+		if (files == null) {
+			Toast.makeText(activity.getBaseContext(),String.format("无法打开: %1$s", path),Toast.LENGTH_SHORT).show();
+			return null;
+		}
+		ArrayList<FileInfo> fileList = new ArrayList<FileInfo>();
+		// 获取文件列表
+		for (int i = 0; i < files.length; i++) {
+			File file = files[i];
+			FileInfo fileInfo = new FileInfo();
+			fileInfo.setName(file.getName());
+			fileInfo.setIsDirectory(file.isDirectory());
+			fileInfo.setPath(file.getPath());
+			fileInfo.setSize(file.length());
+			fileList.add(fileInfo);
+		}
+		// 排序
+		Collections.sort(fileList, new FileComparator());
+		return fileList;
+	}
+
+	/**
+	 * 创建新文件夹
+	 * @param activity
+	 * @param path
+	 * @param handler
+	 */
+	public static void createDir(final Activity activity, final String path, final Handler handler,final int layoutResource,String inputDirName) {
+		final String newName = inputDirName;
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		View layout = LayoutInflater.from(activity).inflate(layoutResource, null);
+		builder.setView(layout);
+		builder.setPositiveButton(Constant.STRING_FILE_OK, new OnClickListener() {
+			public void onClick(DialogInterface dialoginterface, int i) {
+				if (newName.length() == 0) {
+					Toast.makeText(activity, Constant.STRING_FILE_NAME_CANNOT_EMPTY, Toast.LENGTH_SHORT).show();
+					return;
+				}
+				String fullFileName = FileUtil.combinPath(path, newName);
+				File newFile = new File(fullFileName);
+				if (newFile.exists()) {
+					Toast.makeText(activity, Constant.STRING_FILE_EXISTS, Toast.LENGTH_SHORT).show();
+				} else {
+					try {
+						if (newFile.mkdir()) {
+							handler.sendEmptyMessage(0); // 创建成功 what=0
+						} else {
+							Toast.makeText(activity, Constant.STRING_FILE_CREATE_FAIL, Toast.LENGTH_SHORT).show();
+						}
+					} catch (Exception e) {
+						Log.e("create dir error : ",e.getLocalizedMessage());
+						Toast.makeText(activity, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+					}
+				}
+			}
+		}).setNegativeButton(Constant.STRING_FILE_CANCEL, null);
+		AlertDialog alertDialog = builder.create();
+		alertDialog.setTitle(Constant.STRING_MKDIR);
+		alertDialog.show();
+	}
+
+	
+	/**
+	 * 重命名文件
+	 * @param activity
+	 * @param file
+	 * @param handler
+	 */
+	public static void renameFile(final Activity activity, final File file, final Handler handler,
+			final int layoutResource,final int editTextResource) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		View layout = LayoutInflater.from(activity).inflate(layoutResource, null);
+		final EditText text = (EditText) layout.findViewById(editTextResource);
+		text.setText(file.getName());
+		builder.setView(layout);
+		builder.setPositiveButton(Constant.STRING_FILE_OK, new OnClickListener() {
+			public void onClick(DialogInterface dialoginterface, int i) {
+				String path = file.getParentFile().getPath();
+				String newName = text.getText().toString().trim();
+				if (newName.equalsIgnoreCase(file.getName())) {//相等则忽略
+					return;
+				}
+				if (newName.length() == 0) {
+					Toast.makeText(activity, Constant.STRING_FILE_NAME_CANNOT_EMPTY, Toast.LENGTH_SHORT).show();
+					return;
+				}
+				String fullFileName = FileUtil.combinPath(path, newName);
+
+				File newFile = new File(fullFileName);
+				if (newFile.exists()) {
+					Toast.makeText(activity, Constant.STRING_FILE_EXISTS, Toast.LENGTH_SHORT).show();
+				} else {
+					try {
+						if (file.renameTo(newFile)) {
+							handler.sendEmptyMessage(0); // 成功 what=0
+						} else {
+							Toast.makeText(activity, Constant.STRING_FILE_RENAME_FIAL, Toast.LENGTH_SHORT).show();
+						}
+					} catch (Exception e) {
+						Log.e("rename file error : ",e.getLocalizedMessage());
+						Toast.makeText(activity, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+					}
+				}
+			}
+		}).setNegativeButton(Constant.STRING_FILE_CANCEL, null);
+		AlertDialog alertDialog = builder.create();
+		alertDialog.setTitle(Constant.STRING_FILE_RENAME);
+		alertDialog.show();
+	}
+
+	/**
+	 * 查看文件详情(现有layout.xml布局下)
+	 * @param activity
+	 * @param file
+	 */
+	public static void viewFileInfo(final Activity activity, File file,
+			final int layoutResource,
+			final int fileNameResource,
+			final int fileLastModifiedResource,
+			final int fileSizeResource,
+			final int fileContentsResource
+			) {
+		FileInfo fileInfo = FileUtil.getFileInfo(file);
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		//设置与布局上有几个控件密切相关
+		View layout = LayoutInflater.from(activity).inflate(layoutResource, null);
+		((TextView) layout.findViewById(fileNameResource)).setText(file.getName());
+		((TextView) layout.findViewById(fileLastModifiedResource)).setText(new Date(file.lastModified()).toLocaleString());
+		((TextView) layout.findViewById(fileSizeResource)).setText(FileUtil.formetFileSize(fileInfo.getSize()));
+		if (file.isDirectory()) {
+			((TextView) layout.findViewById(fileContentsResource)).setText("文件夹  "+ fileInfo.getFolderCount() + ", 文件  " + fileInfo.getFileCount());
+		}
+		builder.setView(layout);
+		builder.setPositiveButton(Constant.STRING_FILE_OK, new OnClickListener() {
+			public void onClick(DialogInterface dialoginterface, int i) {
+				dialoginterface.cancel();
+			}
+		});
+		AlertDialog alertDialog = builder.create();
+		alertDialog.setTitle(Constant.STRING_FILE_DETAILS);
+		alertDialog.show();
 	}
 	
 	
