@@ -114,5 +114,15 @@ public class FileInfo {
 		Name = name;
 		Icon = icon;
 	}
+
+
+	public FileInfo(String name, String path, Drawable icon, long size, boolean isDirectory) {
+		super();
+		Name = name;
+		Path = path;
+		Icon = icon;
+		Size = size;
+		IsDirectory = isDirectory;
+	}
 	
 }

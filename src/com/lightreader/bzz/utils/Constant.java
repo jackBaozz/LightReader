@@ -15,8 +15,10 @@ public interface Constant {
 	public static final String STRING_MAIM_EXIT_TEXT = "退出";
 	public static final String STRING_FILE_RENAME = "重命名";
 	public static final String STRING_FILE_COPY = "复制";
+	public static final String STRING_FILE_COPY_FAIL = "复制失败";
 	public static final String STRING_FILE_PASTE = "粘贴";
 	public static final String STRING_FILE_MOVE = "移动";
+	public static final String STRING_FILE_MOVE_FAIL = "移动失败";
 	public static final String STRING_FILE_DELETE = "删除";
 	public static final String STRING_FILE_ISORNOT_DELETE = "是否删除";
 	public static final String STRING_FILE_OK = "确定";
@@ -26,9 +28,16 @@ public interface Constant {
 	public static final String STRING_FILE_READ = "翻书效果阅读";
 	public static final String STRING_MKDIR = "创建目录";
 	public static final String STRING_FILE_EXISTS = "文件已经存在";
+	public static final String STRING_FILE_NOT_EXISTS = "文件不存在";
 	public static final String STRING_FILE_CREATE_FAIL = "文件创建失败";
 	public static final String STRING_FILE_NAME_CANNOT_EMPTY = "名字不能为空";
 	public static final String STRING_FILE_RENAME_FIAL= "重命名失败";
+	public static final String STRING_FILE_MKDIR= "新建文件夹";
+	public static final String STRING_FILE_BACK_UPLEVEL= "返回上一级";
+	public static final String STRING_FILE_SDCARD_LIST= "SDCARD目录";
+	public static final String STRING_FILE_REFLASH= "刷新";
+	public static final String STRING_FILE_PLEASE_INPUT_NAME = "请输入名字";
+	public static final String STRING_FILE_CHMOD_FAIL = "获取文件权限失败";
 	
 	
 	
@@ -49,6 +58,6 @@ public interface Constant {
 	//阅读器支持解码的后缀名文件类型
 	public static final String[] BOOK_SUFFIX = {".txt",".epub",".pdf"};
 	//默认访问SD卡的路径
-	public static final String  DEFAULT_SDCARD_PATH = "/mnt/sdcard";
+	public static final String  DEFAULT_SDCARD_PATH = "/mnt/sdcard/文件";
 	
 }

@@ -440,7 +440,7 @@ public class FileUtil {
 			) {
 		FileInfo fileInfo = FileUtil.getFileInfo(file);
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-		//设置与布局上有几个控件密切相关
+		//设置与布局上有几个控件密切相关------注意!!!!!
 		View layout = LayoutInflater.from(activity).inflate(layoutResource, null);
 		((TextView) layout.findViewById(fileNameResource)).setText(file.getName());
 		((TextView) layout.findViewById(fileLastModifiedResource)).setText(new Date(file.lastModified()).toLocaleString());
@@ -458,6 +458,5 @@ public class FileUtil {
 		alertDialog.setTitle(Constant.STRING_FILE_DETAILS);
 		alertDialog.show();
 	}
-	
 	
 }
