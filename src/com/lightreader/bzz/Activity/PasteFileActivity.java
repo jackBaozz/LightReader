@@ -23,7 +23,6 @@ import android.widget.Toast;
 import com.lightreader.bzz.file.FileUtil;
 import com.lightreader.bzz.pojo.FileInfo;
 
-
 public class PasteFileActivity extends ListActivity {
 	private TextView _filePath;
 	private List<FileInfo> _files = new ArrayList<FileInfo>();;
@@ -143,15 +142,13 @@ public class PasteFileActivity extends ListActivity {
 
 			final File src = new File(_currentPasteFilePath);
 			if (!src.exists()) {
-				Toast.makeText(getApplicationContext(), R.string.file_notexists, Toast.LENGTH_SHORT)
-						.show();
+				Toast.makeText(getApplicationContext(), R.string.file_notexists, Toast.LENGTH_SHORT).show();
 				return;
 			}
 			String newPath = FileUtil.combinPath(_currentPath, src.getName());
 			final File tar = new File(newPath);
 			if (tar.exists()) {
-				Toast.makeText(getApplicationContext(), R.string.file_exists, Toast.LENGTH_SHORT)
-						.show();
+				Toast.makeText(getApplicationContext(), R.string.file_exists, Toast.LENGTH_SHORT).show();
 				return;
 			}
 
@@ -165,16 +162,14 @@ public class PasteFileActivity extends ListActivity {
 							FileUtil.moveFile(src, tar);
 						} catch (Exception ex) {
 							Log.e(TAG, getString(R.string.file_move_fail), ex);
-							Toast.makeText(getApplicationContext(), ex.getMessage(),
-									Toast.LENGTH_SHORT).show();
+							Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_SHORT).show();
 						}
 					} else { // 复制文件
 						try {
 							FileUtil.copyFile(src, tar);
 						} catch (Exception ex) {
 							Log.e(TAG, getString(R.string.file_copy_fail), ex);
-							Toast.makeText(getApplicationContext(), ex.getMessage(),
-									Toast.LENGTH_SHORT).show();
+							Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_SHORT).show();
 						}
 					}
 

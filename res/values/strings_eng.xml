@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <string name="app_name_eng">ligthReader</string>
-    <string name="action_settings_eng">Settings</string>
-    <string name="hello_world_eng">Hello world!</string>
-	<string name="imageView_default_eng">this is default image</string>
-</resources>
