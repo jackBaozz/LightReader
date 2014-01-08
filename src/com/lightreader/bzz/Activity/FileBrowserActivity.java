@@ -58,6 +58,7 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 	private String btnFlag = "";//按钮的操作类型的flag
 	private ProgressDialog progressDialog;//进度条
 	private TableLayout tableLayout ;//隐藏或则显示的按钮条
+	private FileInfo clickedFileInfo;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -119,6 +120,7 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 				// 获取事件源的position
 				int position = ((AdapterView.AdapterContextMenuInfo) menuInfo).position;
 				// 根据position获取事件源对应的文件名
+				//clickedFileInfo = (FileInfo) fileListAdapter.getItem(position);//当前长按的文件
 				String fileName = ((FileInfo) fileListAdapter.getItem(position)).getName();
 				// 根据当前目录和文件名构建一个文件对象
 				File clickedFile = new File(current_dir, fileName);
@@ -225,8 +227,8 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 			break;
 		case Constant.INT_MENU_DETAILS:
 			//文件详细信息
-			FileUtil.viewFileInfo(FileBrowserActivity.this,clickedFile,R.layout.file_info,
-					R.id.file_info_name,R.id.file_info_lastmodified,R.id.file_info_size,R.id.file_info_contents);
+			FileUtil.viewFileInfo(FileBrowserActivity.this,clickedFile,fileInfo,R.layout.file_info,
+					R.id.file_info_name,R.id.file_info_lastmodified,R.id.file_info_size,R.id.file_info_contents,R.id.file_info_competence);
 			break;
 		}
 		browseTo(current_dir);
@@ -375,6 +377,7 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 	 * @param files
 	 */
 	private void fill(File[] files) {
+		String fileCompetence = "";
 		// 如果items未初始化则初始化
 		if (fileItemsList == null) {
 			fileItemsList = new ArrayList<FileInfo>();
@@ -386,21 +389,19 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 		if (files != null) {
 			// 遍历当前目录中的所有文件和子目录
 			for (File file : files) {
+				//获取文件的系统权限 fileCompetence
 				BufferedReader buffer = null;
-				StringBuffer sb = new StringBuffer();
-				String line = null;
+				String line = "";
 				Process p = null;
+				ArrayList<String> detailsList = new ArrayList<String>();
 				try {
-					Process process=Runtime.getRuntime().exec("ls -l"+file.getName());
-					buffer = new BufferedReader(new InputStreamReader(process.getInputStream()));
-					//p = Runtime.getRuntime().exec("ls -l" + file.getName());
-					//InputStream s = p.getInputStream();
-					//System.out.println(s);
-					//Log.v("RUNTIME:",s.toString());
+					p = Runtime.getRuntime().exec(new String[] { "ls","-ld",file.getAbsolutePath() });
+					buffer = new BufferedReader(new InputStreamReader(p.getInputStream()));
 					while((line = buffer.readLine())!=null){
-						sb.append(line);
+						line = line.substring(0, 10);
+						fileCompetence = line;
 					}
-					Log.v("RUNTIME:",sb.toString());
+					Log.v("文件权限 : ",fileCompetence);
 					int status = p.waitFor();     
 					if (status == 0) {     
 					    //chmod succeed     
@@ -409,12 +410,8 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 					} 
 				} catch (IOException e) {
 					Log.e("FileBrowserActivity.fill.IOException", Constant.STRING_FILE_CHMOD_FAIL, e);
-					//Toast.makeText(getApplicationContext(), e.getMessage(),Toast.LENGTH_SHORT).show();
-					//e.printStackTrace();
 				} catch (InterruptedException e) {
 					Log.e("FileBrowserActivity.fill.InterruptedException", Constant.STRING_FILE_CHMOD_FAIL, e);
-					Toast.makeText(getApplicationContext(), e.getMessage(),Toast.LENGTH_SHORT).show();
-					//e.printStackTrace();
 				} finally {
 				    if (p != null) {
 				        try {
@@ -426,7 +423,6 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 						}
 				    }
 				}  
-				
 				
 				
 				// 获取文件名
@@ -458,7 +454,7 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 				}
 				// 创建fileitem对象，并添加到集合
 				//FileInfo item = new FileInfo(fileName, icon);
-				FileInfo item = new FileInfo(fileName, file.getAbsolutePath(),icon,file.length(),file.isDirectory());
+				FileInfo item = new FileInfo(fileName, file.getAbsolutePath(),icon,file.length(),file.isDirectory(),fileCompetence);
 				fileItemsList.add(item);
 			}
 		}

@@ -431,12 +431,13 @@ public class FileUtil {
 	 * @param activity
 	 * @param file
 	 */
-	public static void viewFileInfo(final Activity activity, File file,
+	public static void viewFileInfo(final Activity activity, File file,FileInfo inputFileInfo,
 			final int layoutResource,
 			final int fileNameResource,
 			final int fileLastModifiedResource,
 			final int fileSizeResource,
-			final int fileContentsResource
+			final int fileContentsResource,
+			final int fileCompetenceResource
 			) {
 		FileInfo fileInfo = FileUtil.getFileInfo(file);
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
@@ -448,6 +449,7 @@ public class FileUtil {
 		if (file.isDirectory()) {
 			((TextView) layout.findViewById(fileContentsResource)).setText("文件夹  "+ fileInfo.getFolderCount() + ", 文件  " + fileInfo.getFileCount());
 		}
+		((TextView) layout.findViewById(fileCompetenceResource)).setText(inputFileInfo.getFileCompetence());
 		builder.setView(layout);
 		builder.setPositiveButton(Constant.STRING_FILE_OK, new OnClickListener() {
 			public void onClick(DialogInterface dialoginterface, int i) {

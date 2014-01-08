@@ -35,6 +35,7 @@
     <string name="file_rename_fail">重命名失败！</string>
     <string name="file_name">文件名</string>
     <string name="file_size">大小</string>
+    <string name="file_competence">权限</string>
     <string name="file_contents">内容</string>
     <string name="file_lastmodified">最后修改时间</string>
     <string name="file_paste">粘贴</string>

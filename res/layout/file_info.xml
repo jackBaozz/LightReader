@@ -43,6 +43,16 @@
 		<TextView
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
+			android:text="@string/file_competence"
+			android:textColor="#ff6699ff" />
+		<TextView
+			android:id="@+id/file_info_competence"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:text="" />
+		<TextView
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
 			android:text="@string/file_contents"
 			android:textColor="#ff6699ff" />
 		<TextView

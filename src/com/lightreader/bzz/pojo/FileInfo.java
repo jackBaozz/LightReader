@@ -15,10 +15,20 @@ public class FileInfo {
 	private int FileCount = 0;
 	private int FolderCount = 0;
 	private Date lastModifyDate;
-	
+	private String fileCompetence;//权限
 	
 	public Date getLastModifyDate() {
 		return lastModifyDate;
+	}
+
+
+	public String getFileCompetence() {
+		return fileCompetence;
+	}
+
+
+	public void setFileCompetence(String fileCompetence) {
+		this.fileCompetence = fileCompetence;
 	}
 
 
@@ -124,5 +134,18 @@ public class FileInfo {
 		Size = size;
 		IsDirectory = isDirectory;
 	}
+
+
+	public FileInfo(String name, String path, Drawable icon, long size, boolean isDirectory, String fileCompetence) {
+		super();
+		Name = name;
+		Path = path;
+		Icon = icon;
+		Size = size;
+		IsDirectory = isDirectory;
+		this.fileCompetence = fileCompetence;
+	}
+	
+	
 	
 }

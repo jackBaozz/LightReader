@@ -58,6 +58,6 @@ public interface Constant {
 	//阅读器支持解码的后缀名文件类型
 	public static final String[] BOOK_SUFFIX = {".txt",".epub",".pdf"};
 	//默认访问SD卡的路径
-	public static final String  DEFAULT_SDCARD_PATH = "/mnt/sdcard/文件";
+	public static final String  DEFAULT_SDCARD_PATH = "/mnt/sdcard/";
 	
 }
