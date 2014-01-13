@@ -438,18 +438,30 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 						icon = res.getDrawable(R.drawable.audio);// 音频图标
 					} else if (checkEnd(fileName, res.getStringArray(R.array.imageFile))) {
 						icon = res.getDrawable(R.drawable.image);// 图片图标
+					} else if (checkEnd(fileName, res.getStringArray(R.array.apkFile))) {
+						icon = res.getDrawable(R.drawable.apk);// 安装包图标
 					} else if (checkEnd(fileName, res.getStringArray(R.array.packageFile))) {
-						icon = res.getDrawable(R.drawable.packed);// 安装包图标
+						icon = res.getDrawable(R.drawable.rar);// 安装包图标
 					} else if (checkEnd(fileName, res.getStringArray(R.array.webFile))) {
-						icon = res.getDrawable(R.drawable.webtext);// 网络文本的图标
+						icon = res.getDrawable(R.drawable.html);// 网络文本的图标
 					} else if (checkEnd(fileName, res.getStringArray(R.array.txtFile))) {
 						icon = res.getDrawable(R.drawable.text);// 一般文本图标
 					} else if (checkEnd(fileName, res.getStringArray(R.array.pdfFile))) {
 						icon = res.getDrawable(R.drawable.pdf);// pdf图标
 					} else if (checkEnd(fileName, res.getStringArray(R.array.epubFile))) {
 						icon = res.getDrawable(R.drawable.epub);// epub图标
+					} else if (checkEnd(fileName, res.getStringArray(R.array.videoFile))) {
+						icon = res.getDrawable(R.drawable.video);// 视频图标
+					} else if (checkEnd(fileName, res.getStringArray(R.array.wordFile))) {
+						icon = res.getDrawable(R.drawable.word);// word图标
+					} else if (checkEnd(fileName, res.getStringArray(R.array.powerpointFile))) {
+						icon = res.getDrawable(R.drawable.powerpoint);// ppt图标
+					} else if (checkEnd(fileName, res.getStringArray(R.array.excelFile))) {
+						icon = res.getDrawable(R.drawable.excel);// excel图标
+					} else if (checkEnd(fileName, res.getStringArray(R.array.databaseFile))) {
+						icon = res.getDrawable(R.drawable.database);// db图标
 					} else {
-						icon = res.getDrawable(R.drawable.text);// 一般文本图标
+						icon = res.getDrawable(R.drawable.unknown);//unknow file
 					}
 				}
 				// 创建fileitem对象，并添加到集合
