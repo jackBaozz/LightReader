@@ -101,12 +101,18 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 				String fileName = fileItem.getName();
 				File file = new File(current_dir, fileName);
 				if (FileUtil.isValidFileOrDir(file)) {
-					//如果为书本后缀,则直接添加到书架
-					Intent intent = new Intent(FileBrowserActivity.this,OpenFileActivity.class);
+					/*Intent intent = new Intent(FileBrowserActivity.this,OpenFileActivity.class);
 					bundle = new Bundle();
 					bundle.putString("fileName", file.getAbsolutePath());
 					intent.putExtras(bundle);
-					FileBrowserActivity.this.startActivityForResult(intent, 0);
+					FileBrowserActivity.this.startActivityForResult(intent, 0);*/
+					
+					//如果为书本后缀,则直接添加本到书架
+					if (checkEnd(fileName, getResources().getStringArray(R.array.pdfFile))){
+						
+					}
+					
+					
 				} else {
 					browseTo(new File(current_dir, fileItem.getName()));
 				}
@@ -133,6 +139,7 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 				menu.add(0, Constant.INT_MENU_MOVE, 3, Constant.STRING_FILE_MOVE);//移动
 				menu.add(0, Constant.INT_MENU_DELETE, 4, Constant.STRING_FILE_DELETE);//删除
 				menu.add(0, Constant.INT_MENU_DETAILS, 5, Constant.STRING_FILE_DETAILS);//详细
+				menu.add(0, Constant.INT_MENU_CANCEL, 6, Constant.STRING_FILE_CANCEL);//取消
 				//如果选择的是文件
 				/*
 				if (clickedFile.isFile()) {
@@ -226,9 +233,67 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 			}
 			break;
 		case Constant.INT_MENU_DETAILS:
+			String fileCompetence = "";
+			int fileCount = 0;
+			int folderCount = 0;
+			//获取文件的系统权限 fileCompetence
+			BufferedReader buffer = null;
+			String line = "";
+			Process p = null;
+			try {
+				p = Runtime.getRuntime().exec(new String[] { "ls","-ld",clickedFile.getAbsolutePath() });
+				buffer = new BufferedReader(new InputStreamReader(p.getInputStream()));
+				while ((line = buffer.readLine()) != null) {
+					line = line.substring(0, 10);
+					fileCompetence = line;
+				}
+				
+				//没wc统计的命令
+				//p = Runtime.getRuntime().exec(new String[] { "ls -l /mnt/sdcard | grep \"^-\" | wc -l" });
+				p = Runtime.getRuntime().exec(new String[] { "ls","-l",clickedFile.getAbsolutePath() });
+				buffer = null;
+				buffer = new BufferedReader(new InputStreamReader(p.getInputStream()));
+				while ((line = buffer.readLine()) != null) {
+					line = line.substring(0, 1);
+					if(line.equals("-")){
+						fileCount++;
+					}else if(line.equals("d")){
+						folderCount++;
+					}else{
+						
+					}
+					line = "";
+				}
+				
+				//修改文件权限使用下面代码
+				/*
+				int status = p.waitFor();     
+				if (status == 0) {//chmod succeed      
+				} else { //chmod failed    
+				}*/
+			} catch (IOException e) {
+				Log.e("FileBrowserActivity.fill.IOException", Constant.STRING_FILE_CHMOD_FAIL, e);
+			//} catch (InterruptedException e) {
+				//Log.e("FileBrowserActivity.fill.InterruptedException", Constant.STRING_FILE_CHMOD_FAIL, e);
+			} finally {
+			    if (p != null) {
+			        try {
+						p.getOutputStream().close();
+						p.getInputStream().close();
+				        p.getErrorStream().close(); 
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+			    }
+			}
+			fileInfo.setFileCompetence(fileCompetence);//赋值文件权限字符串
+			fileInfo.setFileCount(fileCount);
+			fileInfo.setFolderCount(folderCount);
 			//文件详细信息
 			FileUtil.viewFileInfo(FileBrowserActivity.this,clickedFile,fileInfo,R.layout.file_info,
 					R.id.file_info_name,R.id.file_info_lastmodified,R.id.file_info_size,R.id.file_info_contents,R.id.file_info_competence);
+			break;
+		case Constant.INT_MENU_CANCEL:
 			break;
 		}
 		browseTo(current_dir);
@@ -288,7 +353,7 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 			}
 
 			//进度条
-			progressDialog = ProgressDialog.show(FileBrowserActivity.this, "", "Please wait...", true, false);
+			progressDialog = ProgressDialog.show(FileBrowserActivity.this, "", "Please wait......", true, false);
 
 			new Thread() {
 				@Override
@@ -377,7 +442,6 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 	 * @param files
 	 */
 	private void fill(File[] files) {
-		String fileCompetence = "";
 		// 如果items未初始化则初始化
 		if (fileItemsList == null) {
 			fileItemsList = new ArrayList<FileInfo>();
@@ -389,41 +453,6 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 		if (files != null) {
 			// 遍历当前目录中的所有文件和子目录
 			for (File file : files) {
-				//获取文件的系统权限 fileCompetence
-				BufferedReader buffer = null;
-				String line = "";
-				Process p = null;
-				ArrayList<String> detailsList = new ArrayList<String>();
-				try {
-					p = Runtime.getRuntime().exec(new String[] { "ls","-ld",file.getAbsolutePath() });
-					buffer = new BufferedReader(new InputStreamReader(p.getInputStream()));
-					while((line = buffer.readLine())!=null){
-						line = line.substring(0, 10);
-						fileCompetence = line;
-					}
-					Log.v("文件权限 : ",fileCompetence);
-					int status = p.waitFor();     
-					if (status == 0) {     
-					    //chmod succeed     
-					} else {     
-					    //chmod failed     
-					} 
-				} catch (IOException e) {
-					Log.e("FileBrowserActivity.fill.IOException", Constant.STRING_FILE_CHMOD_FAIL, e);
-				} catch (InterruptedException e) {
-					Log.e("FileBrowserActivity.fill.InterruptedException", Constant.STRING_FILE_CHMOD_FAIL, e);
-				} finally {
-				    if (p != null) {
-				        try {
-							p.getOutputStream().close();
-							p.getInputStream().close();
-					        p.getErrorStream().close(); 
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-				    }
-				}  
-				
 				
 				// 获取文件名
 				String fileName = file.getName();
@@ -466,7 +495,7 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 				}
 				// 创建fileitem对象，并添加到集合
 				//FileInfo item = new FileInfo(fileName, icon);
-				FileInfo item = new FileInfo(fileName, file.getAbsolutePath(),icon,file.length(),file.isDirectory(),fileCompetence);
+				FileInfo item = new FileInfo(fileName, file.getAbsolutePath(),icon,file.length(),file.isDirectory());
 				fileItemsList.add(item);
 			}
 		}

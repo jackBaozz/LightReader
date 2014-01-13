@@ -145,6 +145,10 @@ public class FileInfo {
 		IsDirectory = isDirectory;
 		this.fileCompetence = fileCompetence;
 	}
+
+
+	
+	
 	
 	
 	

@@ -54,6 +54,7 @@ public interface Constant {
 	public static final int INT_MENU_MOVE = 11;//移动
 	public static final int INT_MENU_INFO = 12;//信息
 	public static final int INT_MENU_DETAILS = 13;//详细
+	public static final int INT_MENU_CANCEL = 14;//取消
 	
 	//阅读器支持解码的后缀名文件类型
 	public static final String[] BOOK_SUFFIX = {".txt",".epub",".pdf"};

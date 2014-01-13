@@ -13,18 +13,19 @@ public final class R {
         public static final int fadeout=0x7f040001;
     }
     public static final class array {
-        public static final int apkFile=0x7f050003;
-        public static final int audioFile=0x7f050001;
+        public static final int apkFile=0x7f050002;
+        public static final int audioFile=0x7f050007;
+        public static final int booksFile=0x7f05000d;
         public static final int databaseFile=0x7f05000c;
-        public static final int epubFile=0x7f050007;
+        public static final int epubFile=0x7f050006;
         public static final int excelFile=0x7f05000b;
         public static final int imageFile=0x7f050000;
-        public static final int packageFile=0x7f050002;
-        public static final int pdfFile=0x7f050006;
+        public static final int packageFile=0x7f050001;
+        public static final int pdfFile=0x7f050005;
         public static final int powerpointFile=0x7f05000a;
-        public static final int txtFile=0x7f050005;
+        public static final int txtFile=0x7f050004;
         public static final int videoFile=0x7f050008;
-        public static final int webFile=0x7f050004;
+        public static final int webFile=0x7f050003;
         public static final int wordFile=0x7f050009;
     }
     public static final class attr {

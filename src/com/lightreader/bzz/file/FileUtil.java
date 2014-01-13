@@ -389,6 +389,13 @@ public class FileUtil {
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 		View layout = LayoutInflater.from(activity).inflate(layoutResource, null);
 		final EditText text = (EditText) layout.findViewById(editTextResource);
+		/*if(file.isDirectory()){//选中的文件是一个文件夹
+			text.setText(file.getName());
+		}else{//选中的文件是一个文件
+			int flag = file.getName().lastIndexOf('.');
+			String fileName = file.getName().substring(0, flag);
+			text.setText(fileName);//放入截取后缀名的文件名
+		}*/
 		text.setText(file.getName());
 		builder.setView(layout);
 		builder.setPositiveButton(Constant.STRING_FILE_OK, new OnClickListener() {
@@ -447,7 +454,7 @@ public class FileUtil {
 		((TextView) layout.findViewById(fileLastModifiedResource)).setText(new Date(file.lastModified()).toLocaleString());
 		((TextView) layout.findViewById(fileSizeResource)).setText(FileUtil.formetFileSize(fileInfo.getSize()));
 		if (file.isDirectory()) {
-			((TextView) layout.findViewById(fileContentsResource)).setText("文件夹  "+ fileInfo.getFolderCount() + ", 文件  " + fileInfo.getFileCount());
+			((TextView) layout.findViewById(fileContentsResource)).setText("文件夹  "+ inputFileInfo.getFolderCount() + ", 文件  " + inputFileInfo.getFileCount());
 		}
 		((TextView) layout.findViewById(fileCompetenceResource)).setText(inputFileInfo.getFileCompetence());
 		builder.setView(layout);

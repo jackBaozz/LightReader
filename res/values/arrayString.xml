@@ -70,4 +70,10 @@
     <string-array name="databaseFile">
     	<item>.db</item>
     </string-array>
+    
+    <string-array name="booksFile">
+    	<item>.epub</item>
+    	<item>.txt</item>
+    	<item>.pdf</item>
+    </string-array>
 </resources>
