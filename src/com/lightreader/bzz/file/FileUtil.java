@@ -33,6 +33,10 @@ import com.lightreader.bzz.utils.Constant;
 public class FileUtil {
 	private String SDPATH;
 
+	public void setSDPATH(String sDPATH) {
+		SDPATH = sDPATH;
+	}
+
 	public String getSDPATH() {
 		return SDPATH;
 	}

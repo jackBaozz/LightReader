@@ -9,6 +9,7 @@
   
     <ImageView 
     	android:id="@+id/ivFileIcon"
+    	android:contentDescription="@string/pic_info"
     	android:layout_width="wrap_content"
 		android:layout_height="45dp"
 		android:gravity="center_vertical"
@@ -21,5 +22,12 @@
     	android:layout_weight="1.0"
     	android:textSize="20sp"
     	android:layout_gravity="center_vertical"
+    />
+    <ImageView 
+    	android:id="@+id/ivFileCheckIcon"
+    	android:contentDescription="@string/pic_info"
+    	android:layout_width="wrap_content"
+		android:layout_height="45dp"
+		android:gravity="center_vertical"
     />
 </LinearLayout>

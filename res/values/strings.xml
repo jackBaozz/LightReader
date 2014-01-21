@@ -45,4 +45,5 @@
     <string name="file_copy_fail">复制文件失败！</string>
     <string name="file_move_fail">移动文件失败！</string>
     <string name="file_notexists">文件不存在！</string>
+    <string name="pic_info">图片信息</string>
 </resources>

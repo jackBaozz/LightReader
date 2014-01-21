@@ -38,6 +38,8 @@ public interface Constant {
 	public static final String STRING_FILE_REFLASH= "刷新";
 	public static final String STRING_FILE_PLEASE_INPUT_NAME = "请输入名字";
 	public static final String STRING_FILE_CHMOD_FAIL = "获取文件权限失败";
+	public static final String STRING_FILE_ADDTOBOOKSHELF = "添加到书架";
+	public static final String STRING_FILE_REMOVEBOOKFROMBOOKSHELF = "下架该书本";
 	
 	
 	
@@ -55,7 +57,8 @@ public interface Constant {
 	public static final int INT_MENU_INFO = 12;//信息
 	public static final int INT_MENU_DETAILS = 13;//详细
 	public static final int INT_MENU_CANCEL = 14;//取消
-	
+	public static final int INT_MENU_ADDTOBOOKSHELF = 15;//添加到书架
+	public static final int INT_MENU_REMOVEBOOKFROMBOOKSHELF = 16;//从书架下架该书本
 	//阅读器支持解码的后缀名文件类型
 	public static final String[] BOOK_SUFFIX = {".txt",".epub",".pdf"};
 	//默认访问SD卡的路径

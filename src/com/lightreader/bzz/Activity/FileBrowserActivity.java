@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +31,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -59,6 +59,9 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 	private ProgressDialog progressDialog;//进度条
 	private TableLayout tableLayout ;//隐藏或则显示的按钮条
 	private FileInfo clickedFileInfo;
+	private ImageView currentImageView;//当前选中的ListView的其中一行的View的ImageView
+	private View currentView;
+	
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -95,7 +98,7 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 		//listView被点击事件
 		listViewFiles.setOnItemClickListener(new OnItemClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> adapterView, View view,int position, long arg3) {
+			public void onItemClick(AdapterView<?> adapterView, View view,int position, long time) {
 				// 获取被单击的item的对象
 				FileInfo fileItem = (FileInfo) fileListAdapter.getItem(position);
 				String fileName = fileItem.getName();
@@ -122,36 +125,51 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 		// listViewFiles创建上下文菜单监听(文件长按事件)
 		listViewFiles.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
 			@Override
-			public void onCreateContextMenu(ContextMenu menu, View v,ContextMenuInfo menuInfo) {
+			public void onCreateContextMenu(ContextMenu menu, View view,ContextMenuInfo menuInfo) {
+				//当前选中的ListView的其中一行的View
+				currentView = view;
 				// 获取事件源的position
 				int position = ((AdapterView.AdapterContextMenuInfo) menuInfo).position;
 				// 根据position获取事件源对应的文件名
-				//clickedFileInfo = (FileInfo) fileListAdapter.getItem(position);//当前长按的文件
 				String fileName = ((FileInfo) fileListAdapter.getItem(position)).getName();
 				// 根据当前目录和文件名构建一个文件对象
 				File clickedFile = new File(current_dir, fileName);
+				FileInfo fileInfo = FileUtil.getFileInfo(clickedFile);
 				menu.setHeaderTitle(fileName);//设置标题
 				// 如果该文件对象是一个文件，向上下文菜单添加两个菜单项
 				// 如果该文件对象是一个目录，且之前执行过复制动作（selectedFile不为null），则向菜单中添加一个菜单项
-				//menu.add(0, Constant.INT_MENU_DELETE, 3, Constant.STRING_FILE_DELETE);
-				menu.add(0, Constant.INT_MENU_RENAME, 1, Constant.STRING_FILE_RENAME);//重命名
-				menu.add(0, Constant.INT_MENU_COPY, 2, Constant.STRING_FILE_COPY);//复制
-				menu.add(0, Constant.INT_MENU_MOVE, 3, Constant.STRING_FILE_MOVE);//移动
-				menu.add(0, Constant.INT_MENU_DELETE, 4, Constant.STRING_FILE_DELETE);//删除
-				menu.add(0, Constant.INT_MENU_DETAILS, 5, Constant.STRING_FILE_DETAILS);//详细
-				menu.add(0, Constant.INT_MENU_CANCEL, 6, Constant.STRING_FILE_CANCEL);//取消
-				//如果选择的是文件
-				/*
-				if (clickedFile.isFile()) {
-					menu.add(0,Constant.MENU_READ,1,Constant.FILE_READ);
-					menu.add(0,Constant.MENU_COPY, 2, Constant.FILE_COPY);
+				if (fileInfo.isIsDirectory() == false) {// 不是文件夹
+					int flag = 0;
+					for (String suffixString : Constant.BOOK_SUFFIX) {// 后缀名必须符合规范
+						if (fileInfo.getName().endsWith(suffixString)) {
+							menu.add(0, Constant.INT_MENU_ADDTOBOOKSHELF, 1, Constant.STRING_FILE_ADDTOBOOKSHELF);// 添加到书架
+							menu.add(0, Constant.INT_MENU_RENAME, 2, Constant.STRING_FILE_RENAME);// 重命名
+							menu.add(0, Constant.INT_MENU_COPY, 3, Constant.STRING_FILE_COPY);// 复制
+							menu.add(0, Constant.INT_MENU_MOVE, 4, Constant.STRING_FILE_MOVE);// 移动
+							menu.add(0, Constant.INT_MENU_DELETE, 5, Constant.STRING_FILE_DELETE);// 删除
+							menu.add(0, Constant.INT_MENU_DETAILS, 6, Constant.STRING_FILE_DETAILS);// 详细
+							menu.add(0, Constant.INT_MENU_CANCEL, 7, Constant.STRING_FILE_CANCEL);// 取消
+							break;
+						}
+						flag++;
+					}
+					if (flag == Constant.BOOK_SUFFIX.length) {
+						menu.add(0, Constant.INT_MENU_RENAME, 1, Constant.STRING_FILE_RENAME);// 重命名
+						menu.add(0, Constant.INT_MENU_COPY, 2, Constant.STRING_FILE_COPY);// 复制
+						menu.add(0, Constant.INT_MENU_MOVE, 3, Constant.STRING_FILE_MOVE);// 移动
+						menu.add(0, Constant.INT_MENU_DELETE, 4, Constant.STRING_FILE_DELETE);// 删除
+						menu.add(0, Constant.INT_MENU_DETAILS, 5, Constant.STRING_FILE_DETAILS);// 详细
+						menu.add(0, Constant.INT_MENU_CANCEL, 6, Constant.STRING_FILE_CANCEL);// 取消
+					}
+				} else {
+					menu.add(0, Constant.INT_MENU_RENAME, 1, Constant.STRING_FILE_RENAME);// 重命名
+					menu.add(0, Constant.INT_MENU_COPY, 2, Constant.STRING_FILE_COPY);// 复制
+					menu.add(0, Constant.INT_MENU_MOVE, 3, Constant.STRING_FILE_MOVE);// 移动
+					menu.add(0, Constant.INT_MENU_DELETE, 4, Constant.STRING_FILE_DELETE);// 删除
+					menu.add(0, Constant.INT_MENU_DETAILS, 5, Constant.STRING_FILE_DETAILS);// 详细
+					menu.add(0, Constant.INT_MENU_CANCEL, 6, Constant.STRING_FILE_CANCEL);// 取消
 				}
-				*/
-				//如果选择的是文件夹,且有复制了其他文件
-				/*
-				if (clickedFile.isDirectory() && selectedFile != null) {
-					menu.add(0, Constant.MENU_PASTE, 4, Constant.FILE_PASTE);
-				}*/
+				
 			}
 		});
 	}
@@ -167,6 +185,15 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 		clickedFile = new File(current_dir, fileName);//当前选中的文件
 		clickedFileName = fileName;//当前选中的文件名字
 		switch (item.getItemId()) {
+		case Constant.INT_MENU_ADDTOBOOKSHELF:
+			//添加书本到书架
+			//currentView.setImageResource(R.drawable.btn_check_buttonless_on);//勾选状态
+			View view = fileListAdapter.getView(position,currentView,null);
+			//fileListAdapter.notifyDataSetChanged();// 通知数据改变
+			TextView tv = (TextView) view.findViewById(R.id.tvFileName);
+			CharSequence cs = tv.getText();
+			Toast.makeText(this, cs.toString(), Toast.LENGTH_SHORT).show();
+			break;
 		case Constant.INT_MENU_RENAME:
 			//重命名
 			FileUtil.renameFile(this, clickedFile, fileCallBackHandler, R.layout.file_rename, R.id.file_name);
