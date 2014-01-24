@@ -169,8 +169,8 @@ public class MainActivity extends Activity {
 		mainGridLocalBooks.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-				Log.v("System.out", "listItemsLength - 1 :"+ String.valueOf(listItemsLength - 1));
-				Log.v("System.out", "position :" + String.valueOf(position));
+				Log.v("System.out", "MainActivity.listItemsLength - 1 :"+ String.valueOf(listItemsLength - 1));
+				Log.v("System.out", "MainActivity.position :" + String.valueOf(position));
 				if(listItemsLength - 1 == position ){
 					//点击了最后一张图片 "+"添加本地目录,跳转到另一个intent来选择本地文件
 					Intent intent = new Intent(MainActivity.this,FileBrowserActivity.class);//  

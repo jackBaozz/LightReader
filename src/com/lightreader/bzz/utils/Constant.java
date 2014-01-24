@@ -59,6 +59,9 @@ public interface Constant {
 	public static final int INT_MENU_CANCEL = 14;//取消
 	public static final int INT_MENU_ADDTOBOOKSHELF = 15;//添加到书架
 	public static final int INT_MENU_REMOVEBOOKFROMBOOKSHELF = 16;//从书架下架该书本
+	public static final int INT_MENU_ON = 17;//开关 开
+	public static final int INT_MENU_OFF = 18;//开关 关
+	
 	//阅读器支持解码的后缀名文件类型
 	public static final String[] BOOK_SUFFIX = {".txt",".epub",".pdf"};
 	//默认访问SD卡的路径

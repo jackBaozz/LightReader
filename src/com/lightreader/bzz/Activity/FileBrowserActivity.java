@@ -44,7 +44,7 @@ import com.lightreader.bzz.pojo.FileInfo;
 import com.lightreader.bzz.utils.Constant;
 
 public class FileBrowserActivity extends BaseActivity implements android.view.View.OnClickListener {
-	private ListView listViewFiles;
+	private ListView fileListView;
 	private ArrayList<FileInfo> fileItemsList;
 	private FileListAdapter fileListAdapter;
 	private File current_dir; //当前显示的文件目录
@@ -52,7 +52,7 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 	private File selectedFile;
 	private File clickedFile;
 	private String clickedFileName = "";
-	private TextView textViewTitle;
+	private TextView titleTextView;
 	private Bundle bundle;
 	private Button btnBack, btnHome,btnMkdir,btnPaste,btnCancel;
 	private String btnFlag = "";//按钮的操作类型的flag
@@ -90,13 +90,13 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 		tableLayout = (TableLayout)findViewById(R.id.btn_bar_bottom);//获取按钮条
 		
 		
-		textViewTitle = (TextView) findViewById(R.id.tvTitle);
-		listViewFiles = (ListView) findViewById(android.R.id.list);
+		titleTextView = (TextView) findViewById(R.id.tvTitle);
+		fileListView = (ListView) findViewById(android.R.id.list);
 		browseTo(new File(Constant.DEFAULT_SDCARD_PATH));// fileItemsList 设置值  "/mnt/sdcard"
-		fileListAdapter = new FileListAdapter(FileBrowserActivity.this, fileItemsList);
-		listViewFiles.setAdapter(fileListAdapter);
+		fileListAdapter = new FileListAdapter(FileBrowserActivity.this, fileItemsList);//把获取的数据(fileItemsList)往,Adapter里放
+		fileListView.setAdapter(fileListAdapter);
 		//listView被点击事件
-		listViewFiles.setOnItemClickListener(new OnItemClickListener() {
+		fileListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> adapterView, View view,int position, long time) {
 				// 获取被单击的item的对象
@@ -123,7 +123,7 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 		});
 
 		// listViewFiles创建上下文菜单监听(文件长按事件)
-		listViewFiles.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
+		fileListView.setOnCreateContextMenuListener(new OnCreateContextMenuListener() {
 			@Override
 			public void onCreateContextMenu(ContextMenu menu, View view,ContextMenuInfo menuInfo) {
 				//当前选中的ListView的其中一行的View
@@ -181,18 +181,24 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 		int position = ((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position;
 		// 获取事件源对应的文件名
 		FileInfo fileInfo = (FileInfo)fileListAdapter.getItem(position);
+		Log.i(" 当前点击的是------position : ", String.valueOf(position));
 		String fileName = fileInfo.getName();
 		clickedFile = new File(current_dir, fileName);//当前选中的文件
 		clickedFileName = fileName;//当前选中的文件名字
 		switch (item.getItemId()) {
 		case Constant.INT_MENU_ADDTOBOOKSHELF:
 			//添加书本到书架
+			fileListAdapter.setPosition(position);
+			fileListAdapter.setFlag(Constant.INT_MENU_ON);
+			fileListView.setAdapter(fileListAdapter);
 			//currentView.setImageResource(R.drawable.btn_check_buttonless_on);//勾选状态
-			View view = fileListAdapter.getView(position,currentView,null);
-			//fileListAdapter.notifyDataSetChanged();// 通知数据改变
-			TextView tv = (TextView) view.findViewById(R.id.tvFileName);
-			CharSequence cs = tv.getText();
-			Toast.makeText(this, cs.toString(), Toast.LENGTH_SHORT).show();
+			//TODO 清理数据
+			//fileItemsList.clear();
+			//fileItemsList.add(new FileInfo());
+			//View view = fileListAdapter.getView(position,currentView,null);
+			//TextView tv = (TextView) view.findViewById(R.id.tvFileName);
+			//CharSequence cs = tv.getText();
+			//Toast.makeText(this, cs.toString(), Toast.LENGTH_SHORT).show();
 			break;
 		case Constant.INT_MENU_RENAME:
 			//重命名
@@ -453,7 +459,7 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 		// 如果dir对象是一个目录
 		if (dir.isDirectory()) {
 			// 改变标题栏的路径文字
-			textViewTitle.setText(dir.getAbsolutePath());
+			titleTextView.setText(dir.getAbsolutePath());
 			// 更改当前目录为指定目录
 			this.current_dir = dir;
 			// 查找dir目录中的所有子目录和文件 填充到items集合
