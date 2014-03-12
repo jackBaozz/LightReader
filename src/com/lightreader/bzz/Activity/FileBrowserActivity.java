@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -15,6 +16,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -41,6 +43,7 @@ import com.lightreader.bzz.Adapter.FileListAdapter;
 import com.lightreader.bzz.file.FileComparator;
 import com.lightreader.bzz.file.FileUtil;
 import com.lightreader.bzz.pojo.FileInfo;
+import com.lightreader.bzz.sqlite.DatabaseServer;
 import com.lightreader.bzz.utils.Constant;
 
 public class FileBrowserActivity extends BaseActivity implements android.view.View.OnClickListener {
@@ -61,7 +64,7 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 	private FileInfo clickedFileInfo;
 	private ImageView currentImageView;//当前选中的ListView的其中一行的View的ImageView
 	private View currentView;
-	
+	DatabaseServer databaseServer = new DatabaseServer(FileBrowserActivity.this);
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -142,18 +145,39 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 					int flag = 0;
 					for (String suffixString : Constant.BOOK_SUFFIX) {// 后缀名必须符合规范
 						if (fileInfo.getName().endsWith(suffixString)) {
-							menu.add(0, Constant.INT_MENU_ADDTOBOOKSHELF, 1, Constant.STRING_FILE_ADDTOBOOKSHELF);// 添加到书架
-							menu.add(0, Constant.INT_MENU_RENAME, 2, Constant.STRING_FILE_RENAME);// 重命名
-							menu.add(0, Constant.INT_MENU_COPY, 3, Constant.STRING_FILE_COPY);// 复制
-							menu.add(0, Constant.INT_MENU_MOVE, 4, Constant.STRING_FILE_MOVE);// 移动
-							menu.add(0, Constant.INT_MENU_DELETE, 5, Constant.STRING_FILE_DELETE);// 删除
-							menu.add(0, Constant.INT_MENU_DETAILS, 6, Constant.STRING_FILE_DETAILS);// 详细
-							menu.add(0, Constant.INT_MENU_CANCEL, 7, Constant.STRING_FILE_CANCEL);// 取消
-							break;
+							//添加对文件是否已经添加到书架了的判断
+							Cursor cursor = databaseServer.selectBook(clickedFile.getAbsolutePath());
+							int isShow = 0;//该书本是否显示,是否上架下架
+							int countBook = cursor.getCount();//总共有几条数据
+							if(countBook == 1){//只有唯一的一条数据的时候
+								while (cursor.moveToNext()) {
+									int flag1 = cursor.getColumnIndex("isShow");
+									isShow = cursor.getInt(flag1);
+								}
+							}
+							if(isShow == 1){//如果该书本已经添加到书架了
+								menu.add(0, Constant.INT_MENU_REMOVEBOOKFROMBOOKSHELF, 1, Constant.STRING_FILE_DELETEFROMBOOKSHELF);// 从书架下架
+								menu.add(0, Constant.INT_MENU_RENAME, 2, Constant.STRING_FILE_RENAME);// 重命名
+								menu.add(0, Constant.INT_MENU_COPY, 3, Constant.STRING_FILE_COPY);// 复制
+								menu.add(0, Constant.INT_MENU_MOVE, 4, Constant.STRING_FILE_MOVE);// 移动
+								menu.add(0, Constant.INT_MENU_DELETE, 5, Constant.STRING_FILE_DELETE);// 删除
+								menu.add(0, Constant.INT_MENU_DETAILS, 6, Constant.STRING_FILE_DETAILS);// 详细
+								menu.add(0, Constant.INT_MENU_CANCEL, 7, Constant.STRING_FILE_CANCEL);// 取消
+								break;
+							}else{
+								menu.add(0, Constant.INT_MENU_ADDTOBOOKSHELF, 1, Constant.STRING_FILE_ADDTOBOOKSHELF);// 添加到书架
+								menu.add(0, Constant.INT_MENU_RENAME, 2, Constant.STRING_FILE_RENAME);// 重命名
+								menu.add(0, Constant.INT_MENU_COPY, 3, Constant.STRING_FILE_COPY);// 复制
+								menu.add(0, Constant.INT_MENU_MOVE, 4, Constant.STRING_FILE_MOVE);// 移动
+								menu.add(0, Constant.INT_MENU_DELETE, 5, Constant.STRING_FILE_DELETE);// 删除
+								menu.add(0, Constant.INT_MENU_DETAILS, 6, Constant.STRING_FILE_DETAILS);// 详细
+								menu.add(0, Constant.INT_MENU_CANCEL, 7, Constant.STRING_FILE_CANCEL);// 取消
+								break;
+							}
 						}
 						flag++;
 					}
-					if (flag == Constant.BOOK_SUFFIX.length) {
+					if (flag == Constant.BOOK_SUFFIX.length) {//能运行到这里,说明该单文件不符合后缀名的规范
 						menu.add(0, Constant.INT_MENU_RENAME, 1, Constant.STRING_FILE_RENAME);// 重命名
 						menu.add(0, Constant.INT_MENU_COPY, 2, Constant.STRING_FILE_COPY);// 复制
 						menu.add(0, Constant.INT_MENU_MOVE, 3, Constant.STRING_FILE_MOVE);// 移动
@@ -169,7 +193,6 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 					menu.add(0, Constant.INT_MENU_DETAILS, 5, Constant.STRING_FILE_DETAILS);// 详细
 					menu.add(0, Constant.INT_MENU_CANCEL, 6, Constant.STRING_FILE_CANCEL);// 取消
 				}
-				
 			}
 		});
 	}
@@ -186,7 +209,24 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 		clickedFile = new File(current_dir, fileName);//当前选中的文件
 		clickedFileName = fileName;//当前选中的文件名字
 		switch (item.getItemId()) {
-		case Constant.INT_MENU_ADDTOBOOKSHELF:
+		case Constant.INT_MENU_ADDTOBOOKSHELF:  //上架
+			//1.首先查询是否已经存在
+			Cursor cursor = databaseServer.selectBook(clickedFile.getAbsolutePath());
+			int isShow = 0;//该书本是否显示,是否上架下架
+			int countBook = cursor.getCount();//总共有几条数据
+			if(countBook == 1){//只有唯一的一条数据的时候
+				//2.update 
+				boolean bookShowOperation = databaseServer.updateBook(clickedFile.getAbsolutePath(), 1);//更新该条数据为"上架"
+				if(bookShowOperation){//更新成功
+					Log.e("程序逻辑错误", "上架书本"+clickedFile.getAbsolutePath()+"失败");
+				}
+			}else{//无数据,新增
+				//3.保存数据到sqlite 初始保存基本数据
+				databaseServer.insertBooks(FileUtil.getFileMD5(clickedFile),
+						fileName, clickedFile.getAbsolutePath(), 
+						null, null, clickedFile.isDirectory(), null, null, new Date(clickedFile.lastModified()).toLocaleString() , null,null,null,null,null,1);
+			}
+			
 			//添加书本到书架
 			fileListAdapter.setPosition(position);
 			fileListAdapter.setFlag(Constant.INT_MENU_ON);
@@ -195,10 +235,14 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 			//TODO 清理数据
 			//fileItemsList.clear();
 			//fileItemsList.add(new FileInfo());
-			//View view = fileListAdapter.getView(position,currentView,null);
-			//TextView tv = (TextView) view.findViewById(R.id.tvFileName);
-			//CharSequence cs = tv.getText();
-			//Toast.makeText(this, cs.toString(), Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "添加书本成功!", Toast.LENGTH_SHORT).show();
+			break;
+		case Constant.INT_MENU_REMOVEBOOKFROMBOOKSHELF:  //下架
+			databaseServer.updateBook(clickedFile.getAbsolutePath(),0);//更新为false,下架
+			//添加书本到书架
+			fileListAdapter.setPosition(position);
+			fileListAdapter.setFlag(Constant.INT_MENU_OFF);
+			fileListView.setAdapter(fileListAdapter);
 			break;
 		case Constant.INT_MENU_RENAME:
 			//重命名

@@ -39,6 +39,7 @@ public interface Constant {
 	public static final String STRING_FILE_PLEASE_INPUT_NAME = "请输入名字";
 	public static final String STRING_FILE_CHMOD_FAIL = "获取文件权限失败";
 	public static final String STRING_FILE_ADDTOBOOKSHELF = "添加到书架";
+	public static final String STRING_FILE_DELETEFROMBOOKSHELF = "从书架下架";
 	public static final String STRING_FILE_REMOVEBOOKFROMBOOKSHELF = "下架该书本";
 	
 	

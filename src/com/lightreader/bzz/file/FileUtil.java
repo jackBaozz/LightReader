@@ -8,11 +8,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -106,6 +110,7 @@ public class FileUtil {
 
 	/**
 	 * 根据InputStream流,转换为字符串数组
+	 * 
 	 * @param in
 	 * @return
 	 * @throws IOException
@@ -121,16 +126,15 @@ public class FileUtil {
 		in.close();
 		return bookContents;
 	}
-	
-	
-	/** 
-	 * 检查是否为合法的文件名，或者是否为路径 
+
+	/**
+	 * 检查是否为合法的文件名，或者是否为路径
 	 */
 	public static boolean isValidFileOrDir(File file) {
 		if (file.isDirectory()) {
 			return false;
 		} else {
-			//String fileName = file.getName().toLowerCase();
+			// String fileName = file.getName().toLowerCase();
 			Locale defloc = Locale.getDefault();
 			String fileName = file.getName().toLowerCase(defloc);
 			if (fileName.endsWith(".txt")) {
@@ -139,9 +143,10 @@ public class FileUtil {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 把文件A的内容，写入文件B中
+	 * 
 	 * @param fromFile
 	 * @param toFile
 	 * @throws IOException
@@ -162,9 +167,7 @@ public class FileUtil {
 		in.close();
 		fis.close();
 	}
-	
-	
-	
+
 	/** 获取SD路径 **/
 	public static String getSDPath() {
 		// 判断sd卡是否存在
@@ -187,8 +190,8 @@ public class FileUtil {
 	/** 计算文件内容 **/
 	private static void calcFileContent(FileInfo fileInfo, File file) {
 		if (file.isFile()) {
-			//info.Size += f.length();
-			fileInfo.setSize(fileInfo.getSize()+file.length());
+			// info.Size += f.length();
+			fileInfo.setSize(fileInfo.getSize() + file.length());
 		}
 		if (file.isDirectory()) {
 			File[] files = file.listFiles();
@@ -196,19 +199,20 @@ public class FileUtil {
 				for (int i = 0; i < files.length; ++i) {
 					File tmp = files[i];
 					if (tmp.isDirectory()) {
-						//info.FolderCount++;
+						// info.FolderCount++;
 						int flag = fileInfo.getFolderCount();
 						fileInfo.setFolderCount(flag++);
 					} else if (tmp.isFile()) {
-						//info.FileCount++;
+						// info.FileCount++;
 						int flag = fileInfo.getFileCount();
 						fileInfo.setFileCount(flag++);
 					}
 					// 超过一万不计算
-					/*if (info.FileCount + info.FolderCount >= 10000) { 
-						break;
-					}*/
-					if(fileInfo.getFileCount() + fileInfo.getFolderCount() >= 10000){
+					/*
+					 * if (info.FileCount + info.FolderCount >= 10000) { break;
+					 * }
+					 */
+					if (fileInfo.getFileCount() + fileInfo.getFolderCount() >= 10000) {
 						break;
 					}
 					calcFileContent(fileInfo, tmp);
@@ -258,8 +262,7 @@ public class FileUtil {
 			File[] f = src.listFiles();
 			tar.mkdir();
 			for (int i = 0; i < f.length; i++) {
-				copyFile(f[i].getAbsoluteFile(), new File(tar.getAbsoluteFile() + File.separator
-						+ f[i].getName()));
+				copyFile(f[i].getAbsoluteFile(), new File(tar.getAbsoluteFile() + File.separator + f[i].getName()));
 			}
 		}
 		return true;
@@ -293,14 +296,11 @@ public class FileUtil {
 		String end = name.substring(name.lastIndexOf(".") + 1, name.length()).toLowerCase();
 		if (end.equals("apk")) {
 			return "application/vnd.android.package-archive";
-		} else if (end.equals("mp4") || end.equals("avi") || end.equals("3gp")
-				|| end.equals("rmvb")) {
+		} else if (end.equals("mp4") || end.equals("avi") || end.equals("3gp") || end.equals("rmvb")) {
 			type = "video";
-		} else if (end.equals("m4a") || end.equals("mp3") || end.equals("mid") || end.equals("xmf")
-				|| end.equals("ogg") || end.equals("wav")) {
+		} else if (end.equals("m4a") || end.equals("mp3") || end.equals("mid") || end.equals("xmf") || end.equals("ogg") || end.equals("wav")) {
 			type = "audio";
-		} else if (end.equals("jpg") || end.equals("gif") || end.equals("png")
-				|| end.equals("jpeg") || end.equals("bmp")) {
+		} else if (end.equals("jpg") || end.equals("gif") || end.equals("png") || end.equals("jpeg") || end.equals("bmp")) {
 			type = "image";
 		} else if (end.equals("txt") || end.equals("log")) {
 			type = "text";
@@ -310,10 +310,10 @@ public class FileUtil {
 		type += "/*";
 		return type;
 	}
-	
-	
+
 	/**
 	 * 获取一个文件夹下的所有文件
+	 * 
 	 * @param activity
 	 * @param path
 	 * @return
@@ -322,7 +322,7 @@ public class FileUtil {
 		File f = new File(path);
 		File[] files = f.listFiles();
 		if (files == null) {
-			Toast.makeText(activity.getBaseContext(),String.format("无法打开: %1$s", path),Toast.LENGTH_SHORT).show();
+			Toast.makeText(activity.getBaseContext(), String.format("无法打开: %1$s", path), Toast.LENGTH_SHORT).show();
 			return null;
 		}
 		ArrayList<FileInfo> fileList = new ArrayList<FileInfo>();
@@ -343,11 +343,12 @@ public class FileUtil {
 
 	/**
 	 * 创建新文件夹
+	 * 
 	 * @param activity
 	 * @param path
 	 * @param handler
 	 */
-	public static void createDir(final Activity activity, final String path, final Handler handler,final int layoutResource,String inputDirName) {
+	public static void createDir(final Activity activity, final String path, final Handler handler, final int layoutResource, String inputDirName) {
 		final String newName = inputDirName;
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 		View layout = LayoutInflater.from(activity).inflate(layoutResource, null);
@@ -370,7 +371,7 @@ public class FileUtil {
 							Toast.makeText(activity, Constant.STRING_FILE_CREATE_FAIL, Toast.LENGTH_SHORT).show();
 						}
 					} catch (Exception e) {
-						Log.e("create dir error : ",e.getLocalizedMessage());
+						Log.e("create dir error : ", e.getLocalizedMessage());
 						Toast.makeText(activity, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
 					}
 				}
@@ -381,32 +382,30 @@ public class FileUtil {
 		alertDialog.show();
 	}
 
-	
 	/**
 	 * 重命名文件
+	 * 
 	 * @param activity
 	 * @param file
 	 * @param handler
 	 */
-	public static void renameFile(final Activity activity, final File file, final Handler handler,
-			final int layoutResource,final int editTextResource) {
+	public static void renameFile(final Activity activity, final File file, final Handler handler, final int layoutResource, final int editTextResource) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 		View layout = LayoutInflater.from(activity).inflate(layoutResource, null);
 		final EditText text = (EditText) layout.findViewById(editTextResource);
-		/*if(file.isDirectory()){//选中的文件是一个文件夹
-			text.setText(file.getName());
-		}else{//选中的文件是一个文件
-			int flag = file.getName().lastIndexOf('.');
-			String fileName = file.getName().substring(0, flag);
-			text.setText(fileName);//放入截取后缀名的文件名
-		}*/
+		/*
+		 * if(file.isDirectory()){//选中的文件是一个文件夹 text.setText(file.getName());
+		 * }else{//选中的文件是一个文件 int flag = file.getName().lastIndexOf('.'); String
+		 * fileName = file.getName().substring(0, flag);
+		 * text.setText(fileName);//放入截取后缀名的文件名 }
+		 */
 		text.setText(file.getName());
 		builder.setView(layout);
 		builder.setPositiveButton(Constant.STRING_FILE_OK, new OnClickListener() {
 			public void onClick(DialogInterface dialoginterface, int i) {
 				String path = file.getParentFile().getPath();
 				String newName = text.getText().toString().trim();
-				if (newName.equalsIgnoreCase(file.getName())) {//相等则忽略
+				if (newName.equalsIgnoreCase(file.getName())) {// 相等则忽略
 					return;
 				}
 				if (newName.length() == 0) {
@@ -426,7 +425,7 @@ public class FileUtil {
 							Toast.makeText(activity, Constant.STRING_FILE_RENAME_FIAL, Toast.LENGTH_SHORT).show();
 						}
 					} catch (Exception e) {
-						Log.e("rename file error : ",e.getLocalizedMessage());
+						Log.e("rename file error : ", e.getLocalizedMessage());
 						Toast.makeText(activity, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
 					}
 				}
@@ -439,26 +438,20 @@ public class FileUtil {
 
 	/**
 	 * 查看文件详情(现有layout.xml布局下)
+	 * 
 	 * @param activity
 	 * @param file
 	 */
-	public static void viewFileInfo(final Activity activity, File file,FileInfo inputFileInfo,
-			final int layoutResource,
-			final int fileNameResource,
-			final int fileLastModifiedResource,
-			final int fileSizeResource,
-			final int fileContentsResource,
-			final int fileCompetenceResource
-			) {
+	public static void viewFileInfo(final Activity activity, File file, FileInfo inputFileInfo, final int layoutResource, final int fileNameResource, final int fileLastModifiedResource, final int fileSizeResource, final int fileContentsResource, final int fileCompetenceResource) {
 		FileInfo fileInfo = FileUtil.getFileInfo(file);
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-		//设置与布局上有几个控件密切相关------注意!!!!!
+		// 设置与布局上有几个控件密切相关------注意!!!!!
 		View layout = LayoutInflater.from(activity).inflate(layoutResource, null);
 		((TextView) layout.findViewById(fileNameResource)).setText(file.getName());
 		((TextView) layout.findViewById(fileLastModifiedResource)).setText(new Date(file.lastModified()).toLocaleString());
 		((TextView) layout.findViewById(fileSizeResource)).setText(FileUtil.formetFileSize(fileInfo.getSize()));
 		if (file.isDirectory()) {
-			((TextView) layout.findViewById(fileContentsResource)).setText("文件夹  "+ inputFileInfo.getFolderCount() + ", 文件  " + inputFileInfo.getFileCount());
+			((TextView) layout.findViewById(fileContentsResource)).setText("文件夹  " + inputFileInfo.getFolderCount() + ", 文件  " + inputFileInfo.getFileCount());
 		}
 		((TextView) layout.findViewById(fileCompetenceResource)).setText(inputFileInfo.getFileCompetence());
 		builder.setView(layout);
@@ -471,5 +464,64 @@ public class FileUtil {
 		alertDialog.setTitle(Constant.STRING_FILE_DETAILS);
 		alertDialog.show();
 	}
-	
+
+	/**
+	 * 获取单个文件的MD5值！
+	 * 
+	 * @param file
+	 * @return
+	 */
+	public static String getFileMD5(File file) {
+		if (!file.isFile()) {
+			return null;
+		}
+		MessageDigest digest = null;
+		FileInputStream in = null;
+		byte[] buffer = new byte[1024];
+		int len;
+		try {
+			digest = MessageDigest.getInstance("MD5");
+			in = new FileInputStream(file);
+			while ((len = in.read(buffer, 0, 1024)) != -1) {
+				digest.update(buffer, 0, len);
+			}
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		BigInteger bigInt = new BigInteger(1, digest.digest());
+		return bigInt.toString(16);
+	}
+
+	/**
+	 * 获取文件夹中文件的MD5值
+	 * 
+	 * @param file
+	 * @param listChild
+	 *            ;true递归子目录中的文件
+	 * @return
+	 */
+	public static Map<String, String> getDirMD5(File file, boolean listChild) {
+		if (!file.isDirectory()) {
+			return null;
+		}
+		// <filepath,md5>
+		Map<String, String> map = new HashMap<String, String>();
+		String md5;
+		File[] files = file.listFiles();
+		for (int i = 0; i < files.length; i++) {
+			File f = files[i];
+			if (f.isDirectory() && listChild) {
+				map.putAll(getDirMD5(f, listChild));
+			} else {
+				md5 = getFileMD5(f);
+				if (md5 != null) {
+					map.put(f.getPath(), md5);
+				}
+			}
+		}
+		return map;
+	}
+
 }
