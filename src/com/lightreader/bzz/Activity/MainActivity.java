@@ -1,12 +1,12 @@
 package com.lightreader.bzz.Activity;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -35,7 +35,6 @@ import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.lightreader.bzz.image.ImageUtils;
 import com.lightreader.bzz.image.MyGifView;
 
 
@@ -45,6 +44,7 @@ public class MainActivity extends Activity {
 	private TextView textView;
 	private Button button;
 	private ImageView ad_view;
+	private ImageView item_imageView;
 	private MyGifView myGifView;
 	private int count = 0;
 	private boolean isExit; //点击是否退出
@@ -68,7 +68,8 @@ public class MainActivity extends Activity {
 		inflater = LayoutInflater.from(MainActivity.this);
 		//textView = (TextView) findViewById(R.id.textView1);
 		//textView.setBackgroundColor(Color.BLUE);
-		
+		//item_imageView = (ImageView)findViewById(R.id.item_imageView);
+		//item_imageView.setImageResource(R.drawable.book_add); 
 		//button = (Button) findViewById(R.id.btn1);
 		//ad_view = (ImageView)findViewById(R.id.gif_mainLoad);
 		//myGifView = new MyGifView(MainActivity.this,null,R.drawable.ad_main_load);
@@ -122,31 +123,63 @@ public class MainActivity extends Activity {
 		//mainGridLocalBooks.setAdapter(new MyMain2GridAdapter(inflater,types,screenWidth,screenHeight));
 		
 		
+		
+		
+		/*
+		AlertDialog.Builder builder;
+		AlertDialog alertDialog;
+		Context mContext = MainActivity.this;
+		//三种方法都可以.
+		LayoutInflater inflater = getLayoutInflater();	//Activity.getLayoutInflater() or Window.getLayoutInflater().
+//		LayoutInflater inflater = LayoutInflater.from(this);	//Obtains the LayoutInflater from the given context.
+//		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);		
+		View layout = inflater.inflate(R.layout.custom_dialog,null);
+		
+		TextView text = (TextView) layout.findViewById(R.id.text);//获取这个布局上的一个文本控件
+		text.setText("Hello, This is a LayoutInflater Demo");
+		ImageView image = (ImageView) layout.findViewById(R.id.image);//获取这个布局上的一个图像控件
+		image.setImageResource(R.drawable.icon);
+		
+		builder = new AlertDialog.Builder(mContext);//传入Context创建一个AlertDialog.Builder
+		builder.setView(layout);
+		alertDialog = builder.create();//用AlertDialog.Builder创建一个alertDialog对象出来
+		alertDialog.show();
+		*/
+		
+		
+		
+		
+		
+		
 		//显示本地书库那个 "+"号的书籍(添加新书)
+		/*
 		try {
-		    InputStream is = getResources().openRawResource(R.drawable.big_image_1);//获取原始数据的大图
+		    InputStream is = getResources().openRawResource(R.drawable.big_image_1);//获取原始数据的大图切小图
 		    bitmapRegionDecoder = BitmapRegionDecoder.newInstance(is, true);
 		    bookPlusBitmap = ImageUtils.getBitmapFromImageRegion(bitmapRegionDecoder, 4, 5, 4, 4);
 		} catch (IOException e) {
 		    e.printStackTrace();
 		}
+		*/
 		// 本地所有书籍---图片
+		// 注意: 图片说明,如果是PNG那种只有主图案,周围是透明的图片,那么图片周围就会有一层阴影,如果是有底色,那么久无阴影!
 	    ArrayList<HashMap<String, Object>> listItems = new ArrayList<HashMap<String, Object>>();
 		// 将数组信息分别存入ArrayList中
 		int length = item.length;
 		for (int i = 0; i < length; i++) {
 			HashMap<String, Object> map = new HashMap<String, Object>();
 			//map.put("image", item[i]);
-			map.put("image", R.drawable.book_style);
+			map.put("image", R.drawable.book_1);
+			//map.put("image", R.drawable.book_add);
 			listItems.add(map);
 		}
 		HashMap<String, Object> mapPlus = new HashMap<String, Object>();
-		mapPlus.put("image", bookPlusBitmap);
-		listItems.add(mapPlus);//添加图书的那个图片,添加到图片队列末尾
+		//mapPlus.put("image", bookPlusBitmap);//之前的图片,大图切小图
+		mapPlus.put("image", R.drawable.plus);//一张图
+		listItems.add(mapPlus);//"添加图书"的那个图片,添加到图片队列末尾
 		listItemsLength = listItems.size();//本地所有书籍---图片的个数
-		
 		// 设定一个适配器
-		adapter = new SimpleAdapter(this, listItems, R.layout.books_item, new String[] { "image" }, new int[] { R.id.item_imageView});
+		adapter = new SimpleAdapter(this, listItems, R.layout.books_item_new, new String[] { "image" }, new int[] { R.id.item_imageView_new});
 		//adapter可以绑定Bitmap数据
 		adapter.setViewBinder(new ViewBinder(){  
 	        @Override 
@@ -160,7 +193,11 @@ public class MainActivity extends Activity {
 				return false;
 			}
 	    });  
-	    //this.setListAdapter(adapter);
+		
+		
+		
+		
+		
 		
 		
 		// 对GridView进行适配
