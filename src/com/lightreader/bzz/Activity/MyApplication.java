@@ -65,15 +65,6 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        String channel = "baidu";
-        try {
-            ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
-            channel = ai.metaData.get("UMENG_CHANNEL").toString();
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-            Log.e("MyApplication.onCreate", e.getMessage());
-        }
-
     }
 
     /**
