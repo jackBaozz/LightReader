@@ -16,7 +16,19 @@ public class FileInfo {
 	private int FolderCount = 0;
 	private Date lastModifyDate;
 	private String fileCompetence;//权限
+	private int isShow;//是否已经添加,是否已经可以显示 1:显示 0:隐藏
 	
+	
+	public int getIsShow() {
+		return isShow;
+	}
+
+
+	public void setIsShow(int isShow) {
+		this.isShow = isShow;
+	}
+
+
 	public Date getLastModifyDate() {
 		return lastModifyDate;
 	}
@@ -128,21 +140,30 @@ public class FileInfo {
 
 	public FileInfo(String name, String path, Drawable icon, long size, boolean isDirectory) {
 		super();
-		Name = name;
-		Path = path;
-		Icon = icon;
-		Size = size;
-		IsDirectory = isDirectory;
+		this.Name = name;
+		this.Path = path;
+		this.Icon = icon;
+		this.Size = size;
+		this.IsDirectory = isDirectory;
 	}
 
+	public FileInfo(String name, String path, Drawable icon, long size, boolean isDirectory,int isShow) {
+		super();
+		this.Name = name;
+		this.Path = path;
+		this.Icon = icon;
+		this.Size = size;
+		this.IsDirectory = isDirectory;
+		this.isShow = isShow;
+	}
 
 	public FileInfo(String name, String path, Drawable icon, long size, boolean isDirectory, String fileCompetence) {
 		super();
-		Name = name;
-		Path = path;
-		Icon = icon;
-		Size = size;
-		IsDirectory = isDirectory;
+		this.Name = name;
+		this.Path = path;
+		this.Icon = icon;
+		this.Size = size;
+		this.IsDirectory = isDirectory;
 		this.fileCompetence = fileCompetence;
 	}
 

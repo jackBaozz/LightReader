@@ -570,9 +570,21 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 						icon = res.getDrawable(R.drawable.unknown);//unknow file
 					}
 				}
+				
+				//查询该目录下的这个文件,是否已经存在于sqlite里面
+				Cursor cursor = databaseServer.selectBook(file.getAbsolutePath());
+				int isShow = 0;//该书本是否显示,是否上架下架
+				int countBook = cursor.getCount();//总共有几条数据
+				if(countBook == 1){//只有唯一的一条数据的时候
+					while (cursor.moveToNext()) {
+						int flag = cursor.getColumnIndex("isShow");
+						isShow = cursor.getInt(flag);
+					}
+				}
+				
 				// 创建fileitem对象，并添加到集合
 				//FileInfo item = new FileInfo(fileName, icon);
-				FileInfo item = new FileInfo(fileName, file.getAbsolutePath(),icon,file.length(),file.isDirectory());
+				FileInfo item = new FileInfo(fileName, file.getAbsolutePath() ,icon ,file.length() ,file.isDirectory() ,isShow);
 				fileItemsList.add(item);
 			}
 		}
