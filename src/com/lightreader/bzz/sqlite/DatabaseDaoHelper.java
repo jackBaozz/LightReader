@@ -6,7 +6,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class DatabaseDao extends SQLiteOpenHelper {
+public class DatabaseDaoHelper extends SQLiteOpenHelper {
 
 	// 数据库名称
 	private static final String DB_NAME = "SQLiteDemo.db";
@@ -27,7 +27,7 @@ public class DatabaseDao extends SQLiteOpenHelper {
 	
 	
 	
-	public DatabaseDao(Context context) {
+	public DatabaseDaoHelper(Context context) {
 		//Tips：当创建好SQLite数据库的之后，可以在/data/data/<package name>/databases目录下找到SQLite数据库文件。
 		//     /data/data/com.lightreader.bzz.Activity
 		super(context, DB_NAME, null, DB_VERSION);
