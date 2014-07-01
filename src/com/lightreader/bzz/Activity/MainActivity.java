@@ -162,7 +162,7 @@ public class MainActivity extends Activity {
 		}
 		*/
 		// 本地所有书籍---图片
-		// 注意: 图片说明,如果是PNG那种只有主图案,周围是透明的图片,那么图片周围就会有一层阴影,如果是有底色,那么久无阴影!
+		// 注意: 图片说明,如果是PNG那种只有主图案,周围是透明的图片,那么图片周围就会有一层阴影,如果是有底色,那么就无阴影!
 	    ArrayList<HashMap<String, Object>> listItems = new ArrayList<HashMap<String, Object>>();
 		// 将数组信息分别存入ArrayList中
 		int length = item.length;
