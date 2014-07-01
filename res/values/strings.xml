@@ -4,7 +4,7 @@
     <string name="app_name_cn">我的APP</string>
     <string name="action_settings_cn">设置</string>
     <string name="hello_world_cn">世界你好!</string>
-    <string name="imageView_default_cn">this is default image</string>
+    <string name="imageView_default_cn">这是个默认的图象</string>
 	<string name="a">字母a</string>
     <string name="b">字母b</string>
     <string name="c">字母c</string>

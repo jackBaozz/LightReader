@@ -103,16 +103,23 @@ public class DatabaseServer {
 		return cursor;
 	}
 	
+	//查询t_books表里面的所有数据
+	public Cursor selectAllData() {
+		/* 与数据库获得连接，获得只读属性 */
+		SQLiteDatabase db = databaseDaoHelper.getReadableDatabase();
+		Cursor cursor = db.rawQuery("select * from " + databaseDaoHelper.T_BOOKS + " where isShow = 1 " , null);
+		return cursor;
+	}
+	
 	
 	/* 查询数据库 *//* 返回一个游标对象 */
 	public Cursor selectData() {
 		/* 与数据库获得连接，获得只读属性 */
 		SQLiteDatabase db = databaseDaoHelper.getReadableDatabase();
 		//SQLiteDatabase sqliteDatabase = dbhelper.getReadableDatabase();
-
+		//使用查询语句：方式一
 		/* 使用游标保存得到的结果集 *//* 参1:查询语句 ； 参2：查询条件 */
-		// Cursor cursor = sqliteDatabase.rawQuery("select * from student",
-		// null);
+		// Cursor cursor = sqliteDatabase.rawQuery("select * from student",null);
 		/*
 		 * 使用查询语句：方式二
 		 * 

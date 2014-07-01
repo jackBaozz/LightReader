@@ -2,6 +2,7 @@ package com.lightreader.bzz.Activity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -15,6 +16,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -35,7 +37,9 @@ import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.lightreader.bzz.Application.AllApplication;
 import com.lightreader.bzz.image.MyGifView;
+import com.lightreader.bzz.pojo.Book;
 
 
 @SuppressLint("NewApi")
@@ -163,23 +167,41 @@ public class MainActivity extends Activity {
 		*/
 		// 本地所有书籍---图片
 		// 注意: 图片说明,如果是PNG那种只有主图案,周围是透明的图片,那么图片周围就会有一层阴影,如果是有底色,那么就无阴影!
-	    ArrayList<HashMap<String, Object>> listItems = new ArrayList<HashMap<String, Object>>();
+	    ArrayList<HashMap<String, Object>> listItems = new ArrayList<HashMap<String, Object>>();//总数据集合
+	    
+	    //查询数据库,看现在已经有几条数据了
+	    List<Book> booksList = AllApplication.getInstance().getBooks();
 		// 将数组信息分别存入ArrayList中
-		int length = item.length;
+		//int length = item.length;
+	    int length = booksList.size();
 		for (int i = 0; i < length; i++) {
 			HashMap<String, Object> map = new HashMap<String, Object>();
 			//map.put("image", item[i]);
-			map.put("image", R.drawable.book_1);
 			//map.put("image", R.drawable.book_add);
-			listItems.add(map);
+			int index = booksList.get(i).getName().lastIndexOf(".");
+			String name = booksList.get(i).getName().substring(0, index);
+			String type = booksList.get(i).getName().substring(index+1);
+			String imgPath = booksList.get(i).getIcon();
+			if(TextUtils.isEmpty(imgPath)){
+				map.put("image", R.drawable.book_1);
+			}else{
+				map.put("image", R.drawable.book_1);
+			}
+			map.put("book_name", name);//书本名字
+			map.put("book_type", type);//书本的文件类型
+			listItems.add(map);//[数据拼装第一部分]
 		}
+		
+		
 		HashMap<String, Object> mapPlus = new HashMap<String, Object>();
 		//mapPlus.put("image", bookPlusBitmap);//之前的图片,大图切小图
-		mapPlus.put("image", R.drawable.plus);//一张图
-		listItems.add(mapPlus);//"添加图书"的那个图片,添加到图片队列末尾
+		mapPlus.put("image", R.drawable.plus);//封面图
+		mapPlus.put("book_name", "");//书本名字
+		mapPlus.put("book_type", "");//书本的文件类型
+		listItems.add(mapPlus);//"添加图书"的那个图片,添加到图片队列末尾 [数据拼装第三部分]
 		listItemsLength = listItems.size();//本地所有书籍---图片的个数
 		// 设定一个适配器
-		adapter = new SimpleAdapter(this, listItems, R.layout.books_item_new, new String[] { "image" }, new int[] { R.id.item_imageView_new});
+		adapter = new SimpleAdapter(this, listItems, R.layout.books_item_new, new String[] { "image","book_name","book_type" }, new int[] { R.id.item_imageView_new ,R.id.book_name,R.id.book_type});
 		//adapter可以绑定Bitmap数据
 		adapter.setViewBinder(new ViewBinder(){  
 	        @Override 
@@ -194,15 +216,9 @@ public class MainActivity extends Activity {
 			}
 	    });  
 		
-		
-		
-		
-		
-		
-		
 		// 对GridView进行适配
 		mainGridLocalBooks.setAdapter(adapter);
-		// 设置GridView的监听器
+		// 设置GridView的监听器 --- 单击事件
 		mainGridLocalBooks.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {

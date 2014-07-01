@@ -19,7 +19,7 @@ public class DatabaseDaoHelper extends SQLiteOpenHelper {
 	public static final String DB_CREATE = "CREATE TABLE IF NOT EXISTS " + T_DEMO + " (_id integer primary key autoincrement, name varchar(20), number varchar(10))";
 	
 	
-	public static final String DB_CREATE_BOOK = "CREATE TABLE IF NOT EXISTS "+ T_BOOKS + "(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,md5 TEXT,name TEXT,path TEXT,icon TEXT,size TEXT,isDirectory BOOLEAN,fileCount INTEGER,folderCount INTEGER,lastModifyDate DATETIME,fileCompetence text,totalCharacterNum  INTEGER,prePageCharacterNum  INTEGER,totalPage  INTEGER,currentPage  INTEGER,isShow INTEGER  ) ";
+	public static final String DB_CREATE_BOOK = "CREATE TABLE IF NOT EXISTS "+ T_BOOKS + "(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,md5 TEXT,name TEXT,path TEXT,icon TEXT,size TEXT,isDirectory BOOLEAN,fileCount INTEGER,folderCount INTEGER,lastModifyDate DATETIME,fileCompetence text,totalCharacterNum  INTEGER,prePageCharacterNum  INTEGER,totalPage  INTEGER,currentPage  INTEGER,isShow INTEGER) ";
 	public static final String DB_CREATE_BOOK_INDEX_1 = "CREATE UNIQUE INDEX \"index_1\" ON \"t_books\" (\"id\" ASC)";
 	public static final String DB_CREATE_BOOK_INDEX_2 = "CREATE INDEX \"index_3\" ON \"t_books\" (\"md5\" ASC)";
 	public static final String DB_CREATE_BOOK_INDEX_3 = "CREATE INDEX \"indiex_2\" ON \"t_books\" (\"name\" ASC)";
