@@ -22,6 +22,8 @@ import android.os.Message;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -45,7 +47,6 @@ import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.SimpleAdapter;
 import android.widget.SimpleAdapter.ViewBinder;
-import android.widget.SlidingDrawer;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabWidget;
@@ -82,14 +83,27 @@ public class MainActivity extends Activity {
     private int listItemsLength = 0;
     private ArrayList<HashMap<String, Object>> listItems = null;//总数据集
     
-    private SlidingDrawer slidingDrawer;
+    
+    //删除书本需要
     private CheckBox checkbox; //是否删除本地文件
     private DatabaseServer databaseServer = new DatabaseServer(MainActivity.this);//数据库操作类
     private PopupWindow $popupWindow ;//全局的popipWindow变量 
-    
     private Timer mTimer = null;  
     private TimerTask mTimerTask = null;  
     private Handler mHandler = null;  
+    
+    
+    
+    
+    //TabHost滑动需要
+    private static final int SWIPE_MIN_DISTANCE = 120;  
+    private static final int SWIPE_MAX_OFF_PATH = 250;  
+    private static final int SWIPE_THRESHOLD_VELOCITY = 200;  
+    private GestureDetector gestureDetector;  
+    View.OnTouchListener gestureListener;
+    private int currentTabHostIndex = 0;  
+    private int maxTabHostIndex = 3;
+    
     
     
     
@@ -110,39 +124,25 @@ public class MainActivity extends Activity {
 		button = (Button) findViewById(R.id.btn1);
 		//ad_view = (ImageView)findViewById(R.id.gif_mainLoad);
 		//myGifView = new MyGifView(MainActivity.this,null,R.drawable.ad_main_load);
-		slidingDrawer = (SlidingDrawer)findViewById(R.id.slidingdrawer);//抽屉类
 		
 		
 		ButtonListener buttonListener = new ButtonListener();
 		button.setOnClickListener(buttonListener);
 		
 		
-		//初始化TabHost
-		//以下三句代码，注意顺序
-		tabHost = (TabHost)findViewById(android.R.id.tabhost);
-		tabHost.setup();
-		final TabWidget tabWidget = tabHost.getTabWidget();
-		//自己添加TabSpec
-		//TabHost.TabSpec tabSpec01 = tabHost.newTabSpec("one");
-		//tabSpec01.setIndicator("个人信息", null);
-		//Intent intent01 = new Intent(MyXiTuanTestActivity.this,MyInfoActivity.class); 意图
-		//tabSpec01.setContent(intent01);
-		//tabHost.addTab(tabSpec01);
-		
-		tabHost.addTab(tabHost.newTabSpec("1").setIndicator("本地书库").setContent(R.id.unhanlderLayout1));
-		tabHost.addTab(tabHost.newTabSpec("2").setIndicator("在线书库").setContent(R.id.unhanlderLayout2));
-		//tabHost.addTab(tabHost.newTabSpec("google2").setIndicator(null,getResources().getDrawable(android.R.drawable.ic_menu_mylocation)).setContent(R.id.unhanlderLayout2));
-		tabHost.addTab(tabHost.newTabSpec("3").setIndicator("其他").setContent(R.id.unhanlderLayout3));
-		tabHost.setCurrentTab(0);
-		updateTab(tabHost);//初始化Tab的颜色，和字体的颜色 
-		//TabHost注册点击标签事件
-		tabHost.setOnTabChangedListener(new OnTabChangeListener() {
-			public void onTabChanged(String tabId) {
-				tabHost.setCurrentTabByTag(tabId);
-				updateTab(tabHost);
-			}
-		});
+		initTabHost();//初始化TabHost
 
+		
+		gestureDetector = new GestureDetector(new MyGestureDetector());  
+        gestureListener = new View.OnTouchListener() {  
+            public boolean onTouch(View v, MotionEvent event) {  
+                if (gestureDetector.onTouchEvent(event)) {  
+                    return true;  
+                }  
+                return false;  
+            }  
+        }; 
+        
 		
 		//初始化标----签1里面的布局
 		mainGridLocalBooks = (GridView)findViewById(R.id.main_grid_localBooks);
@@ -158,6 +158,11 @@ public class MainActivity extends Activity {
 		types.add(BitmapFactory.decodeResource(getResources(),R.drawable.bt_soundeffect_equallizerunit_rock_hl));
 		types.add(BitmapFactory.decodeResource(getResources(),R.drawable.bt_soundeffect_equallizerunit_voice_hl));
 		//mainGridLocalBooks.setAdapter(new MyMain2GridAdapter(inflater,types,screenWidth,screenHeight));
+		
+		
+		
+		
+		
 		
 		
 		//获取得到Message传送来的值,来更新主UI线程的控件
@@ -199,8 +204,49 @@ public class MainActivity extends Activity {
 		*/
 		
 		
+		
+		init();//初始化数据
 	}
 
+	
+	
+	// 左右滑动刚好页面也有滑动效果  
+    class MyGestureDetector extends SimpleOnGestureListener {
+        @Override  
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,float velocityY) {   
+            try {  
+                if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)  
+                    return false;  
+                // right to left swipe  
+                if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE  
+                        && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {  
+                    Log.i("test", "right");
+                    
+                    if (currentTabHostIndex == maxTabHostIndex) {  
+                    	currentTabHostIndex = 0;  
+                    } else {  
+                    	currentTabHostIndex++;  
+                    }  
+                    tabHost.setCurrentTab(currentTabHostIndex);  
+                } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {  
+                    Log.i("test", "left");  
+                    if (currentTabHostIndex == 0) {  
+                    	currentTabHostIndex = maxTabHostIndex;  
+                    } else {  
+                    	currentTabHostIndex--;
+                    }  
+                    tabHost.setCurrentTab(currentTabHostIndex);  
+                }  
+            } catch (Exception e) {
+            	
+            }  
+            return false;  
+        }  
+    }  
+	
+	
+	
+	
 	
 	/**
 	 * 初始化数据
@@ -296,7 +342,60 @@ public class MainActivity extends Activity {
 		});
 	}
 
-
+	/**
+	 * 初始化TabHost
+	 */
+	private void initTabHost(){
+		//初始化TabHost
+		//以下三句代码，注意顺序
+		tabHost = (TabHost)findViewById(android.R.id.tabhost);
+		tabHost.setup();
+		final TabWidget tabWidget = tabHost.getTabWidget();
+		//自己添加TabSpec
+		//TabHost.TabSpec tabSpec01 = tabHost.newTabSpec("one");
+		//tabSpec01.setIndicator("个人信息", null);
+		//Intent intent01 = new Intent(MyXiTuanTestActivity.this,MyInfoActivity.class); 意图
+		//tabSpec01.setContent(intent01);
+		//tabHost.addTab(tabSpec01);
+				
+		tabHost.addTab(tabHost.newTabSpec("1").setIndicator("本地书库").setContent(R.id.unhanlderLayout1));
+		tabHost.addTab(tabHost.newTabSpec("2").setIndicator("在线书库").setContent(R.id.unhanlderLayout2));
+		//tabHost.addTab(tabHost.newTabSpec("google2").setIndicator(null,getResources().getDrawable(android.R.drawable.ic_menu_mylocation)).setContent(R.id.unhanlderLayout2));
+		tabHost.addTab(tabHost.newTabSpec("3").setIndicator("其他").setContent(R.id.unhanlderLayout3));
+		
+		tabHost.setCurrentTab(0);
+		currentTabHostIndex = 0;//赋值给全局变量保存,给后续调用
+		updateTab(tabHost);//初始化Tab的颜色，和字体的颜色 
+		//TabHost注册点击标签事件
+		tabHost.setOnTabChangedListener(new OnTabChangeListener() {
+			public void onTabChanged(String tabId) {
+				tabHost.setCurrentTabByTag(tabId);
+				updateTab(tabHost);
+			}
+		});
+		tabHost.setOnTouchListener(new OnTouchListener(){
+			@Override
+			public boolean onTouch(View view, MotionEvent motionevent) {
+				if (gestureDetector.onTouchEvent(motionevent)) {  
+					motionevent.setAction(MotionEvent.ACTION_CANCEL);  
+		        } 
+				return true;
+			}
+			
+		});
+		
+		/*
+		@Override  
+	    public boolean dispatchTouchEvent(MotionEvent event) {  
+	        if (gestureDetector.onTouchEvent(event)) {  
+	            event.setAction(MotionEvent.ACTION_CANCEL);  
+	        }  
+	        return super.dispatchTouchEvent(event);  
+	    }*/
+		
+	}
+	
+	
 
 	/**
 	 * 更新Tab标签的颜色，和字体的颜色
