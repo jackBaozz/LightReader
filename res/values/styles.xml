@@ -24,4 +24,11 @@
 		<item name="android:minHeight">5dip</item>
 		<item name="android:maxHeight">5dip</item>
 	</style>
+	
+    
+    <style name="checkbox_style">  
+      <item name="android:background">@drawable/msg_tab_widget_sharp</item>  
+    </style>
+    
+    
 </resources>

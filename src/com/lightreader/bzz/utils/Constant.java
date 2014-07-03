@@ -62,6 +62,7 @@ public interface Constant {
 	public static final int INT_MENU_REMOVEBOOKFROMBOOKSHELF = 16;//从书架下架该书本
 	public static final int INT_MENU_ON = 17;//开关 开
 	public static final int INT_MENU_OFF = 18;//开关 关
+	public static final int INT_BOOK_TIMER = 19;//定时器
 	
 	//阅读器支持解码的后缀名文件类型
 	public static final String[] BOOK_SUFFIX = {".txt",".epub",".pdf"};

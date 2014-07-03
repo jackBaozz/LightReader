@@ -217,7 +217,7 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 			if(countBook == 1){//只有唯一的一条数据的时候
 				//2.update 
 				boolean bookShowOperation = databaseServer.updateBook(clickedFile.getAbsolutePath(), 1);//更新该条数据为"上架"
-				if(bookShowOperation){//更新成功
+				if(!bookShowOperation){//更新失败
 					Log.e("程序逻辑错误", "上架书本"+clickedFile.getAbsolutePath()+"失败");
 				}
 			}else{//无数据,新增

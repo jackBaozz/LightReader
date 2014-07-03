@@ -27,6 +27,8 @@
     <string name="mainmenu_exit">退出</string>
     <string name="file_rename">重命名</string>
     <string name="file_delete">删除</string>
+    <string name="file_makesure_delete">确定删除所选书籍吗?</string>
+    <string name="file_makesure_delete_localfile">删除本地文件</string>
     <string name="file_info">详情</string>
     <string name="file_cannotopen">无法打开: %1$s</string>
     <string name="file_exists">文件已存在！</string>
@@ -46,4 +48,16 @@
     <string name="file_move_fail">移动文件失败！</string>
     <string name="file_notexists">文件不存在！</string>
     <string name="pic_info">图片信息</string>
+    
+    <!-- 下拉刷新 -->
+    <string name="drop_dowm">下拉刷新</string>
+    <string name="release_update">松开刷新</string>
+    <string name="loading">正在加载。。。</string>
+    <string name="seen_more">更多</string>
+    
+    <!-- 百度推送 -->
+    <string name="custom_text_hint">用户自定义行为打开的Activity</string>
+    <string name="scan_text">将二维码放入框内, 即可自动扫描</string>
+    
+    
 </resources>

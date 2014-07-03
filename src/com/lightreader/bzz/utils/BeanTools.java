@@ -6,6 +6,9 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 
+import android.content.Context;
+import android.util.DisplayMetrics;
+
 
 /**
  * Bean工具类
@@ -118,4 +121,22 @@ public abstract class BeanTools {
 
         return data;
     }
+    
+    
+    
+    /**
+     * 获取当前设备的屏幕的宽和高
+     * @param context
+     * @return
+     */
+    public static int[] getDeviceWidthAndHeight(Context context){
+    	int[] intArray = new int[2];
+    	DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+    	int height = displayMetrics.heightPixels;
+    	int width = displayMetrics.widthPixels;
+    	intArray[0] = width;
+        intArray[1] = height;
+        return intArray;
+    }
+    
 }

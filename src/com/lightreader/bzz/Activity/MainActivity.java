@@ -1,36 +1,51 @@
 package com.lightreader.bzz.Activity;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
+import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.SimpleAdapter;
 import android.widget.SimpleAdapter.ViewBinder;
+import android.widget.SlidingDrawer;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabWidget;
@@ -38,12 +53,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lightreader.bzz.Application.AllApplication;
+import com.lightreader.bzz.file.FileUtil;
 import com.lightreader.bzz.image.MyGifView;
 import com.lightreader.bzz.pojo.Book;
+import com.lightreader.bzz.sqlite.DatabaseServer;
+import com.lightreader.bzz.utils.BeanTools;
+import com.lightreader.bzz.utils.Constant;
 
 
 @SuppressLint("NewApi")
 public class MainActivity extends Activity {
+	private static String  TAG = "MainActivity";
 	private LayoutInflater inflater;
 	private TextView textView;
 	private Button button;
@@ -62,6 +82,18 @@ public class MainActivity extends Activity {
     private int listItemsLength = 0;
     private ArrayList<HashMap<String, Object>> listItems = null;//总数据集
     
+    private SlidingDrawer slidingDrawer;
+    private CheckBox checkbox; //是否删除本地文件
+    private DatabaseServer databaseServer = new DatabaseServer(MainActivity.this);//数据库操作类
+    private PopupWindow $popupWindow ;//全局的popipWindow变量 
+    
+    private Timer mTimer = null;  
+    private TimerTask mTimerTask = null;  
+    private Handler mHandler = null;  
+    
+    
+    
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		//this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);//全屏
@@ -69,17 +101,20 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.activity_main);
+        
 		inflater = LayoutInflater.from(MainActivity.this);
 		//textView = (TextView) findViewById(R.id.textView1);
 		//textView.setBackgroundColor(Color.BLUE);
 		//item_imageView = (ImageView)findViewById(R.id.item_imageView);
 		//item_imageView.setImageResource(R.drawable.book_add); 
-		//button = (Button) findViewById(R.id.btn1);
+		button = (Button) findViewById(R.id.btn1);
 		//ad_view = (ImageView)findViewById(R.id.gif_mainLoad);
 		//myGifView = new MyGifView(MainActivity.this,null,R.drawable.ad_main_load);
-
+		slidingDrawer = (SlidingDrawer)findViewById(R.id.slidingdrawer);//抽屉类
+		
+		
 		ButtonListener buttonListener = new ButtonListener();
-		//button.setOnClickListener(buttonListener);
+		button.setOnClickListener(buttonListener);
 		
 		
 		//初始化TabHost
@@ -125,6 +160,21 @@ public class MainActivity extends Activity {
 		//mainGridLocalBooks.setAdapter(new MyMain2GridAdapter(inflater,types,screenWidth,screenHeight));
 		
 		
+		//获取得到Message传送来的值,来更新主UI线程的控件
+		mHandler = new Handler() {
+			@Override
+			public void handleMessage(Message msg) {
+				switch (msg.what) {
+				case Constant.INT_BOOK_TIMER:
+					setBackgrounTransparent(1.0f);// 背景设置为不透明
+					
+					stopTimer();// 关闭定时器
+					break;
+				default:
+					break;
+				}
+			}
+		};
 		
 		
 		/*
@@ -149,92 +199,12 @@ public class MainActivity extends Activity {
 		*/
 		
 		
-		
-		
-		
-		/*
-		//显示本地书库那个 "+"号的书籍(添加新书)
-		
-		try {
-		    InputStream is = getResources().openRawResource(R.drawable.big_image_1);//获取原始数据的大图切小图
-		    bitmapRegionDecoder = BitmapRegionDecoder.newInstance(is, true);
-		    bookPlusBitmap = ImageUtils.getBitmapFromImageRegion(bitmapRegionDecoder, 4, 5, 4, 4);
-		} catch (IOException e) {
-		    e.printStackTrace();
-		}
-		
-		// 本地所有书籍---图片
-		// 注意: 图片说明,如果是PNG那种只有主图案,周围是透明的图片,那么图片周围就会有一层阴影,如果是有底色,那么就无阴影!
-	    listItems = new ArrayList<HashMap<String, Object>>();//总数据集合
-	    
-	    //查询数据库,看现在已经有几条数据了
-	    List<Book> booksList = AllApplication.getInstance().getBooks();
-		// 将数组信息分别存入ArrayList中
-		//int length = item.length;
-	    int length = booksList.size();
-		for (int i = 0; i < length; i++) {
-			HashMap<String, Object> map = new HashMap<String, Object>();
-			//map.put("image", item[i]);
-			//map.put("image", R.drawable.book_add);
-			int index = booksList.get(i).getName().lastIndexOf(".");
-			String name = booksList.get(i).getName().substring(0, index);
-			String type = booksList.get(i).getName().substring(index+1);
-			String imgPath = booksList.get(i).getIcon();
-			if(TextUtils.isEmpty(imgPath)){
-				map.put("image", R.drawable.book_1);
-			}else{
-				map.put("image", R.drawable.book_1);
-			}
-			map.put("book_name", name);//书本名字
-			map.put("book_type", type);//书本的文件类型
-			listItems.add(map);//[数据拼装第一部分]
-		}
-		
-		
-		HashMap<String, Object> mapPlus = new HashMap<String, Object>();
-		//mapPlus.put("image", bookPlusBitmap);//之前的图片,大图切小图
-		mapPlus.put("image", R.drawable.plus);//封面图
-		mapPlus.put("book_name", "");//书本名字
-		mapPlus.put("book_type", "");//书本的文件类型
-		listItems.add(mapPlus);//"添加图书"的那个图片,添加到图片队列末尾 [数据拼装第三部分]
-		listItemsLength = listItems.size();//本地所有书籍---图片的个数
-		// 设定一个适配器
-		adapter = new SimpleAdapter(this, listItems, R.layout.books_item_new, new String[] { "image","book_name","book_type" }, new int[] { R.id.item_imageView_new ,R.id.book_name,R.id.book_type});
-		//adapter可以绑定Bitmap数据
-		adapter.setViewBinder(new ViewBinder(){  
-	        @Override 
-			public boolean setViewValue(View view, Object data, String textRepresentation) {
-				if ((view instanceof ImageView) & (data instanceof Bitmap)) {
-					ImageView iv = (ImageView) view;
-					Bitmap bm = (Bitmap) data;
-					iv.setImageBitmap(bm);
-					return true;
-				}
-				return false;
-			}
-	    });  
-		
-		// 对GridView进行适配
-		mainGridLocalBooks.setAdapter(adapter);
-		// 设置GridView的监听器 --- 单击事件
-		mainGridLocalBooks.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-				Log.v("System.out", "MainActivity.listItemsLength - 1 :"+ String.valueOf(listItemsLength - 1));
-				Log.v("System.out", "MainActivity.position :" + String.valueOf(position));
-				if(listItemsLength - 1 == position ){
-					//点击了最后一张图片 "+"添加本地目录,跳转到另一个intent来选择本地文件
-					Intent intent = new Intent(MainActivity.this,FileBrowserActivity.class);//  
-					MainActivity.this.startActivity(intent);//启动另一个 Activity
-				}else{
-					String str = "这次妖精把" + item[position] + "抓住了!";
-				}
-			}
-		});*/
-		
 	}
 
 	
+	/**
+	 * 初始化数据
+	 */
 	public void init(){
 		// 本地所有书籍---图片
 		// 注意: 图片说明,如果是PNG那种只有主图案,周围是透明的图片,那么图片周围就会有一层阴影,如果是有底色,那么就无阴影!
@@ -253,6 +223,8 @@ public class MainActivity extends Activity {
 			String name = booksList.get(i).getName().substring(0, index);
 			String type = booksList.get(i).getName().substring(index + 1);
 			String imgPath = booksList.get(i).getIcon();
+			Integer bookId = booksList.get(i).getId();
+			String path = booksList.get(i).getPath();
 			if (TextUtils.isEmpty(imgPath)) {
 				map.put("image", R.drawable.book_1);
 			} else {
@@ -260,6 +232,8 @@ public class MainActivity extends Activity {
 			}
 			map.put("book_name", name);// 书本名字
 			map.put("book_type", type);// 书本的文件类型
+			map.put("book_id", bookId);// 书本在数据库的ID
+			map.put("book_path", path);// 书本在数据库的路径
 			listItems.add(map);// [数据拼装第一部分]
 		}
 
@@ -268,10 +242,12 @@ public class MainActivity extends Activity {
 		mapPlus.put("image", R.drawable.plus);// 封面图
 		mapPlus.put("book_name", "");// 书本名字
 		mapPlus.put("book_type", "");// 书本的文件类型
+		mapPlus.put("book_id", 0);// 书本的id
+		mapPlus.put("book_path", "");// 书本在数据库的路径
 		listItems.add(mapPlus);// "添加图书"的那个图片,添加到图片队列末尾 [数据拼装第三部分]
 		listItemsLength = listItems.size();// 本地所有书籍---图片的个数
 		// 设定一个适配器
-		adapter = new SimpleAdapter(this, listItems, R.layout.books_item_new, new String[] { "image", "book_name", "book_type" }, new int[] { R.id.item_imageView_new, R.id.book_name, R.id.book_type });
+		adapter = new SimpleAdapter(this, listItems, R.layout.books_item_new, new String[] { "image", "book_name", "book_type", "book_id", "book_path" }, new int[] { R.id.item_imageView_new, R.id.book_name, R.id.book_type, R.id.book_id, R.id.book_path });
 		// adapter可以绑定Bitmap数据
 		adapter.setViewBinder(new ViewBinder() {
 			@Override
@@ -291,17 +267,32 @@ public class MainActivity extends Activity {
 		// 设置GridView的监听器 --- 单击事件
 		mainGridLocalBooks.setOnItemClickListener(new OnItemClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-				Log.v("System.out", "MainActivity.listItemsLength - 1 :" + String.valueOf(listItemsLength - 1));
-				Log.v("System.out", "MainActivity.position :" + String.valueOf(position));
+			public void onItemClick(AdapterView<?> arg0, View view, int position, long arg3) {
+				//Log.v("System.out", "MainActivity.listItemsLength - 1 :" + String.valueOf(listItemsLength - 1));
+				//Log.v("System.out", "MainActivity.position :" + String.valueOf(position));
 				if (listItemsLength - 1 == position) {
 					// 点击了最后一张图片 "+"添加本地目录,跳转到另一个intent来选择本地文件
 					Intent intent = new Intent(MainActivity.this, FileBrowserActivity.class);//
 					MainActivity.this.startActivity(intent);// 启动另一个 Activity
 				} else {
-					String str = "这次妖精把" + item[position] + "抓住了!";
+					//直接打开图书
+					Toast.makeText(getApplicationContext(), "这次妖精把" + item[position] + "抓住了!", Toast.LENGTH_SHORT).show();
 				}
 			}
+		});
+		
+		// 设置GridView的监听器 --- 长按事件
+		mainGridLocalBooks.setOnItemLongClickListener(new OnItemLongClickListener(){
+			@Override
+			public boolean onItemLongClick(AdapterView<?> adapterview, View view, int position, long l) {
+				if (listItemsLength - 1 == position) {
+					// 点击了最后一张图片,不做任何操作
+				} else {
+					initPopWindow(view);//弹出对话框
+				}
+				return true;
+			}
+			
 		});
 	}
 
@@ -352,6 +343,9 @@ public class MainActivity extends Activity {
             return super.onKeyDown(keyCode, event);  
         }
 	}
+	
+
+
 	/**
 	 * 退出程序判断方法
 	 */
@@ -386,19 +380,16 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onDestroy() {
-		// TODO Auto-generated method stub
 		super.onDestroy();
 	}
 
 	@Override
 	protected void onPause() {
-		// TODO Auto-generated method stub
 		super.onPause();
 	}
 
 	@Override
 	protected void onRestart() {
-		// TODO Auto-generated method stub
 		super.onRestart();
 	}
 
@@ -413,19 +404,16 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onStart() {
-		// TODO Auto-generated method stub
 		super.onStart();
 	}
 
 	@Override
 	protected void onStop() {
-		// TODO Auto-generated method stub
 		super.onStop();
 	}
 
 	@Override
 	protected void onUserLeaveHint() {
-		// TODO Auto-generated method stub
 		super.onUserLeaveHint();
 		System.out.println("点击到了哟");
 	}
@@ -439,9 +427,201 @@ public class MainActivity extends Activity {
 	class ButtonListener implements OnClickListener {
 		@Override
 		public void onClick(View v) {
+			//initPopWindow(parent);
+			initPopWindow(v);
 			count++;
-			//textView.setText("google".concat(count + ""));
+			Toast.makeText(getApplicationContext(), "点击了["+count+"]次", Toast.LENGTH_SHORT).show();
 		}
 
 	}
+	
+	
+	/**
+	 * 设置主页面的背景是否为透明  灰色
+	 * @param float f
+	 */
+	private void setBackgrounTransparent(float f){
+		//背景设置为半透明
+      	WindowManager.LayoutParams lp = getWindow().getAttributes();
+      	//lp.alpha = 0.5f; //0.0-1.0
+      	lp.alpha = f; //0.0-1.0
+      	getWindow().setAttributes(lp);
+	}
+	
+	
+	
+	
+	/**
+	 * 清楚背景为灰的定时器 ----- 开
+	 */
+	private void startTimer() {
+		if (mTimer == null) {
+			mTimer = new Timer();
+		}
+
+		if (mTimerTask == null) {
+			mTimerTask = new TimerTask() {
+				@Override
+				public void run() {
+					//Log.i(TAG, "count: " + String.valueOf(count));
+					float f = getWindow().getAttributes().alpha;//获取屏幕的属性alpha的值,灰度
+					if (!$popupWindow.isShowing() && f == 0.5f && mHandler != null){
+				            Message message = Message.obtain(mHandler, Constant.INT_BOOK_TIMER);     
+				            mHandler.sendMessage(message);
+					}
+				}
+			};
+		}
+
+		if (mTimer != null && mTimerTask != null){
+			mTimer.schedule(mTimerTask, 500, 333);//循环执行TimerTask里面的run方法
+		}
+	}
+  
+	/**
+	 * 清楚背景为灰的定时器 ----- 关
+	 */
+	private void stopTimer() {
+		if (mTimer != null) {
+			mTimer.cancel();
+			mTimer = null;
+		}
+
+		if (mTimerTask != null) {
+			mTimerTask.cancel();
+			mTimerTask = null;
+		}
+	}
+	
+	
+	
+	/**
+	 * 点击书本,弹出删除的确认对话框
+	 */
+	private void initPopWindow(final View parent) {
+		stopTimer();//首先清理遗留的定时器
+		startTimer();//开始运行定时器
+		setBackgrounTransparent(0.5f);//背景设置为半透明
+		
+		LayoutInflater inflater = getLayoutInflater();//布局充气筒
+		ViewGroup popViewGroup = (ViewGroup)inflater.inflate(R.layout.activity_main,null,true);//根据充气筒获取指定layout的布局group
+		View view = inflater.inflate(R.layout.activity_main, null);
+		
+        // 加载popupWindow的布局文件   
+        View contentView = LayoutInflater.from(getApplicationContext()).inflate(R.layout.book_popup, null);  
+        // 设置popupWindow的背景颜色   
+        //contentView.setBackgroundColor(color.white);
+        checkbox = (CheckBox)contentView.findViewById(R.id.checkBox_local_id);//获取那个checkbox
+		checkbox.setOnClickListener(new OnClickListener() {//添加点击监听器
+			@Override
+			public void onClick(View v) {
+				if (((CheckBox) v).isChecked()) {
+					Toast.makeText(MainActivity.this, "Bro, try Android :)", Toast.LENGTH_LONG).show();
+				}
+			}
+		});
+        
+        
+        // 声明一个弹出框   
+        //final PopupWindow popupWindow = new PopupWindow(findViewById(R.id.main_base_id), 1080, 350);
+        int[] intArray = BeanTools.getDeviceWidthAndHeight(MainActivity.this);//获取设备的宽和高
+        $popupWindow = new PopupWindow(contentView,intArray[0],intArray[1] / 2 ,true);
+        // 为弹出框设定自定义的布局   
+        $popupWindow.setContentView(contentView); 
+        $popupWindow.setBackgroundDrawable(new BitmapDrawable());//设置一个空背景[必须]
+        $popupWindow.showAtLocation(findViewById(R.id.main_base_id), Gravity.BOTTOM| Gravity.CENTER, 0, 0);
+        //$popupWindow.showAsDropDown(parent,0,0);
+        //$popupWindow.showAsDropDown(button);
+        
+        $popupWindow.setFocusable(true);
+        $popupWindow.setTouchable(true);
+        $popupWindow.setOutsideTouchable(true);
+        
+        contentView.setFocusable(true);//设置view能够接听事件，标注1
+        contentView.setFocusableInTouchMode(true); //设置view能够接听事件 标注2
+        //监听键盘的返回键
+        contentView.setOnKeyListener(new OnKeyListener() {
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				if (keyCode == KeyEvent.KEYCODE_BACK) {
+					if ($popupWindow != null) {
+						$popupWindow.dismiss();
+						
+						setBackgrounTransparent(1.0f);// 背景设置为不透明
+					}
+				}
+				return false;
+			}
+		});
+        //监听点击其他区域
+        contentView.setOnTouchListener(new OnTouchListener(){
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if ($popupWindow != null && $popupWindow.isShowing()) {
+					$popupWindow.dismiss();
+					
+					setBackgrounTransparent(1.0f);//背景设置为不透明
+				}
+				return true;
+			}
+        });
+        
+        
+        
+        final EditText editText = (EditText) contentView.findViewById(R.id.editText1);  
+        // 设定当你点击editText时，弹出的输入框是啥样子的。这里设置默认为数字输入哦，这时候你会发现你输入非数字的东西是不行的哦   
+        editText.setInputType(InputType.TYPE_CLASS_NUMBER); 
+        
+        Button buttonSure = (Button) contentView.findViewById(R.id.button1_sure);
+        buttonSure.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {
+            	$popupWindow.dismiss();
+            	
+                setBackgrounTransparent(1.0f);//背景设置为不透明
+                
+                boolean flag = checkbox.isChecked();//是否是checked状态
+                if(flag){
+                	//删除本地文件,刷新本地数据库的那个字段
+                	TextView clickItemBookPath = (TextView)parent.findViewById(R.id.book_path);//根据Layout获取这个隐藏的路径控件
+                	TextView clickItemBookName = (TextView)parent.findViewById(R.id.book_name);//根据Layout获取这个隐藏的路径控件
+    				String path = clickItemBookPath.getText().toString().trim();
+                	String name = clickItemBookName.getText().toString().trim();
+                	
+                	//File file = new File(path, name);//当前选中的文件
+                	File file = new File(path);//当前选中的文件
+                	FileUtil.deleteFile(file);//先删除它
+                	
+                	boolean bookShowOperation = databaseServer.updateBook(path, 0);//更新该条数据为"下架"
+    				if(!bookShowOperation){//更新失败
+    					Log.e("程序逻辑错误", "更新上架书本"+path+"失败");
+    				}
+    				init();//初始化最新数据
+    				
+                }else{
+                	//只刷新本地数据库的那个字段
+                	TextView clickItemBookPath = (TextView)parent.findViewById(R.id.book_path);//根据Layout获取这个隐藏的路径控件
+    				String path = clickItemBookPath.getText().toString().trim();
+                	
+                	boolean bookShowOperation = databaseServer.updateBook(path, 0);//更新该条数据为"下架"
+    				if(!bookShowOperation){//更新失败
+    					Log.e("程序逻辑错误", "更新上架书本"+path+"失败");
+    				}
+    				init();//初始化最新数据
+                }
+            }  
+        });  
+          
+        Button buttonCancel = (Button) contentView.findViewById(R.id.button2_cancel);  
+        buttonCancel.setOnClickListener(new OnClickListener() {  
+            @Override  
+            public void onClick(View v) {  
+            	$popupWindow.dismiss();
+            	
+                setBackgrounTransparent(1.0f);//背景设置为不透明
+            }  
+        });  
+          
+    }  
+	
 }

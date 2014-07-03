@@ -9,6 +9,19 @@
     >
     <!-- android:background="@android:color/white" -->
     <TextView
+            android:id="@+id/book_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+			android:visibility="gone"           
+           />
+    <TextView
+            android:id="@+id/book_path"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+			android:visibility="gone"           
+           />
+    
+    <TextView
             android:id="@+id/book_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

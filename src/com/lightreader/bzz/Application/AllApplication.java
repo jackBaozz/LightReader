@@ -6,6 +6,7 @@ import java.util.List;
 
 import android.app.Application;
 import android.database.Cursor;
+import android.util.DisplayMetrics;
 
 import com.lightreader.bzz.pojo.Book;
 import com.lightreader.bzz.sqlite.BooksDao;
@@ -111,4 +112,6 @@ public class AllApplication extends Application {
         }
         return list;
     }
+    
+    
 }
