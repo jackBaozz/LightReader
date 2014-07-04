@@ -117,31 +117,7 @@ public class MainActivity extends Activity {
 		button.setOnClickListener(buttonListener);
 		
 		
-		//初始化TabHost
-		//以下三句代码，注意顺序
-		tabHost = (TabHost)findViewById(android.R.id.tabhost);
-		tabHost.setup();
-		final TabWidget tabWidget = tabHost.getTabWidget();
-		//自己添加TabSpec
-		//TabHost.TabSpec tabSpec01 = tabHost.newTabSpec("one");
-		//tabSpec01.setIndicator("个人信息", null);
-		//Intent intent01 = new Intent(MyXiTuanTestActivity.this,MyInfoActivity.class); 意图
-		//tabSpec01.setContent(intent01);
-		//tabHost.addTab(tabSpec01);
-		
-		tabHost.addTab(tabHost.newTabSpec("1").setIndicator("本地书库").setContent(R.id.unhanlderLayout1));
-		tabHost.addTab(tabHost.newTabSpec("2").setIndicator("在线书库").setContent(R.id.unhanlderLayout2));
-		//tabHost.addTab(tabHost.newTabSpec("google2").setIndicator(null,getResources().getDrawable(android.R.drawable.ic_menu_mylocation)).setContent(R.id.unhanlderLayout2));
-		tabHost.addTab(tabHost.newTabSpec("3").setIndicator("其他").setContent(R.id.unhanlderLayout3));
-		tabHost.setCurrentTab(0);
-		updateTab(tabHost);//初始化Tab的颜色，和字体的颜色 
-		//TabHost注册点击标签事件
-		tabHost.setOnTabChangedListener(new OnTabChangeListener() {
-			public void onTabChanged(String tabId) {
-				tabHost.setCurrentTabByTag(tabId);
-				updateTab(tabHost);
-			}
-		});
+		initTabHost();//初始化Tab
 
 		
 		//初始化标----签1里面的布局
@@ -296,6 +272,45 @@ public class MainActivity extends Activity {
 		});
 	}
 
+	
+	
+	private void initTabHost(){
+		//初始化TabHost
+		//以下三句代码，注意顺序
+		tabHost = (TabHost)findViewById(android.R.id.tabhost);
+		tabHost.setup();
+		final TabWidget tabWidget = tabHost.getTabWidget();
+		//自己添加TabSpec
+		//TabHost.TabSpec tabSpec01 = tabHost.newTabSpec("one");
+		//tabSpec01.setIndicator("个人信息", null);
+		//Intent intent01 = new Intent(MyXiTuanTestActivity.this,MyInfoActivity.class); 意图
+		//tabSpec01.setContent(intent01);
+		//tabHost.addTab(tabSpec01);
+		
+		tabHost.addTab(tabHost.newTabSpec("1").setIndicator("本地书库").setContent(R.id.unhanlderLayout1));
+		tabHost.addTab(tabHost.newTabSpec("2").setIndicator("在线书库").setContent(R.id.unhanlderLayout2));
+		//tabHost.addTab(tabHost.newTabSpec("google2").setIndicator(null,getResources().getDrawable(android.R.drawable.ic_menu_mylocation)).setContent(R.id.unhanlderLayout2));
+		tabHost.addTab(tabHost.newTabSpec("3").setIndicator("其他").setContent(R.id.unhanlderLayout3));
+		
+		// 加上30个标签
+        for (int i = 4; i <= 14; i++){
+            String name = "Tab " + i;
+            tabHost.addTab(tabHost.newTabSpec(name).setIndicator(name).setContent(R.id.unhanlderLayout3));
+        }
+		
+		
+		tabHost.setCurrentTab(0);
+		updateTab(tabHost);//初始化Tab的颜色，和字体的颜色 
+		//TabHost注册点击标签事件
+		tabHost.setOnTabChangedListener(new OnTabChangeListener() {
+			public void onTabChanged(String tabId) {
+				tabHost.setCurrentTabByTag(tabId);
+				updateTab(tabHost);
+			}
+		});
+	}
+	
+	
 
 
 	/**
