@@ -1,4 +1,4 @@
-package com.lightreader.bzz.Activity;
+package com.lightreader.bzz.activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.Window;
 
+import com.lightreader.bzz.activity.R;
 import com.lightreader.bzz.sqlite.DatabaseServer;
 
 

@@ -1,6 +1,6 @@
 package com.lightreader.bzz.utils;
 
-import com.lightreader.bzz.Activity.R;
+import com.lightreader.bzz.activity.R;
 
 public interface Constant {
 	//临时,以后删除

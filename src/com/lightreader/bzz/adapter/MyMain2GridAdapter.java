@@ -1,4 +1,4 @@
-package com.lightreader.bzz.Adapter;
+package com.lightreader.bzz.adapter;
 
 import java.util.ArrayList;
 
@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
-import com.lightreader.bzz.Activity.R;
+import com.lightreader.bzz.activity.R;
 import com.lightreader.bzz.utils.Constant;
 
 public class MyMain2GridAdapter extends BaseAdapter {

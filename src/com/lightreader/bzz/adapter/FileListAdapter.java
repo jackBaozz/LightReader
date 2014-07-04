@@ -1,4 +1,4 @@
-package com.lightreader.bzz.Adapter;
+package com.lightreader.bzz.adapter;
 
 import java.util.ArrayList;
 
@@ -11,7 +11,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.lightreader.bzz.Activity.R;
+import com.lightreader.bzz.activity.R;
 import com.lightreader.bzz.pojo.FileInfo;
 import com.lightreader.bzz.utils.Constant;
 

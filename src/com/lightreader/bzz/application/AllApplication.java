@@ -1,4 +1,4 @@
-package com.lightreader.bzz.Application;
+package com.lightreader.bzz.application;
 
 import java.util.ArrayList;
 import java.util.HashMap;

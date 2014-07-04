@@ -22,7 +22,7 @@ import android.widget.ProgressBar;
 import android.widget.Scroller;
 import android.widget.TextView;
 
-import com.lightreader.bzz.Activity.R;
+import com.lightreader.bzz.activity.R;
 
 
 /**

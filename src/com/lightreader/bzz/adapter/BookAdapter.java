@@ -1,4 +1,4 @@
-package com.lightreader.bzz.Adapter;
+package com.lightreader.bzz.adapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +10,8 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.lightreader.bzz.Activity.R;
 import com.lightreader.bzz.Interface.IAdapter;
+import com.lightreader.bzz.activity.R;
 
 public class BookAdapter implements IAdapter {
 	private List<String> strList = new ArrayList<String>();

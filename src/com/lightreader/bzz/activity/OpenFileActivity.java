@@ -1,9 +1,11 @@
-package com.lightreader.bzz.Activity;
+package com.lightreader.bzz.activity;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+
+import com.lightreader.bzz.activity.R;
 
 import android.app.Activity;
 import android.content.Intent;

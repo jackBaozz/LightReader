@@ -139,4 +139,6 @@ public abstract class BeanTools {
         return intArray;
     }
     
+    
+    
 }

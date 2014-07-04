@@ -78,7 +78,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:scrollbars="none" >
-            <!-- TabWidget的id属性必须为 @android:id/tabs -->
+            	<!-- TabWidget的id属性必须为 @android:id/tabs -->
 	            <TabWidget
 	                android:id="@android:id/tabs"
 	                android:layout_width="wrap_content"
@@ -89,6 +89,10 @@
             </HorizontalScrollView>
             
             <!-- FrameLayout的id属性必须为 @android:id/tabcontent -->
+            <com.lightreader.bzz.view.ScrollLayout
+        				android:id="@+id/scrolllayout"
+        				android:layout_width="fill_parent"
+        				android:layout_height="fill_parent">
             <FrameLayout
                 android:id="@android:id/tabcontent"
                 android:layout_width="match_parent"
@@ -100,45 +104,22 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical" >
-					<GridView
-			            android:id="@+id/main_grid_localBooks"
-			            android:layout_width="match_parent"
-			            android:layout_height="match_parent"
-			            android:gravity="center"
-			            android:background="#DCDCDC"
-			            android:paddingLeft="10dp"
-			            android:paddingRight="10dp"
-			            android:paddingTop="10dp"
-			            android:paddingBottom="10dp"
-			            android:horizontalSpacing="10dp"
-			            android:verticalSpacing="10dp"
-			            android:numColumns="2"
-			             >
-			        </GridView>
+        				<GridView
+				            android:id="@+id/main_grid_localBooks"
+				            android:layout_width="match_parent"
+				            android:layout_height="match_parent"
+				            android:gravity="center"
+				            android:background="#DCDCDC"
+				            android:paddingLeft="10dp"
+				            android:paddingRight="10dp"
+				            android:paddingTop="10dp"
+				            android:paddingBottom="10dp"
+				            android:horizontalSpacing="10dp"
+				            android:verticalSpacing="10dp"
+				            android:numColumns="2"
+				             >
+				        </GridView>
                 </LinearLayout>
-                
-                
-                <SlidingDrawer
-			        android:id="@+id/slidingdrawer"
-			        android:topOffset="170dp"
-			        android:layout_width="match_parent"
-			        android:layout_height="match_parent"
-			        android:content="@+id/content"
-			        android:handle="@+id/handle"
-			        android:orientation="vertical" >
-			    
-			    <ImageView
-			        android:id="@+id/handle"
-			        android:layout_width="wrap_content"
-			        android:layout_height="wrap_content" />
-			    <TextView
-			            android:id="@+id/content"
-			            android:background="#ffffff"
-			            android:layout_width="match_parent"
-			            android:layout_height="wrap_content"
-			            android:text="请点拉下面的钩子" />
-			 	</SlidingDrawer>
-                
 				<!-- tab2 content -->
                 <LinearLayout
                     android:id="@+id/unhanlderLayout2"
@@ -185,12 +166,12 @@
                             android:layout_height="wrap_content" >
                     </ListView>
                 </LinearLayout>
-
             </FrameLayout>
+            </com.lightreader.bzz.view.ScrollLayout>
+            
+            
         </LinearLayout>
     </TabHost>
-    
-    
     
     </LinearLayout>
     

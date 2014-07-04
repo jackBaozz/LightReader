@@ -1,12 +1,13 @@
-package com.lightreader.bzz.Activity;
+package com.lightreader.bzz.activity;
 
 import java.util.ArrayList;
 
 
 
 
-import com.lightreader.bzz.Adapter.BookAdapter;
+
 import com.lightreader.bzz.Layout.BookLayout;
+import com.lightreader.bzz.adapter.BookAdapter;
 
 import android.app.Activity;
 import android.content.Intent;

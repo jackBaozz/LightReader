@@ -1,4 +1,4 @@
-package com.lightreader.bzz.Activity;
+package com.lightreader.bzz.activity;
 
 import android.app.Activity;
 import android.os.Bundle;

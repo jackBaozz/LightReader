@@ -2,9 +2,9 @@ package com.lightreader.bzz.Layout;
 
 import java.util.Date;
 
-import com.lightreader.bzz.Adapter.BookAdapter;
 import com.lightreader.bzz.Enum.BookState;
 import com.lightreader.bzz.Enum.Corner;
+import com.lightreader.bzz.adapter.BookAdapter;
 
 import android.content.Context;
 import android.graphics.Canvas;

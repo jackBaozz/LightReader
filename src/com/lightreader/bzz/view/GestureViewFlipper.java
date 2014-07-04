@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.ViewFlipper;
 
-import com.lightreader.bzz.Activity.R;
+import com.lightreader.bzz.activity.R;
 
 /**
  * 首页大图轮播

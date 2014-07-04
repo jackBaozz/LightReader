@@ -1,8 +1,7 @@
-package com.lightreader.bzz.Activity;
+package com.lightreader.bzz.activity;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
@@ -11,6 +10,7 @@ import java.util.TimerTask;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
@@ -22,6 +22,8 @@ import android.os.Message;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnGestureListener;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -31,6 +33,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
+import android.view.animation.TranslateAnimation;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
@@ -42,27 +45,30 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.SimpleAdapter;
 import android.widget.SimpleAdapter.ViewBinder;
-import android.widget.SlidingDrawer;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.lightreader.bzz.Application.AllApplication;
+import com.lightreader.bzz.activity.R;
+import com.lightreader.bzz.application.AllApplication;
 import com.lightreader.bzz.file.FileUtil;
 import com.lightreader.bzz.image.MyGifView;
+import com.lightreader.bzz.listener.LayoutChangeListener;
 import com.lightreader.bzz.pojo.Book;
 import com.lightreader.bzz.sqlite.DatabaseServer;
 import com.lightreader.bzz.utils.BeanTools;
 import com.lightreader.bzz.utils.Constant;
+import com.lightreader.bzz.view.ScrollLayout;
 
 
 @SuppressLint("NewApi")
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements LayoutChangeListener,OnTouchListener,OnGestureListener{
 	private static String  TAG = "MainActivity";
 	private LayoutInflater inflater;
 	private TextView textView;
@@ -82,7 +88,6 @@ public class MainActivity extends Activity {
     private int listItemsLength = 0;
     private ArrayList<HashMap<String, Object>> listItems = null;//总数据集
     
-    private SlidingDrawer slidingDrawer;
     private CheckBox checkbox; //是否删除本地文件
     private DatabaseServer databaseServer = new DatabaseServer(MainActivity.this);//数据库操作类
     private PopupWindow $popupWindow ;//全局的popipWindow变量 
@@ -92,16 +97,30 @@ public class MainActivity extends Activity {
     private Handler mHandler = null;  
     
     
-    
-    
+    //手工左右滑动需要
+    private static final int FLING_MIN_DISTANCE = 20;
+	private static final int FLING_MIN_VELOCITY = 0;
+	private GestureDetector mGestureDetector;
+	private ScrollLayout scrollLayout;
+	
+	
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		//this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);//全屏
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);//去掉程序名的title
 		super.onCreate(savedInstanceState);
-		
 		setContentView(R.layout.activity_main);
-        
+		/*
+		mGestureDetector = new GestureDetector(MainActivity.this);//绑定一个手势探测器
+		View view = findViewById(R.id.main_base_id);
+		view.setOnTouchListener(MainActivity.this);
+		view.setLongClickable(true);
+		*/
+		
+		
+		
 		inflater = LayoutInflater.from(MainActivity.this);
 		//textView = (TextView) findViewById(R.id.textView1);
 		//textView.setBackgroundColor(Color.BLUE);
@@ -110,7 +129,6 @@ public class MainActivity extends Activity {
 		button = (Button) findViewById(R.id.btn1);
 		//ad_view = (ImageView)findViewById(R.id.gif_mainLoad);
 		//myGifView = new MyGifView(MainActivity.this,null,R.drawable.ad_main_load);
-		slidingDrawer = (SlidingDrawer)findViewById(R.id.slidingdrawer);//抽屉类
 		
 		
 		ButtonListener buttonListener = new ButtonListener();
@@ -244,8 +262,6 @@ public class MainActivity extends Activity {
 		mainGridLocalBooks.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View view, int position, long arg3) {
-				//Log.v("System.out", "MainActivity.listItemsLength - 1 :" + String.valueOf(listItemsLength - 1));
-				//Log.v("System.out", "MainActivity.position :" + String.valueOf(position));
 				if (listItemsLength - 1 == position) {
 					// 点击了最后一张图片 "+"添加本地目录,跳转到另一个intent来选择本地文件
 					Intent intent = new Intent(MainActivity.this, FileBrowserActivity.class);//
@@ -264,7 +280,8 @@ public class MainActivity extends Activity {
 				if (listItemsLength - 1 == position) {
 					// 点击了最后一张图片,不做任何操作
 				} else {
-					initPopWindow(view);//弹出对话框
+					//弹出对话框
+					initPopWindow(view);
 				}
 				return true;
 			}
@@ -273,41 +290,62 @@ public class MainActivity extends Activity {
 	}
 
 	
-	
+	/**
+	 * 初始化TabHost
+	 */
 	private void initTabHost(){
+		Resources resource = this.getResources();
+		String pkgName = this.getPackageName();	
+		int tabId2 = resource.getIdentifier("unhanlderLayout2", "id", pkgName);
+		int tabId3 = resource.getIdentifier("unhanlderLayout3", "id", pkgName);
+		
+		//设置滑动的ScrollLayout的参数设置
+		scrollLayout = (ScrollLayout) findViewById(R.id.scrolllayout);//获取layout
+		scrollLayout.addChangeListener(this);//添加监听器
+		TextView textView = new TextView(this);
+		textView.setText("123");
+		TextView textView2 = new TextView(this);
+		textView2.setText("456");
+		TextView textView3 = new TextView(this);
+		textView3.setText("789");
+		scrollLayout.addView(textView);
+		scrollLayout.addView(textView2);
+		scrollLayout.addView(textView3);
+		scrollLayout.setToScreen(0);//初始显示第几个
+				
+				
 		//初始化TabHost
 		//以下三句代码，注意顺序
 		tabHost = (TabHost)findViewById(android.R.id.tabhost);
 		tabHost.setup();
 		final TabWidget tabWidget = tabHost.getTabWidget();
-		//自己添加TabSpec
+		//自己添加TabSpec,可切换到 intent
 		//TabHost.TabSpec tabSpec01 = tabHost.newTabSpec("one");
 		//tabSpec01.setIndicator("个人信息", null);
 		//Intent intent01 = new Intent(MyXiTuanTestActivity.this,MyInfoActivity.class); 意图
 		//tabSpec01.setContent(intent01);
 		//tabHost.addTab(tabSpec01);
 		
+        //tabWidget.getChildTabViewAt(i).setMinimumWidth(screenWidth / 4);// 设置每个选项卡的宽度 
+		
 		tabHost.addTab(tabHost.newTabSpec("1").setIndicator("本地书库").setContent(R.id.unhanlderLayout1));
 		tabHost.addTab(tabHost.newTabSpec("2").setIndicator("在线书库").setContent(R.id.unhanlderLayout2));
-		//tabHost.addTab(tabHost.newTabSpec("google2").setIndicator(null,getResources().getDrawable(android.R.drawable.ic_menu_mylocation)).setContent(R.id.unhanlderLayout2));
 		tabHost.addTab(tabHost.newTabSpec("3").setIndicator("其他").setContent(R.id.unhanlderLayout3));
-		
-		// 加上30个标签
-        for (int i = 4; i <= 14; i++){
-            String name = "Tab " + i;
-            tabHost.addTab(tabHost.newTabSpec(name).setIndicator(name).setContent(R.id.unhanlderLayout3));
-        }
-		
-		
+		//可以添加图标,也可以添加文字描述
+		//tabHost.addTab(tabHost.newTabSpec("google2").setIndicator(null,getResources().getDrawable(android.R.drawable.ic_menu_mylocation)).setContent(R.id.unhanlderLayout2));
 		tabHost.setCurrentTab(0);
 		updateTab(tabHost);//初始化Tab的颜色，和字体的颜色 
 		//TabHost注册点击标签事件
 		tabHost.setOnTabChangedListener(new OnTabChangeListener() {
+			@Override
 			public void onTabChanged(String tabId) {
 				tabHost.setCurrentTabByTag(tabId);
 				updateTab(tabHost);
 			}
 		});
+		
+				
+		
 	}
 	
 	
@@ -561,7 +599,6 @@ public class MainActivity extends Activity {
 				if (keyCode == KeyEvent.KEYCODE_BACK) {
 					if ($popupWindow != null) {
 						$popupWindow.dismiss();
-						
 						setBackgrounTransparent(1.0f);// 背景设置为不透明
 					}
 				}
@@ -574,7 +611,6 @@ public class MainActivity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				if ($popupWindow != null && $popupWindow.isShowing()) {
 					$popupWindow.dismiss();
-					
 					setBackgrounTransparent(1.0f);//背景设置为不透明
 				}
 				return true;
@@ -606,7 +642,6 @@ public class MainActivity extends Activity {
                 	//File file = new File(path, name);//当前选中的文件
                 	File file = new File(path);//当前选中的文件
                 	FileUtil.deleteFile(file);//先删除它
-                	
                 	boolean bookShowOperation = databaseServer.updateBook(path, 0);//更新该条数据为"下架"
     				if(!bookShowOperation){//更新失败
     					Log.e("程序逻辑错误", "更新上架书本"+path+"失败");
@@ -632,11 +667,127 @@ public class MainActivity extends Activity {
             @Override  
             public void onClick(View v) {  
             	$popupWindow.dismiss();
-            	
                 setBackgrounTransparent(1.0f);//背景设置为不透明
             }  
         });  
           
-    }  
+    }
+
+
+	
+	
+	
+	/**
+	 * OnTouchListener需要实现的方法
+	 */
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+		//return false;
+		return mGestureDetector.onTouchEvent(event);
+	} 
+	
+	/**
+	 * OnGestureListener需要实现的方法
+	 */
+	@Override
+	public boolean onDown(MotionEvent e) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/**
+	 * OnGestureListener需要实现的方法
+	 */
+	@Override
+	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+		int total = tabHost.getTabWidget().getChildCount();
+		int current = tabHost.getCurrentTab();
+		if (e1.getX() - e2.getX() > FLING_MIN_DISTANCE && Math.abs(velocityX) > FLING_MIN_VELOCITY) {
+			// Fling left
+			Toast.makeText(this, "向左手势", Toast.LENGTH_SHORT).show();
+			tabHost.setCurrentTab(current - 1 < 0 ? 0 : current - 1);
+		} else if (e2.getX() - e1.getX() > FLING_MIN_DISTANCE && Math.abs(velocityX) > FLING_MIN_VELOCITY) {
+			// Fling right
+			tabHost.setCurrentTab(current + 1 > total ? total - 1 : current + 1);
+			Toast.makeText(this, "向右手势", Toast.LENGTH_SHORT).show();
+		}
+		return false;
+	}
+
+	/**
+	 * OnGestureListener需要实现的方法
+	 */
+	@Override
+	public void onLongPress(MotionEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * OnGestureListener需要实现的方法
+	 */
+	@Override
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/**
+	 * OnGestureListener需要实现的方法
+	 */
+	@Override
+	public void onShowPress(MotionEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * OnGestureListener需要实现的方法
+	 */
+	@Override
+	public boolean onSingleTapUp(MotionEvent e) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	/**
+	 * 左右滑动事件需要实现的方法
+	 */
+	@Override
+	public void doChange(int lastIndex, int currentIndex) {
+		if (lastIndex != currentIndex) {
+			switch (currentIndex) {
+			case 0:
+				if (lastIndex == 1) {
+				} else if (lastIndex == 2) {
+				}
+				break;
+			case 1:
+				if (lastIndex < 1) {
+					// 左到中
+				} else if (lastIndex > 1) {
+					// 右到中
+				}
+				break;
+			case 2:
+				if (lastIndex == 1) {
+				} else if (lastIndex == 0) {
+				}
+				break;
+			}
+		}
+		
+	}
+
+
+
+	 
+	
+	
+	
+	
+	
+	
 	
 }

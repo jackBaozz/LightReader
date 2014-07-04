@@ -1,4 +1,4 @@
-package com.lightreader.bzz.Activity;
+package com.lightreader.bzz.activity;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -39,7 +39,8 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.lightreader.bzz.Adapter.FileListAdapter;
+import com.lightreader.bzz.activity.R;
+import com.lightreader.bzz.adapter.FileListAdapter;
 import com.lightreader.bzz.file.FileComparator;
 import com.lightreader.bzz.file.FileUtil;
 import com.lightreader.bzz.pojo.FileInfo;

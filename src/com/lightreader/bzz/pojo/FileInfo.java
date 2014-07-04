@@ -4,7 +4,7 @@ import java.util.Date;
 
 import android.graphics.drawable.Drawable;
 
-import com.lightreader.bzz.Activity.R;
+import com.lightreader.bzz.activity.R;
 
 public class FileInfo {
 	private String Name;
