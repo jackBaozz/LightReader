@@ -7,7 +7,7 @@ import android.util.Log;
 public class BaseActivity extends Activity {
 
 	private static final String TAG = "BaseActivity";
-	
+	  
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
