@@ -58,7 +58,7 @@ public class User implements Parcelable {
 	}
 
 	/**
-	 * Ò»¸öÎ»ÑÚÂë£¬±íÊ¾Ò»×éÌØÊâ¶ÔÏóÀàÐÍµÄParcelable£¬Ò»°ã·µ»Ø0¼´¿É
+	 * Ò»ï¿½ï¿½Î»ï¿½ï¿½ï¿½ë£¬ï¿½ï¿½Ê¾Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Íµï¿½Parcelableï¿½ï¿½Ò»ï¿½ã·µï¿½ï¿½0ï¿½ï¿½ï¿½ï¿½
 	 */
 	@Override
 	public int describeContents() {
@@ -67,11 +67,11 @@ public class User implements Parcelable {
 
 	
 	/**
-	 * ÊµÏÖ¶ÔÏóµÄÐòÁÐ»¯
+	 * Êµï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð»ï¿½
 	 */
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
-		Log.i("main", "¿Í»§¶ËUser±»ÐòÁÐ»¯");
+		Log.i("main", "ï¿½Í»ï¿½ï¿½ï¿½Userï¿½ï¿½ï¿½ï¿½ï¿½Ð»ï¿½");
 		dest.writeInt(id);
 		dest.writeString(username);
 		dest.writeString(password);
@@ -79,22 +79,22 @@ public class User implements Parcelable {
 
 	
 	/**
-	 * ÊµÏÖÁË¶ÔÏóµÄ·´ÐòÁÐ»¯
+	 * Êµï¿½ï¿½ï¿½Ë¶ï¿½ï¿½ï¿½Ä·ï¿½ï¿½ï¿½ï¿½Ð»ï¿½
 	 */
 	public static final Parcelable.Creator<User> CREATOR = new Creator<User>() {
 		/**
-		 * ´´½¨Ò»¸öÐÂµÄParcelable¶ÔÏóµÄÊý×é
+		 * ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Âµï¿½Parcelableï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		 */
 		@Override
 		public User[] newArray(int size) {
 			return new User[size];
 		}
 		/**
-		 * ¸ù¾ÝwriteToParcel()·½·¨ÐòÁÐ»¯µÄÊý¾Ý£¬·´ÐòÁÐ»¯Ò»¸öParcelable¶ÔÏó
+		 * ï¿½ï¿½ï¿½writeToParcel()ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð»ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð»ï¿½Ò»ï¿½ï¿½Parcelableï¿½ï¿½ï¿½ï¿½
 		 */
 		@Override
 		public User createFromParcel(Parcel source) {
-			Log.i("main", "¿Í»§¶ËUser±»·´ÐòÁÐ»¯");
+			Log.i("main", "ï¿½Í»ï¿½ï¿½ï¿½Userï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð»ï¿½");
 			return new User(source.readInt(), source.readString(), source.readString());
 		}
 	};

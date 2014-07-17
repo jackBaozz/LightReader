@@ -32,7 +32,7 @@ public class SplashActivity extends Activity {
     class loadhandler implements Runnable{
         public void run() {
             //startActivity(new Intent(getApplication(),MainActivity.class));
-        	Intent intent = new Intent(SplashActivity.this,MainActivity.class);  
+        	Intent intent = new Intent(SplashActivity.this,BookMainActivity.class);  
             SplashActivity.this.startActivity(intent); 
         	SplashActivity.this.finish();
         }

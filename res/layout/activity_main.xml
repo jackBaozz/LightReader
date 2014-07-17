@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:background="#dcdcdc"
     android:id="@+id/main_base_id"
-    tools:context=".MainActivity" >
+    tools:context=".BookMainActivity" >
 
     <!-- 
     <include

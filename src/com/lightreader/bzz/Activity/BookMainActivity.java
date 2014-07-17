@@ -76,7 +76,7 @@ import com.lightreader.bzz.Utils.Constant;
 
 @SuppressWarnings("deprecation")
 @SuppressLint({ "NewApi", "InflateParams", "HandlerLeak","ClickableViewAccessibility" })
-public class MainActivity extends FragmentActivity implements LayoutChangeListener{
+public class BookMainActivity extends FragmentActivity implements LayoutChangeListener{
 	private static String TAG = "MainActivity";
 	private LayoutInflater inflater;
 	private TextView textView;
@@ -97,7 +97,7 @@ public class MainActivity extends FragmentActivity implements LayoutChangeListen
     private ArrayList<HashMap<String, Object>> listItems = null;//总数据集
     
     private CheckBox checkbox; //是否删除本地文件
-    private DatabaseServer databaseServer = new DatabaseServer(MainActivity.this);//数据库操作类
+    private DatabaseServer databaseServer = new DatabaseServer(BookMainActivity.this);//数据库操作类
     private PopupWindow $popupWindow ;//全局的popipWindow变量 
     
     private Timer mTimer = null;  
@@ -152,7 +152,7 @@ public class MainActivity extends FragmentActivity implements LayoutChangeListen
 		scrollLayout.setToScreen(0);//初始显示第几个
 		 */		
 		
-		inflater = LayoutInflater.from(MainActivity.this);
+		inflater = LayoutInflater.from(BookMainActivity.this);
 		//textView = (TextView) findViewById(R.id.textView1);
 		//textView.setBackgroundColor(Color.BLUE);
 		//item_imageView = (ImageView)findViewById(R.id.item_imageView);
@@ -264,14 +264,14 @@ public class MainActivity extends FragmentActivity implements LayoutChangeListen
 			public void onItemClick(AdapterView<?> adapterview, View view, int position, long l) {
 				if (listItemsLength - 1 == position) {
 					// 点击了最后一张图片 "+"添加本地目录,跳转到另一个intent来选择本地文件
-					Intent intent = new Intent(MainActivity.this, FileBrowserActivity.class);
-					MainActivity.this.startActivity(intent);// 启动另一个 Activity,选取文件
+					Intent intent = new Intent(BookMainActivity.this, FileBrowserActivity.class);
+					BookMainActivity.this.startActivity(intent);// 启动另一个 Activity,选取文件
 				} else {
 					//TODO 点击GridView直接打开图书
 					HashMap<String,Object> map = listItems.get(position);
 					String bookPath = map.get("book_path").toString();
 					//Toast.makeText(getApplicationContext(), "这次妖精把" + bookPath + "抓住了!", Toast.LENGTH_SHORT).show();
-					Intent intent = new Intent(MainActivity.this, ReadBookActivity.class);
+					Intent intent = new Intent(BookMainActivity.this, ReadBookActivity.class);
 					intent.putExtra("book_path", bookPath);
 					startActivity(intent);
 				}
@@ -606,7 +606,7 @@ public class MainActivity extends FragmentActivity implements LayoutChangeListen
 			@Override
 			public void onClick(View v) {
 				if (((CheckBox) v).isChecked()) {
-					Toast.makeText(MainActivity.this, "Bro, try Android :)", Toast.LENGTH_LONG).show();
+					Toast.makeText(BookMainActivity.this, "Bro, try Android :)", Toast.LENGTH_LONG).show();
 				}
 			}
 		});
@@ -614,7 +614,7 @@ public class MainActivity extends FragmentActivity implements LayoutChangeListen
         
         // 声明一个弹出框   
         //final PopupWindow popupWindow = new PopupWindow(findViewById(R.id.main_base_id), 1080, 350);
-        int[] intArray = BeanTools.getDeviceWidthAndHeight(MainActivity.this);//获取设备的宽和高
+        int[] intArray = BeanTools.getDeviceWidthAndHeight(BookMainActivity.this);//获取设备的宽和高
         $popupWindow = new PopupWindow(contentView,intArray[0],intArray[1] / 2 ,true);
         // 为弹出框设定自定义的布局   
         $popupWindow.setContentView(contentView); 

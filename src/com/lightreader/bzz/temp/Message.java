@@ -55,7 +55,7 @@ public class Message implements Parcelable {
 	}
 
 	/**
-	 * Ò»¸öÎ»ÑÚÂë£¬±íÊ¾Ò»×éÌØÊâ¶ÔÏóÀàÐÍµÄParcelable£¬Ò»°ã·µ»Ø0¼´¿É
+	 * Ò»ï¿½ï¿½Î»ï¿½ï¿½ï¿½ë£¬ï¿½ï¿½Ê¾Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Íµï¿½Parcelableï¿½ï¿½Ò»ï¿½ã·µï¿½ï¿½0ï¿½ï¿½ï¿½ï¿½
 	 */
 	@Override
 	public int describeContents() {
@@ -64,16 +64,16 @@ public class Message implements Parcelable {
 
 	@Override
 	public String toString() {
-		return "ÐÅÏ¢ÄÚÈÝ=" + msgText + ", ·¢¼þÈË=" + fromName + ", Ê±¼ä=" + date;
+		return "ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½=" + msgText + ", ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½=" + fromName + ", Ê±ï¿½ï¿½=" + date;
 	}
 
 	
 	/**
-	 * ÊµÏÖ¶ÔÏóµÄÐòÁÐ»¯
+	 * Êµï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð»ï¿½
 	 */
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
-		Log.i("main", "¿Í»§¶ËMessage±»ÐòÁÐ»¯");
+		Log.i("main", "ï¿½Í»ï¿½ï¿½ï¿½Messageï¿½ï¿½ï¿½ï¿½ï¿½Ð»ï¿½");
 		dest.writeInt(id);
 		dest.writeString(msgText);
 		dest.writeString(fromName);
@@ -81,20 +81,20 @@ public class Message implements Parcelable {
 	}
 
 	/**
-	 * ÊµÏÖÁË¶ÔÏóµÄ·´ÐòÁÐ»¯
+	 * Êµï¿½ï¿½ï¿½Ë¶ï¿½ï¿½ï¿½Ä·ï¿½ï¿½ï¿½ï¿½Ð»ï¿½
 	 */
 	public static final Parcelable.Creator<Message> CREATOR = new Creator<Message>() {
 		
-		//´´½¨Ò»¸öÐÂµÄParcelable¶ÔÏóµÄÊý×é
+		//ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Âµï¿½Parcelableï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		@Override
 		public Message[] newArray(int size) {
 			return new Message[size];
 		}
 
-		//¸ù¾ÝwriteToParcel()·½·¨ÐòÁÐ»¯µÄÊý¾Ý£¬·´ÐòÁÐ»¯Ò»¸öParcelable¶ÔÏó
+		//ï¿½ï¿½ï¿½writeToParcel()ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð»ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð»ï¿½Ò»ï¿½ï¿½Parcelableï¿½ï¿½ï¿½ï¿½
 		@Override
 		public Message createFromParcel(Parcel source) {
-			Log.i("main", "¿Í»§¶ËMessage±»·´ÐòÁÐ»¯");
+			Log.i("main", "ï¿½Í»ï¿½ï¿½ï¿½Messageï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð»ï¿½");
 			return new Message(source.readInt(), source.readString(), source.readString(), source.readString());
 		}
 	};
