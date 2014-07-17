@@ -2,25 +2,37 @@ package com.lightreader.bzz.Activity;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
+import android.app.ActionBar;
+import android.app.ActionBar.Tab;
+import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
+import android.graphics.Matrix;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Parcelable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -31,6 +43,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
@@ -45,7 +59,6 @@ import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.SimpleAdapter;
 import android.widget.SimpleAdapter.ViewBinder;
-import android.widget.SlidingDrawer;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabWidget;
@@ -53,17 +66,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lightreader.bzz.Application.AllApplication;
-import com.lightreader.bzz.file.FileUtil;
-import com.lightreader.bzz.image.MyGifView;
-import com.lightreader.bzz.pojo.Book;
-import com.lightreader.bzz.sqlite.DatabaseServer;
-import com.lightreader.bzz.utils.BeanTools;
-import com.lightreader.bzz.utils.Constant;
+import com.lightreader.bzz.File.FileUtil;
+import com.lightreader.bzz.Image.MyGifView;
+import com.lightreader.bzz.Listener.LayoutChangeListener;
+import com.lightreader.bzz.Pojo.Book;
+import com.lightreader.bzz.Sqlite.DatabaseServer;
+import com.lightreader.bzz.Utils.BeanTools;
+import com.lightreader.bzz.Utils.Constant;
 
-
-@SuppressLint("NewApi")
-public class MainActivity extends Activity {
-	private static String  TAG = "MainActivity";
+@SuppressWarnings("deprecation")
+@SuppressLint({ "NewApi", "InflateParams", "HandlerLeak","ClickableViewAccessibility" })
+public class MainActivity extends FragmentActivity implements LayoutChangeListener{
+	private static String TAG = "MainActivity";
 	private LayoutInflater inflater;
 	private TextView textView;
 	private Button button;
@@ -82,7 +96,6 @@ public class MainActivity extends Activity {
     private int listItemsLength = 0;
     private ArrayList<HashMap<String, Object>> listItems = null;//总数据集
     
-    private SlidingDrawer slidingDrawer;
     private CheckBox checkbox; //是否删除本地文件
     private DatabaseServer databaseServer = new DatabaseServer(MainActivity.this);//数据库操作类
     private PopupWindow $popupWindow ;//全局的popipWindow变量 
@@ -92,82 +105,81 @@ public class MainActivity extends Activity {
     private Handler mHandler = null;  
     
     
-    
-    
+	
+	
+	//手工左右滑动需要 2
+	// ViewPager是google SDk中自带的一个附加包的一个类，可以用来实现屏幕间的切换。
+	// android-support-v4.jar
+	private ViewPager viewPager;//页卡内容
+	private List<View> listViews; // Tab页面列表
+	private ImageView imageView;// 动画图片
+	private TextView t1, t2, t3;// 页卡头标
+	private int offset = 0;// 动画图片偏移量
+	private int currentTabIndex = 0;// 当前页卡编号
+	private int bmpWight;// 动画图片宽度
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		//this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);//全屏
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);//去掉程序名的title
 		super.onCreate(savedInstanceState);
-		
 		setContentView(R.layout.activity_main);
-        
+		
+		
+		/*
+		//设置滑动的ScrollLayout的参数设置
+		scrollLayout = (ScrollLayout) findViewById(R.id.scrolllayout);//获取layout
+		scrollLayout.addChangeListener(this);//添加监听器
+		TextView textView = new TextView(this);
+		textView.setText("123");
+		TextView textView2 = new TextView(this);
+		textView2.setText("456");
+		TextView textView3 = new TextView(this);
+		textView3.setText("789");
+		scrollLayout.addView(textView);
+		scrollLayout.addView(textView2);
+		scrollLayout.addView(textView3);
+		scrollLayout.setToScreen(0);//初始显示第几个
+		 */		
+		
 		inflater = LayoutInflater.from(MainActivity.this);
 		//textView = (TextView) findViewById(R.id.textView1);
 		//textView.setBackgroundColor(Color.BLUE);
 		//item_imageView = (ImageView)findViewById(R.id.item_imageView);
 		//item_imageView.setImageResource(R.drawable.book_add); 
 		button = (Button) findViewById(R.id.btn1);
-		//ad_view = (ImageView)findViewById(R.id.gif_mainLoad);
 		//myGifView = new MyGifView(MainActivity.this,null,R.drawable.ad_main_load);
-		slidingDrawer = (SlidingDrawer)findViewById(R.id.slidingdrawer);//抽屉类
-		
 		
 		ButtonListener buttonListener = new ButtonListener();
-		button.setOnClickListener(buttonListener);
+		button.setOnClickListener(buttonListener);//添加监听器
 		
 		
-		//初始化TabHost
-		//以下三句代码，注意顺序
-		tabHost = (TabHost)findViewById(android.R.id.tabhost);
-		tabHost.setup();
-		final TabWidget tabWidget = tabHost.getTabWidget();
-		//自己添加TabSpec
-		//TabHost.TabSpec tabSpec01 = tabHost.newTabSpec("one");
-		//tabSpec01.setIndicator("个人信息", null);
-		//Intent intent01 = new Intent(MyXiTuanTestActivity.this,MyInfoActivity.class); 意图
-		//tabSpec01.setContent(intent01);
-		//tabHost.addTab(tabSpec01);
 		
-		tabHost.addTab(tabHost.newTabSpec("1").setIndicator("本地书库").setContent(R.id.unhanlderLayout1));
-		tabHost.addTab(tabHost.newTabSpec("2").setIndicator("在线书库").setContent(R.id.unhanlderLayout2));
-		//tabHost.addTab(tabHost.newTabSpec("google2").setIndicator(null,getResources().getDrawable(android.R.drawable.ic_menu_mylocation)).setContent(R.id.unhanlderLayout2));
-		tabHost.addTab(tabHost.newTabSpec("3").setIndicator("其他").setContent(R.id.unhanlderLayout3));
-		tabHost.setCurrentTab(0);
-		updateTab(tabHost);//初始化Tab的颜色，和字体的颜色 
-		//TabHost注册点击标签事件
-		tabHost.setOnTabChangedListener(new OnTabChangeListener() {
-			public void onTabChanged(String tabId) {
-				tabHost.setCurrentTabByTag(tabId);
-				updateTab(tabHost);
-			}
-		});
-
+		InitTextView();//Tab头的汉字
+		InitImageView();//下面的滚动条
+		InitViewPager();//展示容器
 		
-		//初始化标----签1里面的布局
-		mainGridLocalBooks = (GridView)findViewById(R.id.main_grid_localBooks);
-		ArrayList<Bitmap> types = new ArrayList<Bitmap>();
-		types.add(BitmapFactory.decodeResource(getResources(),R.drawable.bt_soundeffect_equallizerunit_bass_hl));
-		types.add(BitmapFactory.decodeResource(getResources(),R.drawable.bt_soundeffect_equallizerunit_classical_hl));
-		types.add(BitmapFactory.decodeResource(getResources(),R.drawable.bt_soundeffect_equallizerunit_dance_hl));
-		types.add(BitmapFactory.decodeResource(getResources(),R.drawable.bt_soundeffect_equallizerunit_folk_hl));
-		types.add(BitmapFactory.decodeResource(getResources(),R.drawable.bt_soundeffect_equallizerunit_highpitch_hl));
-		types.add(BitmapFactory.decodeResource(getResources(),R.drawable.bt_soundeffect_equallizerunit_intelligence_hl));
-		types.add(BitmapFactory.decodeResource(getResources(),R.drawable.bt_soundeffect_equallizerunit_jazz_hl));
-		types.add(BitmapFactory.decodeResource(getResources(),R.drawable.bt_soundeffect_equallizerunit_pop_hl));
-		types.add(BitmapFactory.decodeResource(getResources(),R.drawable.bt_soundeffect_equallizerunit_rock_hl));
-		types.add(BitmapFactory.decodeResource(getResources(),R.drawable.bt_soundeffect_equallizerunit_voice_hl));
-		//mainGridLocalBooks.setAdapter(new MyMain2GridAdapter(inflater,types,screenWidth,screenHeight));
+		//init();//初始化数据
+		//initTabHost();//初始化Tab
 		
 		
-		//获取得到Message传送来的值,来更新主UI线程的控件
+		//获取得到Message传送来的值,来更新主UI线程的控件 ---- 重要
 		mHandler = new Handler() {
 			@Override
 			public void handleMessage(Message msg) {
 				switch (msg.what) {
 				case Constant.INT_BOOK_TIMER:
 					setBackgrounTransparent(1.0f);// 背景设置为不透明
-					
 					stopTimer();// 关闭定时器
 					break;
 				default:
@@ -175,30 +187,6 @@ public class MainActivity extends Activity {
 				}
 			}
 		};
-		
-		
-		/*
-		AlertDialog.Builder builder;
-		AlertDialog alertDialog;
-		Context mContext = MainActivity.this;
-		//三种方法都可以.用自定义布局
-		LayoutInflater inflater = getLayoutInflater();	//Activity.getLayoutInflater() or Window.getLayoutInflater().
-//		LayoutInflater inflater = LayoutInflater.from(this);	//Obtains the LayoutInflater from the given context.
-//		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);		
-		View layout = inflater.inflate(R.layout.custom_dialog,null);
-		
-		TextView text = (TextView) layout.findViewById(R.id.text);//获取这个布局上的一个文本控件
-		text.setText("Hello, This is a LayoutInflater Demo");
-		ImageView image = (ImageView) layout.findViewById(R.id.image);//获取这个布局上的一个图像控件
-		image.setImageResource(R.drawable.icon);
-		
-		builder = new AlertDialog.Builder(mContext);//传入Context创建一个AlertDialog.Builder
-		builder.setView(layout);
-		alertDialog = builder.create();//用AlertDialog.Builder创建一个alertDialog对象出来
-		alertDialog.show();
-		*/
-		
-		
 	}
 
 	
@@ -239,7 +227,7 @@ public class MainActivity extends Activity {
 
 		HashMap<String, Object> mapPlus = new HashMap<String, Object>();
 		// mapPlus.put("image", bookPlusBitmap);//之前的图片,大图切小图
-		mapPlus.put("image", R.drawable.plus);// 封面图
+		mapPlus.put("image", R.drawable.book_add_image);// 封面图
 		mapPlus.put("book_name", "");// 书本名字
 		mapPlus.put("book_type", "");// 书本的文件类型
 		mapPlus.put("book_id", 0);// 书本的id
@@ -262,25 +250,33 @@ public class MainActivity extends Activity {
 			}
 		});
 
+		//获取控件
+		if(mainGridLocalBooks == null){
+			mainGridLocalBooks = (GridView)findViewById(R.id.main_grid_localBooks);
+		}
 		// 对GridView进行适配
 		mainGridLocalBooks.setAdapter(adapter);
+		
+		
 		// 设置GridView的监听器 --- 单击事件
 		mainGridLocalBooks.setOnItemClickListener(new OnItemClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View view, int position, long arg3) {
-				//Log.v("System.out", "MainActivity.listItemsLength - 1 :" + String.valueOf(listItemsLength - 1));
-				//Log.v("System.out", "MainActivity.position :" + String.valueOf(position));
+			public void onItemClick(AdapterView<?> adapterview, View view, int position, long l) {
 				if (listItemsLength - 1 == position) {
 					// 点击了最后一张图片 "+"添加本地目录,跳转到另一个intent来选择本地文件
-					Intent intent = new Intent(MainActivity.this, FileBrowserActivity.class);//
-					MainActivity.this.startActivity(intent);// 启动另一个 Activity
+					Intent intent = new Intent(MainActivity.this, FileBrowserActivity.class);
+					MainActivity.this.startActivity(intent);// 启动另一个 Activity,选取文件
 				} else {
-					//直接打开图书
-					Toast.makeText(getApplicationContext(), "这次妖精把" + item[position] + "抓住了!", Toast.LENGTH_SHORT).show();
+					//TODO 点击GridView直接打开图书
+					HashMap<String,Object> map = listItems.get(position);
+					String bookPath = map.get("book_path").toString();
+					//Toast.makeText(getApplicationContext(), "这次妖精把" + bookPath + "抓住了!", Toast.LENGTH_SHORT).show();
+					Intent intent = new Intent(MainActivity.this, ReadBookActivity.class);
+					intent.putExtra("book_path", bookPath);
+					startActivity(intent);
 				}
 			}
 		});
-		
 		// 设置GridView的监听器 --- 长按事件
 		mainGridLocalBooks.setOnItemLongClickListener(new OnItemLongClickListener(){
 			@Override
@@ -288,21 +284,58 @@ public class MainActivity extends Activity {
 				if (listItemsLength - 1 == position) {
 					// 点击了最后一张图片,不做任何操作
 				} else {
-					initPopWindow(view);//弹出对话框
+					//弹出对话框
+					initPopWindow(view);
 				}
 				return true;
 			}
-			
 		});
+		
+		
 	}
 
-
-
+	
+	/**
+	 * 初始化TabHost
+	 */
+	@SuppressWarnings("unused")
+	private void initTabHost(){
+		//初始化TabHost
+		//以下三句代码，注意顺序
+		tabHost = (TabHost)findViewById(android.R.id.tabhost);
+		tabHost.setup();
+		final TabWidget tabWidget = tabHost.getTabWidget();
+		//自己添加TabSpec,可切换到 intent
+		//TabHost.TabSpec tabSpec01 = tabHost.newTabSpec("one");
+		//tabSpec01.setIndicator("个人信息", null);
+		//Intent intent01 = new Intent(MyXiTuanTestActivity.this,MyInfoActivity.class); 意图
+		//tabSpec01.setContent(intent01);
+		//tabHost.addTab(tabSpec01);
+		
+        //tabWidget.getChildTabViewAt(i).setMinimumWidth(screenWidth / 4);// 设置每个选项卡的宽度 
+		tabHost.addTab(tabHost.newTabSpec("1").setIndicator("本地书库").setContent(R.id.unhanlderLayout1));
+		tabHost.addTab(tabHost.newTabSpec("2").setIndicator("在线书库").setContent(R.id.unhanlderLayout2));
+		tabHost.addTab(tabHost.newTabSpec("3").setIndicator("其他").setContent(R.id.unhanlderLayout3));
+		//可以添加图标,也可以添加文字描述
+		//tabHost.addTab(tabHost.newTabSpec("google2").setIndicator(null,getResources().getDrawable(android.R.drawable.ic_menu_mylocation)).setContent(R.id.unhanlderLayout2));
+		tabHost.setCurrentTab(0);
+		updateTab(tabHost);//初始化Tab的颜色，和字体的颜色 
+		//TabHost注册点击标签事件
+		tabHost.setOnTabChangedListener(new OnTabChangeListener() {
+			@Override
+			public void onTabChanged(String tabId) {
+				tabHost.setCurrentTabByTag(tabId);
+				updateTab(tabHost);
+			}
+		});
+	}
+	
 	/**
 	 * 更新Tab标签的颜色，和字体的颜色
 	 * 
 	 * @param tabHost
 	 */
+	@SuppressWarnings("unused")
 	private void updateTab(final TabHost tabHost) {
 		for (int i = 0; i < tabHost.getTabWidget().getChildCount(); i++) {
 			View view = tabHost.getTabWidget().getChildAt(i);//获取到选中的TabWidget
@@ -323,11 +356,69 @@ public class MainActivity extends Activity {
 				//view.setBackgroundColor(Color.parseColor("#E9E9E9"));//默认灰
 				tv.setTextColor(this.getResources().getColorStateList(android.R.color.white));
 			}
-			
 		}
 	}
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * 初始化头标
+	 */
+	private void InitTextView() {
+		t1 = (TextView) findViewById(R.id.text1);
+		t2 = (TextView) findViewById(R.id.text2);
+		t3 = (TextView) findViewById(R.id.text3);
+
+		t1.setOnClickListener(new MyOnClickListener(0));
+		t2.setOnClickListener(new MyOnClickListener(1));
+		t3.setOnClickListener(new MyOnClickListener(2));
+	}
+
+	/**
+	 * 初始化ViewPager
+	 */
+	private void InitViewPager() {
+		//TODO 装载数据 
+		viewPager = (ViewPager) findViewById(R.id.vPager);
+		listViews = new ArrayList<View>();
+		LayoutInflater mInflater = getLayoutInflater();
+		View view_mainGridLocalBooks = mInflater.inflate(R.layout.book_tab1_layout, null);//一定要分开获取,先获取 view
+		mainGridLocalBooks = (GridView)view_mainGridLocalBooks.findViewById(R.id.main_grid_localBooks);//再从view获取需要的组件对象
+		init();//初始化数据后再添加,init()方法里面有用到mainGridLocalBooks
+		listViews.add(view_mainGridLocalBooks);
+		listViews.add(mInflater.inflate(R.layout.book_tab2_layout, null));
+		listViews.add(mInflater.inflate(R.layout.book_tab3_layout, null));
+		viewPager.setAdapter(new MyPagerAdapter(listViews));
+		viewPager.setCurrentItem(0);//设置其实第几个Tab
+		viewPager.setOnPageChangeListener(new MyOnPageChangeListener());//注册监听器
+	}
+
+	/**
+	 * 初始化动画
+	 */
+	private void InitImageView() {
+		imageView = (ImageView) findViewById(R.id.cursor);
+		bmpWight = BitmapFactory.decodeResource(getResources(), R.drawable.scroll).getWidth();// 获取图片宽度
+		DisplayMetrics dm = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(dm);
+		int screenW = dm.widthPixels;// 获取分辨率宽度
+		offset = (screenW / 3 - bmpWight) / 2;// 计算偏移量
+		Matrix matrix = new Matrix();
+		matrix.postTranslate(offset, 0);
+		imageView.setImageMatrix(matrix);// 设置动画初始位置
+	}
+	
+	
+	
+	
+	
+	////////////////////////////////////////////////////注册的一些监听事件//////////////////////////////////////////////
 	/**
 	 * 点击返回键监听事件
 	 */
@@ -343,7 +434,6 @@ public class MainActivity extends Activity {
             return super.onKeyDown(keyCode, event);  
         }
 	}
-	
 
 
 	/**
@@ -362,7 +452,7 @@ public class MainActivity extends Activity {
         }
     }
 	
-	Handler exitHandler = new Handler() {  
+	Handler exitHandler = new Handler() {
         @Override  
         public void handleMessage(Message msg) {  
             super.handleMessage(msg);  
@@ -539,6 +629,7 @@ public class MainActivity extends Activity {
         
         contentView.setFocusable(true);//设置view能够接听事件，标注1
         contentView.setFocusableInTouchMode(true); //设置view能够接听事件 标注2
+        
         //监听键盘的返回键
         contentView.setOnKeyListener(new OnKeyListener() {
 			@Override
@@ -546,7 +637,6 @@ public class MainActivity extends Activity {
 				if (keyCode == KeyEvent.KEYCODE_BACK) {
 					if ($popupWindow != null) {
 						$popupWindow.dismiss();
-						
 						setBackgrounTransparent(1.0f);// 背景设置为不透明
 					}
 				}
@@ -559,7 +649,6 @@ public class MainActivity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				if ($popupWindow != null && $popupWindow.isShowing()) {
 					$popupWindow.dismiss();
-					
 					setBackgrounTransparent(1.0f);//背景设置为不透明
 				}
 				return true;
@@ -583,15 +672,14 @@ public class MainActivity extends Activity {
                 boolean flag = checkbox.isChecked();//是否是checked状态
                 if(flag){
                 	//删除本地文件,刷新本地数据库的那个字段
-                	TextView clickItemBookPath = (TextView)parent.findViewById(R.id.book_path);//根据Layout获取这个隐藏的路径控件
-                	TextView clickItemBookName = (TextView)parent.findViewById(R.id.book_name);//根据Layout获取这个隐藏的路径控件
+                	TextView clickItemBookPath = (TextView)parent.findViewById(R.id.book_path);//根据Layout获取这个隐藏的路径
+                	//TextView clickItemBookName = (TextView)parent.findViewById(R.id.book_name);//根据Layout获取这个隐藏的路径的文件
     				String path = clickItemBookPath.getText().toString().trim();
-                	String name = clickItemBookName.getText().toString().trim();
+                	//String name = clickItemBookName.getText().toString().trim();
                 	
                 	//File file = new File(path, name);//当前选中的文件
                 	File file = new File(path);//当前选中的文件
                 	FileUtil.deleteFile(file);//先删除它
-                	
                 	boolean bookShowOperation = databaseServer.updateBook(path, 0);//更新该条数据为"下架"
     				if(!bookShowOperation){//更新失败
     					Log.e("程序逻辑错误", "更新上架书本"+path+"失败");
@@ -617,11 +705,201 @@ public class MainActivity extends Activity {
             @Override  
             public void onClick(View v) {  
             	$popupWindow.dismiss();
-            	
                 setBackgrounTransparent(1.0f);//背景设置为不透明
             }  
         });  
           
-    }  
+    }
+
+
+	
+	
+	//////////////////////////////////////////内部类//////////////////////////////////////////////////////
+	/**
+	 * ViewPager适配器
+	 */
+	class MyPagerAdapter extends PagerAdapter {
+		public List<View> mListViews;
+
+		public MyPagerAdapter(List<View> mListViews) {
+			this.mListViews = mListViews;
+		}
+
+
+		/**
+		 * 必须实现
+		 */
+		@Override
+		public void destroyItem(ViewGroup container, int position, Object object) {
+			container.removeView(mListViews.get(position));
+		}
+		
+		@Override
+		public void destroyItem(View arg0, int arg1, Object arg2) {
+			((ViewPager) arg0).removeView(mListViews.get(arg1));
+		}
+
+		@Override
+		public void finishUpdate(View arg0) {
+		}
+
+		/**
+		 * 必须实现
+		 */
+		@Override
+		public int getCount() {
+			return mListViews.size();
+		}
+
+		@Override
+		public Object instantiateItem(View arg0, int position) {
+			((ViewPager) arg0).addView(mListViews.get(position), 0);
+			return mListViews.get(position);
+		}
+		
+		/**
+		 * 必须实现
+		 */
+		@Override
+		public Object instantiateItem(ViewGroup container, int position) {
+			//return super.instantiateItem(container, position);
+			container.addView(mListViews.get(position));  
+            return mListViews.get(position);  
+		}
+
+
+		/**
+		 * 必须实现
+		 */
+		@Override
+		public boolean isViewFromObject(View arg0, Object arg1) {
+			return arg0 == arg1;
+		}
+
+		@Override
+		public void restoreState(Parcelable arg0, ClassLoader arg1) {
+		}
+
+		@Override
+		public Parcelable saveState() {
+			return null;
+		}
+
+		@Override
+		public void startUpdate(View arg0) {
+		}
+	}
+	
+	
+	/**
+	 * 头标点击监听
+	 */
+	class MyOnClickListener implements View.OnClickListener {
+		private int index = 0;
+
+		public MyOnClickListener(int i) {
+			index = i;
+		}
+
+		@Override
+		public void onClick(View v) {
+			viewPager.setCurrentItem(index);
+		}
+	};
+
+	/**
+	 * 页卡切换监听
+	 */
+	class MyOnPageChangeListener implements OnPageChangeListener {
+
+		int one = offset * 2 + bmpWight;// 页卡1 -> 页卡2 偏移量
+		int two = one * 2;// 页卡1 -> 页卡3 偏移量
+
+		@Override
+		public void onPageSelected(int tabIndex) {
+			Animation animation = null;
+			switch (tabIndex) {
+			case 0:
+				if (currentTabIndex == 1) {
+					animation = new TranslateAnimation(one, 0, 0, 0);
+				} else if (currentTabIndex == 2) {
+					animation = new TranslateAnimation(two, 0, 0, 0);
+				}
+				break;
+			case 1:
+				if (currentTabIndex == 0) {
+					animation = new TranslateAnimation(offset, one, 0, 0);
+				} else if (currentTabIndex == 2) {
+					animation = new TranslateAnimation(two, one, 0, 0);
+				}
+				break;
+			case 2:
+				if (currentTabIndex == 0) {
+					animation = new TranslateAnimation(offset, two, 0, 0);
+				} else if (currentTabIndex == 1) {
+					animation = new TranslateAnimation(one, two, 0, 0);
+				}
+				break;
+			}
+			currentTabIndex = tabIndex;
+			animation.setFillAfter(true);// True:图片停在动画结束位置
+			animation.setDuration(300);
+			imageView.startAnimation(animation);
+		}
+
+		@Override
+		public void onPageScrolled(int arg0, float arg1, int arg2) {
+		}
+
+		@Override
+		public void onPageScrollStateChanged(int arg0) {
+		}
+	}
+	
+	
+	
+	
+	
+	//////////////////////////////////////////监听事件////////////////////////////////////////////////////
+	/**
+	 * LayoutChangeListener左右滑动事件需要实现的方法
+	 */
+	@Override
+	public void doChange(int lastIndex, int currentIndex) {
+		if (lastIndex != currentIndex) {
+			switch (currentIndex) {
+			case 0:
+				if (lastIndex == 1) {
+				} else if (lastIndex == 2) {
+				}
+				break;
+			case 1:
+				if (lastIndex < 1) {
+					// 左到中
+				} else if (lastIndex > 1) {
+					// 右到中
+				}
+				break;
+			case 2:
+				if (lastIndex == 1) {
+				} else if (lastIndex == 0) {
+				}
+				break;
+			}
+		}
+		
+	}
+
+
+
+
+
+	 
+	
+	
+	
+	
+	
+	
 	
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/readlayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/brown_login_background" >
+
+    <TextView
+        android:id="@+id/bookshow"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:text="123123123123123123123123123123123213213123123123123213123123123123123232132321312321312312312312312312312312312312312312312321312" />
+
+</RelativeLayout>

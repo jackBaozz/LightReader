@@ -12,8 +12,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.lightreader.bzz.Activity.R;
-import com.lightreader.bzz.pojo.FileInfo;
-import com.lightreader.bzz.utils.Constant;
+import com.lightreader.bzz.Pojo.FileInfo;
+import com.lightreader.bzz.Utils.Constant;
 
 public class FileListAdapter extends BaseAdapter {
 

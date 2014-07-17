@@ -40,11 +40,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lightreader.bzz.Adapter.FileListAdapter;
-import com.lightreader.bzz.file.FileComparator;
-import com.lightreader.bzz.file.FileUtil;
-import com.lightreader.bzz.pojo.FileInfo;
-import com.lightreader.bzz.sqlite.DatabaseServer;
-import com.lightreader.bzz.utils.Constant;
+import com.lightreader.bzz.File.FileComparator;
+import com.lightreader.bzz.File.FileUtil;
+import com.lightreader.bzz.Pojo.FileInfo;
+import com.lightreader.bzz.Sqlite.DatabaseServer;
+import com.lightreader.bzz.Utils.Constant;
 
 public class FileBrowserActivity extends BaseActivity implements android.view.View.OnClickListener {
 	private ListView fileListView;

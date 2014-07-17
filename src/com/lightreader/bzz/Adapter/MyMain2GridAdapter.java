@@ -10,7 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 import com.lightreader.bzz.Activity.R;
-import com.lightreader.bzz.utils.Constant;
+import com.lightreader.bzz.Utils.Constant;
 
 public class MyMain2GridAdapter extends BaseAdapter {
 private LayoutInflater inflater;

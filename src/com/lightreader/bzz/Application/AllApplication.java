@@ -8,10 +8,10 @@ import android.app.Application;
 import android.database.Cursor;
 import android.util.DisplayMetrics;
 
-import com.lightreader.bzz.pojo.Book;
-import com.lightreader.bzz.sqlite.BooksDao;
-import com.lightreader.bzz.sqlite.DatabaseServer;
-import com.lightreader.bzz.sqlite.MessageBoxDao;
+import com.lightreader.bzz.Pojo.Book;
+import com.lightreader.bzz.Sqlite.BooksDao;
+import com.lightreader.bzz.Sqlite.DatabaseServer;
+import com.lightreader.bzz.Sqlite.MessageBoxDao;
 
 public class AllApplication extends Application {
     public static ArrayList<HashMap<String, Object>> tempObjectsList = new ArrayList<HashMap<String, Object>>();//全局的临时变量List

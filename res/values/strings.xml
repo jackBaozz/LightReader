@@ -60,4 +60,45 @@
     <string name="scan_text">将二维码放入框内, 即可自动扫描</string>
     
     
+    <!-- 书本 ta标签的汉字 -->
+    <string name="book_tab1_text">本地书库</string>
+    <string name="book_tab2_text">在线书库</string>
+    <string name="book_tab3_text">其他</string>
+    
+    
+    <string name="tab_1">R</string>
+    <string name="tab_2">G</string>
+    <string name="tab_3">B</string>
+    <string name="frag_1">Fragment 1</string>
+    <string name="frag_2">Fragment 2</string>
+    <string name="frag_3">Fragment 3</string>
+    
+    
+    
+    
+    
+    <!-- 主页面点击熊猫 弹出popwindow 中的radiobutton-->
+    <string name="lishi">历史/书签</string>
+    <string name="yaoyao">摇摇 分享 </string>
+    <string name="chajian">插件 中心 </string>
+    <string name="yingyong">应用 推荐 </string>
+    <string name="guanyu">　关 于　</string>
+    <string name="bendi">本地 文件 </string>
+    <string name="wifi">WiFi 传输 </string>
+    <string name="shoucang">　收 藏　</string>
+    <string name="shezhi">　设 置　</string>
+    <string name="tuichu">　退 出　</string>
+    <string name="about1">网龙出品NetDragon WebSoft.Inc</string>
+    <string name="about2">客服热线：0591-87085788</string>
+    <string name="about3">官方网站：http：//ks.sj.91.com</string>
+    <string name="about4">本版本在线语音朗读核心技术由科大讯飞提供支持</string>
+    <string name="about5">本地语音朗读核心技术由盛大听听提供支持</string>  
+    <!-- bookpop.xml -->
+    <string name="bookpop_size">字体</string>
+    <string name="bookpop_light">亮度</string>
+    <string name="bookpop_card">书签</string>
+    <string name="bookpop_send">跳转</string>
+    <!-- 设置 -->
+    <string name="btn_color_picker">91PandaReader</string>
+    <string name="btn_color_picker2">网龙出品</string>
 </resources>
