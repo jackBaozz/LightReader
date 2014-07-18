@@ -52,7 +52,8 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 	private static final String TAG = "ReadBookActivity";
 	private BookPageFactory pagefactory;// 书工厂
 	private int screenWidth;// 宽
-	private int readHeight; // 高
+	private int screenHeight;//高
+	private int readHeight; // 电子书显示高度
 
 	private static int begin = 0;// 记录的书籍开始位置
 	private static String word = "";// 记录当前页面的文字
@@ -69,25 +70,25 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 	protected int jumpPage;// 记录跳转进度条
 	private int light; // 亮度值
 	private WindowManager.LayoutParams lp;// 布局管理
-
 	private MarkHelper markhelper;// 操作书签的数据库
 	private Bitmap mCurPageBitmap, mNextPageBitmap;// 位图
 	private MarkDialog mDialog = null;
-	private Context mContext = null;// 上下文
-	private PageWidget mPageWidget;
+	private Context mContext = ReadBookActivity.this;// 上下文
+	private PageWidget mPageWidget;//控制画出贝塞尔曲线
 	private PopupWindow mPopupWindow, mToolpop, mToolpop1, mToolpop2, mToolpop3, mToolpop4;// 弹出窗口
-	private Boolean show = false;// popwindow是否显示
-	private View popupwindwow, toolpop, toolpop1, toolpop2, toolpop3, toolpop4;
+	private Boolean popwindowIsShow = false;// popwindow是否显示
+	private View popupWindwowView, toolpopView, toolpopView1, toolpopView2, toolpopView3, toolpopView4;
 	private SeekBar seekBar1, seekBar2, seekBar4;// 进度条
 	private int size = 30; // 字体大小
-	private int defaultSize = 0;// 默认大小
+	private int defaultSize = 0;// 默认字体大小
 	protected long count = 1;
 	protected int PAGE = 1;// 第几页
 	private String txtName, txtName1;// 文字
 	public static Canvas mCurPageCanvas, mNextPageCanvas;// 画布
 
 	// 实例化Handler
-	public Handler mHandler = new Handler() {
+	@SuppressLint("HandlerLeak")
+	Handler mHandler = new Handler() {
 		// 接收子线程发来的消息，同时更新UI
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
@@ -112,100 +113,30 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 	
 	
 	
-	
-	
-	
-	
-	
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		this.requestWindowFeature(Window.FEATURE_NO_TITLE);// 去掉程序名的title
-		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);// 全屏
-
-		/*
-		 * BookLayout bookLayout = new BookLayout(this);//view的子类 Intent intent
-		 * = getIntent(); ArrayList<String> bookContents =
-		 * intent.getExtras().getStringArrayList("texts"); BookAdapter
-		 * bookAdapter = new BookAdapter(this);
-		 * bookAdapter.addItem(bookContents);//Adapter里装入数据
-		 * 
-		 * bookLayout.setPageAdapter(bookAdapter);//layout里装入刚才的数据
-		 * ReadBookActivity.this.setContentView(bookLayout);//往Activity里面装入这个布局
-		 * [必须]
-		 */
-
-		ReadBookActivity.this.setContentView(R.layout.book_read);// 添加布局
-
-		// 获取传递过来的书的绝对路径
-		Intent intent = getIntent();
-		String book_path = intent.getExtras().get("book_path").toString();// 获取书籍的路径
-
-		screenWidth = BeanTools.getDeviceWidthAndHeight(this)[0];
-		readHeight = BeanTools.getDeviceWidthAndHeight(this)[1];
-		pagefactory = new BookPageFactory(screenWidth, readHeight);// 书工厂
-		try {
-			pagefactory.openbook(book_path, 0);
-		} catch (IOException e) {
-			Log.e(TAG, "打开电子书失败", e);
-			Toast.makeText(this, "打开电子书失败", Toast.LENGTH_SHORT).show();
-		}
-
-	}
-	
-	
-	
-	
-	/**
-	 * 记录数据 并清空popupwindow
-	 */
-	private void clear() {
-		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-		show = false;
-		mPopupWindow.dismiss();
-		popDismiss();
-	}
-
-	/**
-	 * 读取配置文件中亮度值
-	 */
-	private void getLight() {
-		light = sp.getInt("light", 5);
-		isNight = sp.getBoolean("night", false);
-	}
-
-	/**
-	 * 读取配置文件中字体大小
-	 */
-	private void getSize() {
-		size = sp.getInt("size", defaultSize);
-	}
-	
-	
-	
-
-	/*@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		mContext = getBaseContext();
+		setContentView(R.layout.book_read);//[必须]
+		//mContext = getBaseContext();
+		
 
-		WindowManager manage = getWindowManager();
-		Display display = manage.getDefaultDisplay();
-		screenWidth = display.getWidth();
-		screenHeight = display.getHeight();
+		
+		screenWidth = BeanTools.getDeviceWidthAndHeight(mContext)[0];
+		screenHeight = BeanTools.getDeviceWidthAndHeight(mContext)[1];
 		defaultSize = (screenWidth * 20) / 320;
-		readHeight = screenHeight - (50 * screenWidth) / 320;
+		//readHeight = screenHeight - (50 * screenWidth) / 320;//阅读的高度,去掉广告
+		readHeight = screenHeight;
+		
 
 		mCurPageBitmap = Bitmap.createBitmap(screenWidth, screenHeight, Bitmap.Config.ARGB_8888);
 		mNextPageBitmap = Bitmap.createBitmap(screenWidth, screenHeight, Bitmap.Config.ARGB_8888);
 		mCurPageCanvas = new Canvas(mCurPageBitmap);
 		mNextPageCanvas = new Canvas(mNextPageBitmap);
-
 		mPageWidget = new PageWidget(this, screenWidth, readHeight);// 页面
-		setContentView(R.layout.readbook);
+		
+		
 		RelativeLayout rlayout = (RelativeLayout) findViewById(R.id.readlayout);
 		rlayout.addView(mPageWidget);
 
@@ -213,20 +144,27 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		bookPath = intent.getStringExtra("txtName1");
 		ccc = intent.getStringExtra("ccc");
 
+		
+		// 获取传递过来的书的绝对路径
+		Intent _intent = getIntent();
+		String book_path = _intent.getExtras().get("book_path").toString();// 获取书籍的路径
+		bookPath = book_path;
+		
+		
+		
 		mPageWidget.setBitmaps(mCurPageBitmap, mCurPageBitmap);
-
 		mPageWidget.setOnTouchListener(new OnTouchListener() {
+			
 			@Override
-			public boolean onTouch(View v, MotionEvent e) {
+			public boolean onTouch(View view, MotionEvent e) {
 				boolean ret = false;
-				if (v == mPageWidget) {
-					if (!show) {
-
+				if (view == mPageWidget) {
+					if (!popwindowIsShow) {
 						if (e.getAction() == MotionEvent.ACTION_DOWN) {
 							if (e.getY() > readHeight) {// 超出范围了，表示单击到广告条，则不做翻页
 								return false;
 							}
-							mPageWidget.abortAnimation();
+							mPageWidget.abortAnimation();//取消动画
 							mPageWidget.calcCornerXY(e.getX(), e.getY());
 							pagefactory.onDraw(mCurPageCanvas);
 							if (mPageWidget.DragToRight()) {// 左翻
@@ -267,8 +205,9 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 			}
 		});
 
-		setPop();
-
+		initPop();//初始化
+		
+		
 		// 提取记录在sharedpreferences的各种状态
 		sp = getSharedPreferences("config", MODE_PRIVATE);
 		editor = sp.edit();
@@ -281,10 +220,14 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		getWindow().setAttributes(lp);
 		pagefactory = new BookPageFactory(screenWidth, readHeight);// 书工厂
 		if (isNight) {
-			pagefactory.setBgBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.main_bg));
+			Bitmap bmp = BitmapFactory.decodeResource(this.getResources(), R.drawable.main_bg);//获取源位图
+			bmp = Bitmap.createScaledBitmap(bmp, screenWidth, screenHeight, true);//图片缩放到全屏大小
+			pagefactory.setBgBitmap(bmp);
 			pagefactory.setM_textColor(Color.rgb(128, 128, 128));
 		} else {
-			pagefactory.setBgBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.bg));
+			Bitmap bmp = BitmapFactory.decodeResource(this.getResources(), R.drawable.bg);//获取源位图
+			bmp = Bitmap.createScaledBitmap(bmp, screenWidth, screenHeight, true);//图片缩放到全屏大小
+			pagefactory.setBgBitmap(bmp);
 			pagefactory.setM_textColor(Color.rgb(28, 28, 28));
 		}
 		begin = sp.getInt(bookPath + "begin", 0);
@@ -293,7 +236,12 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 			txtName = intent2.getStringExtra("txtName1");
 			// String strFilePath=Finaltxt.TXTPA+txtName;
 			// pagefactory.openbook(strFilePath, begin);
-			pagefactory.openbook("mnt/sdcard/" + txtName, begin);
+			
+			
+			pagefactory.openbook(bookPath, begin);
+			
+			
+			//pagefactory.openbook("mnt/sdcard/" + txtName, begin);
 			//
 			// Intent intent3=getIntent();
 			// txtName1=intent3.getStringExtra("txtName2");
@@ -307,10 +255,77 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 			Log.e(TAG, "打开电子书失败", e1);
 			Toast.makeText(this, "打开电子书失败", Toast.LENGTH_SHORT).show();
 		}
-
 		markhelper = new MarkHelper(this);
 
+	}
+	
+	
+	
+	
+	/*@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);// 去掉程序名的title
+		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);// 全屏
+
+		
+		 * BookLayout bookLayout = new BookLayout(this);//view的子类 Intent intent
+		 * = getIntent(); ArrayList<String> bookContents =
+		 * intent.getExtras().getStringArrayList("texts"); BookAdapter
+		 * bookAdapter = new BookAdapter(this);
+		 * bookAdapter.addItem(bookContents);//Adapter里装入数据
+		 * 
+		 * bookLayout.setPageAdapter(bookAdapter);//layout里装入刚才的数据
+		 * ReadBookActivity.this.setContentView(bookLayout);//往Activity里面装入这个布局
+		 * [必须]
+		 
+
+		ReadBookActivity.this.setContentView(R.layout.book_read);// 添加布局
+
+		// 获取传递过来的书的绝对路径
+		Intent intent = getIntent();
+		String book_path = intent.getExtras().get("book_path").toString();// 获取书籍的路径
+
+		screenWidth = BeanTools.getDeviceWidthAndHeight(this)[0];
+		readHeight = BeanTools.getDeviceWidthAndHeight(this)[1];
+		pagefactory = new BookPageFactory(screenWidth, readHeight);// 书工厂
+		try {
+			pagefactory.openbook(book_path, 0);
+		} catch (IOException e) {
+			Log.e(TAG, "打开电子书失败", e);
+			Toast.makeText(this, "打开电子书失败", Toast.LENGTH_SHORT).show();
+		}
+
 	}*/
+	
+	
+	
+	
+	/**
+	 * 记录数据 并清空popupwindow
+	 */
+	private void clear() {
+		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+		popwindowIsShow = false;
+		mPopupWindow.dismiss();
+		popDismiss();
+	}
+
+	/**
+	 * 读取配置文件中亮度值
+	 */
+	private void getLight() {
+		light = sp.getInt("light", 5);
+		isNight = sp.getBoolean("night", false);
+	}
+
+	/**
+	 * 读取配置文件中字体大小
+	 */
+	private void getSize() {
+		size = sp.getInt("size", defaultSize);
+	}
+	
 
 	
 	@Override
@@ -332,24 +347,23 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 	}
 
 	
-
+    ////////////////////////////////////////////////////////////监听方法/////////////////////////////////////////////////////////////////////
 	/**
 	 * 添加对menu按钮的监听
 	 */
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_MENU) {
-			if (show) {
+			if (popwindowIsShow) {
 				getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-				show = false;
+				popwindowIsShow = false;
 				mPopupWindow.dismiss();
 				popDismiss();
 
 			} else {
-
 				getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 				getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-				show = true;
+				popwindowIsShow = true;
 				pop();
 			}
 		}
@@ -389,12 +403,16 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 				pagefactory.setM_textColor(Color.rgb(28, 28, 28));
 				imageBtn2.setImageResource(R.drawable.reader_switch_off);
 				isNight = false;
-				pagefactory.setBgBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.bg));
+				Bitmap bmp = BitmapFactory.decodeResource(this.getResources(), R.drawable.bg);//获取源位图
+				bmp = Bitmap.createScaledBitmap(bmp, screenWidth, screenHeight, true);//图片缩放到全屏大小
+				pagefactory.setBgBitmap(bmp);
 			} else {
 				pagefactory.setM_textColor(Color.rgb(128, 128, 128));
 				imageBtn2.setImageResource(R.drawable.reader_switch_on);
 				isNight = true;
-				pagefactory.setBgBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.main_bg));
+				Bitmap bmp = BitmapFactory.decodeResource(this.getResources(), R.drawable.main_bg);//获取源位图
+				bmp = Bitmap.createScaledBitmap(bmp, screenWidth, screenHeight, true);//图片缩放到全屏大小
+				pagefactory.setBgBitmap(bmp);
 			}
 			setLight();
 			pagefactory.setM_mbBufBegin(begin);
@@ -438,9 +456,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 					markList.add(mv);
 				}
 				mDialog = new MarkDialog(this, markList, mHandler, R.style.FullHeightDialog);
-
 				mDialog.setCancelable(false);
-
 				mDialog.setTitle("我的书签");
 				mDialog.show();
 			}
@@ -525,6 +541,9 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 	}
 
 	
+	////////////////////////////////////////////////////////////监听方法/////////////////////////////////////////////////////////////////////
+	
+	
 	
 	
 	
@@ -533,23 +552,21 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 	 */
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-
 			if (ccc == null) {
-				if (show) {// 如果popwindow正在显示
+				if (popwindowIsShow) {// 如果popwindow正在显示
 					popDismiss();
 					getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-					show = false;
+					popwindowIsShow = false;
 					mPopupWindow.dismiss();
 				} else {
 					this.finish();
 				}
 			} else {
 				if (!ccc.equals("ccc")) {
-					if (show) {// 如果popwindow正在显示
+					if (popwindowIsShow) {// 如果popwindow正在显示
 						getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-						show = false;
+						popwindowIsShow = false;
 						mPopupWindow.dismiss();
 						popDismiss();
 					} else {
@@ -568,10 +585,10 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 	 */
 	public void pop() {
 		mPopupWindow.showAtLocation(mPageWidget, Gravity.BOTTOM, 0, 0);
-		bookBtn1 = (TextView) popupwindwow.findViewById(R.id.bookBtn1);
-		bookBtn2 = (TextView) popupwindwow.findViewById(R.id.bookBtn2);
-		bookBtn3 = (TextView) popupwindwow.findViewById(R.id.bookBtn3);
-		bookBtn4 = (TextView) popupwindwow.findViewById(R.id.bookBtn4);
+		bookBtn1 = (TextView) popupWindwowView.findViewById(R.id.bookBtn1);
+		bookBtn2 = (TextView) popupWindwowView.findViewById(R.id.bookBtn2);
+		bookBtn3 = (TextView) popupWindwowView.findViewById(R.id.bookBtn3);
+		bookBtn4 = (TextView) popupWindwowView.findViewById(R.id.bookBtn4);
 		bookBtn1.setOnClickListener(this);
 		bookBtn2.setOnClickListener(this);
 		bookBtn3.setOnClickListener(this);
@@ -612,19 +629,20 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 	 */
 	@SuppressLint("InflateParams")
 	@SuppressWarnings("deprecation")
-	private void setPop() {
-		popupwindwow = this.getLayoutInflater().inflate(R.layout.book_pop, null);
-		toolpop = this.getLayoutInflater().inflate(R.layout.book_toolpop, null);
-		mPopupWindow = new PopupWindow(popupwindwow, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-		mToolpop = new PopupWindow(toolpop, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-		toolpop1 = this.getLayoutInflater().inflate(R.layout.book_tool11, null);
-		mToolpop1 = new PopupWindow(toolpop1, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-		toolpop2 = this.getLayoutInflater().inflate(R.layout.book_tool22, null);
-		mToolpop2 = new PopupWindow(toolpop2, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-		toolpop3 = this.getLayoutInflater().inflate(R.layout.book_tool33, null);
-		mToolpop3 = new PopupWindow(toolpop3, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-		toolpop4 = this.getLayoutInflater().inflate(R.layout.book_tool44, null);
-		mToolpop4 = new PopupWindow(toolpop4, LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+	private void initPop() {
+		popupWindwowView = this.getLayoutInflater().inflate(R.layout.book_pop, null);
+		mPopupWindow = new PopupWindow(popupWindwowView, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		toolpopView = this.getLayoutInflater().inflate(R.layout.book_toolpop, null);
+		mToolpop = new PopupWindow(toolpopView, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		
+		toolpopView1 = this.getLayoutInflater().inflate(R.layout.book_tool11, null);
+		mToolpop1 = new PopupWindow(toolpopView1, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		toolpopView2 = this.getLayoutInflater().inflate(R.layout.book_tool22, null);
+		mToolpop2 = new PopupWindow(toolpopView2, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		toolpopView3 = this.getLayoutInflater().inflate(R.layout.book_tool33, null);
+		mToolpop3 = new PopupWindow(toolpopView3, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		toolpopView4 = this.getLayoutInflater().inflate(R.layout.book_tool44, null);
+		mToolpop4 = new PopupWindow(toolpopView4, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 	}
 
 	/**
@@ -642,7 +660,6 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 
 	/**
 	 * 设置popupwindow的显示与隐藏
-	 * 
 	 * @param a
 	 */
 	public void setToolPop(int a) {
@@ -654,7 +671,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 				// 当点击字体按钮
 				if (a == 1) {
 					mToolpop1.showAtLocation(mPageWidget, Gravity.BOTTOM, 0, screenWidth * 45 / 320);
-					seekBar1 = (SeekBar) toolpop1.findViewById(R.id.seekBar1);
+					seekBar1 = (SeekBar) toolpopView1.findViewById(R.id.seekBar1);
 					size = sp.getInt("size", 20);
 					seekBar1.setProgress((size - 15));
 					seekBar1.setOnSeekBarChangeListener(this);
@@ -662,8 +679,8 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 				// 当点击亮度按钮
 				if (a == 2) {
 					mToolpop2.showAtLocation(mPageWidget, Gravity.BOTTOM, 0, screenWidth * 45 / 320);
-					seekBar2 = (SeekBar) toolpop2.findViewById(R.id.seekBar2);
-					imageBtn2 = (ImageButton) toolpop2.findViewById(R.id.imageBtn2);
+					seekBar2 = (SeekBar) toolpopView2.findViewById(R.id.seekBar2);
+					imageBtn2 = (ImageButton) toolpopView2.findViewById(R.id.imageBtn2);
 					getLight();
 
 					seekBar2.setProgress(light);
@@ -677,19 +694,19 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 				}
 				// 当点击书签按钮
 				if (a == 3) {
-					mToolpop3.showAtLocation(mPageWidget, Gravity.BOTTOM, 0, toolpop.getHeight());
-					imageBtn3_1 = (ImageButton) toolpop3.findViewById(R.id.imageBtn3_1);
-					imageBtn3_2 = (ImageButton) toolpop3.findViewById(R.id.imageBtn3_2);
+					mToolpop3.showAtLocation(mPageWidget, Gravity.BOTTOM, 0, toolpopView.getHeight());
+					imageBtn3_1 = (ImageButton) toolpopView3.findViewById(R.id.imageBtn3_1);
+					imageBtn3_2 = (ImageButton) toolpopView3.findViewById(R.id.imageBtn3_2);
 					imageBtn3_1.setOnClickListener(this);
 					imageBtn3_2.setOnClickListener(this);
 				}
 				// 当点击跳转按钮
 				if (a == 4) {
 					mToolpop4.showAtLocation(mPageWidget, Gravity.BOTTOM, 0, screenWidth * 45 / 320);
-					imageBtn4_1 = (ImageButton) toolpop4.findViewById(R.id.imageBtn4_1);
-					imageBtn4_2 = (ImageButton) toolpop4.findViewById(R.id.imageBtn4_2);
-					seekBar4 = (SeekBar) toolpop4.findViewById(R.id.seekBar4);
-					markEdit4 = (TextView) toolpop4.findViewById(R.id.markEdit4);
+					imageBtn4_1 = (ImageButton) toolpopView4.findViewById(R.id.imageBtn4_1);
+					imageBtn4_2 = (ImageButton) toolpopView4.findViewById(R.id.imageBtn4_2);
+					seekBar4 = (SeekBar) toolpopView4.findViewById(R.id.seekBar4);
+					markEdit4 = (TextView) toolpopView4.findViewById(R.id.markEdit4);
 					// begin = sp.getInt(bookPath + "begin", 1);
 					float fPercent = (float) (begin * 1.0 / pagefactory.getM_mbBufLen());
 					DecimalFormat df = new DecimalFormat("#0");
@@ -710,7 +727,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 			// 点击字体按钮
 			if (a == 1) {
 				mToolpop1.showAtLocation(mPageWidget, Gravity.BOTTOM, 0, screenWidth * 45 / 320);
-				seekBar1 = (SeekBar) toolpop1.findViewById(R.id.seekBar1);
+				seekBar1 = (SeekBar) toolpopView1.findViewById(R.id.seekBar1);
 				size = sp.getInt("size", 20);
 				seekBar1.setProgress(size - 15);
 				seekBar1.setOnSeekBarChangeListener(this);
@@ -718,15 +735,19 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 			// 点击亮度按钮
 			if (a == 2) {
 				mToolpop2.showAtLocation(mPageWidget, Gravity.BOTTOM, 0, screenWidth * 45 / 320);
-				seekBar2 = (SeekBar) toolpop2.findViewById(R.id.seekBar2);
-				imageBtn2 = (ImageButton) toolpop2.findViewById(R.id.imageBtn2);
+				seekBar2 = (SeekBar) toolpopView2.findViewById(R.id.seekBar2);
+				imageBtn2 = (ImageButton) toolpopView2.findViewById(R.id.imageBtn2);
 				getLight();
 				seekBar2.setProgress(light);
 
 				if (isNight) {
-					pagefactory.setBgBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.main_bg));
+					Bitmap bmp = BitmapFactory.decodeResource(this.getResources(), R.drawable.main_bg);//获取源位图
+					bmp = Bitmap.createScaledBitmap(bmp, screenWidth, screenHeight, true);//图片缩放到全屏大小
+					pagefactory.setBgBitmap(bmp);
 				} else {
-					pagefactory.setBgBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.bg));
+					Bitmap bmp = BitmapFactory.decodeResource(this.getResources(), R.drawable.bg);//获取源位图
+					bmp = Bitmap.createScaledBitmap(bmp, screenWidth, screenHeight, true);//图片缩放到全屏大小
+					pagefactory.setBgBitmap(bmp);
 				}
 
 				if (isNight) {
@@ -740,18 +761,18 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 			// 点击书签按钮
 			if (a == 3) {
 				mToolpop3.showAtLocation(mPageWidget, Gravity.BOTTOM, 0, screenWidth * 45 / 320);
-				imageBtn3_1 = (ImageButton) toolpop3.findViewById(R.id.imageBtn3_1);
-				imageBtn3_2 = (ImageButton) toolpop3.findViewById(R.id.imageBtn3_2);
+				imageBtn3_1 = (ImageButton) toolpopView3.findViewById(R.id.imageBtn3_1);
+				imageBtn3_2 = (ImageButton) toolpopView3.findViewById(R.id.imageBtn3_2);
 				imageBtn3_1.setOnClickListener(this);
 				imageBtn3_2.setOnClickListener(this);
 			}
 			// 点击跳转按钮
 			if (a == 4) {
 				mToolpop4.showAtLocation(mPageWidget, Gravity.BOTTOM, 0, screenWidth * 45 / 320);
-				imageBtn4_1 = (ImageButton) toolpop4.findViewById(R.id.imageBtn4_1);
-				imageBtn4_2 = (ImageButton) toolpop4.findViewById(R.id.imageBtn4_2);
-				seekBar4 = (SeekBar) toolpop4.findViewById(R.id.seekBar4);
-				markEdit4 = (TextView) toolpop4.findViewById(R.id.markEdit4);
+				imageBtn4_1 = (ImageButton) toolpopView4.findViewById(R.id.imageBtn4_1);
+				imageBtn4_2 = (ImageButton) toolpopView4.findViewById(R.id.imageBtn4_2);
+				seekBar4 = (SeekBar) toolpopView4.findViewById(R.id.seekBar4);
+				markEdit4 = (TextView) toolpopView4.findViewById(R.id.markEdit4);
 				// jumpPage = sp.getInt(bookPath + "jumpPage", 1);
 				float fPercent = (float) (begin * 1.0 / pagefactory.getM_mbBufLen());
 				DecimalFormat df = new DecimalFormat("#0");

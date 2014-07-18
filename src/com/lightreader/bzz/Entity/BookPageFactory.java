@@ -36,7 +36,7 @@ public class BookPageFactory {
 	private int m_mbBufEnd = 0;// 当前页终点位置
 	private int m_mbBufLen = 0; // 图书总长度
 	private String m_strCharsetName = "GBK";
-	private int m_textColor = Color.rgb(28, 28, 28);
+	private int m_textColor = Color.rgb(28, 28, 28);//偏黑
 	private int marginHeight = 15; // 上下与边缘的距离
 	private int marginWidth = 15; // 左右与边缘的距离
 	private int mHeight;
@@ -50,7 +50,7 @@ public class BookPageFactory {
 		mWidth = w;
 		mHeight = h;
 		mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);// 画笔
-		mPaint.setTextAlign(Align.LEFT);// 做对其
+		mPaint.setTextAlign(Align.LEFT);// 左对其
 		mPaint.setTextSize(m_fontSize);// 字体大小
 		mPaint.setColor(m_textColor);// 字体颜色
 		mVisibleWidth = mWidth - marginWidth * 2;
@@ -149,7 +149,6 @@ public class BookPageFactory {
 	 * 绘图
 	 * @param c
 	 */
-	@SuppressLint("DrawAllocation")
 	public void onDraw(Canvas c) {
 		mPaint.setTextSize(m_fontSize);
 		mPaint.setColor(m_textColor);
