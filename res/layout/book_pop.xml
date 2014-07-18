@@ -3,9 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:background="@drawable/orange_shelf_bottom_bar"
+    android:background="@color/gray"
     android:baselineAligned="false" >
 
+    <!-- 
+    	去掉背景
+    android:background="@drawable/orange_shelf_bottom_bar"
+     -->
+    
     <TextView
         android:id="@+id/bookBtn1"
         android:layout_width="wrap_content"
@@ -13,7 +18,8 @@
         android:layout_weight="1"
         android:drawableTop="@drawable/reader_text_size"
         android:gravity="center"
-        android:text="@string/bookpop_size" />
+        android:text="@string/bookpop_size" 
+        />
 
     <TextView
         android:id="@+id/bookBtn2"

@@ -8,7 +8,7 @@
         android:id="@+id/main_grid_localBooks"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#DCDCDC"
+        android:background="@color/gray"
         android:gravity="center"
         android:horizontalSpacing="10dp"
         android:numColumns="2"
@@ -21,7 +21,7 @@
     <TextView 
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="google22222"
+        android:text="@string/app_name_cn"
         android:background="#ffffff">
     </TextView>
 </LinearLayout>
