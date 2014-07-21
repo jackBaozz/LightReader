@@ -2,50 +2,108 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
     android:background="@color/gray"
-    android:baselineAligned="false" >
+    android:baselineAligned="false"
+    android:orientation="vertical" >
 
-    <!-- 
-    	去掉背景
-    android:background="@drawable/orange_shelf_bottom_bar"
-     -->
     
-    <TextView
-        android:id="@+id/bookBtn1"
-        android:layout_width="wrap_content"
+    
+    <!-- 去掉背景 android:background="@drawable/orange_shelf_bottom_bar" -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:drawableTop="@drawable/reader_text_size"
-        android:gravity="center"
-        android:text="@string/bookpop_size" 
-        />
+        android:paddingTop="5dp"
+        android:orientation="horizontal" >
 
-    <TextView
-        android:id="@+id/bookBtn2"
-        android:layout_width="wrap_content"
+        <!-- 字体 -->
+        <TextView
+            android:id="@+id/bookBtn1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/menu_icon_font_nor"
+            android:gravity="center"
+            android:text="@string/bookpop_size" />
+
+        <!-- 亮度 -->
+        <TextView
+            android:id="@+id/bookBtn2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/menu_icon_brightness_nor"
+            android:gravity="center"
+            android:text="@string/bookpop_light" />
+
+        <!-- 书签 -->
+        <TextView
+            android:id="@+id/bookBtn3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/menu_icon_catalog_nor"
+            android:gravity="center"
+            android:text="@string/bookpop_card" />
+
+        <!-- 跳转 -->
+        <TextView
+            android:id="@+id/bookBtn4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/menu_icon_jump_nor"
+            android:gravity="center"
+            android:text="@string/bookpop_send" />
+    </LinearLayout>
+
+    
+    
+    <!-- 第二排菜单按钮 -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:drawableTop="@drawable/reader_screen_brightness"
-        android:gravity="center"
-        android:text="@string/bookpop_light" />
+        android:orientation="horizontal" >
+        
+        <!-- 字体 -->
+        <TextView
+            android:id="@+id/bookBtn5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/menu_icon_font_nor"
+            android:gravity="center"
+            android:text="@string/bookpop_size" />
 
-    <TextView
-        android:id="@+id/bookBtn3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:drawableTop="@drawable/reader_bookmark_operation"
-        android:gravity="center"
-        android:text="@string/bookpop_card" />
+        <!-- 亮度 -->
+        <TextView
+            android:id="@+id/bookBtn6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/menu_icon_brightness_nor"
+            android:gravity="center"
+            android:text="@string/bookpop_light" />
 
-    <TextView
-        android:id="@+id/bookBtn4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:drawableTop="@drawable/reader_jump_to"
-        android:gravity="center"
-        android:text="@string/bookpop_send" />
+        <!-- 书签 -->
+        <TextView
+            android:id="@+id/bookBtn7"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/menu_icon_catalog_nor"
+            android:gravity="center"
+            android:text="@string/bookpop_card" />
 
+        <!-- 跳转 -->
+        <TextView
+            android:id="@+id/bookBtn8"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/menu_icon_jump_nor"
+            android:gravity="center"
+            android:text="@string/bookpop_send" />
+	</LinearLayout>        
+    
+    
 </LinearLayout>

@@ -628,11 +628,12 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 	 * 初始化所有POPUPWINDOW
 	 */
 	@SuppressLint("InflateParams")
-	@SuppressWarnings("deprecation")
 	private void initPop() {
-		popupWindwowView = this.getLayoutInflater().inflate(R.layout.book_pop, null);
-		mPopupWindow = new PopupWindow(popupWindwowView, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		toolpopView = this.getLayoutInflater().inflate(R.layout.book_toolpop, null);
+		//TODO 初始化弹出的popupwindow
+		popupWindwowView = this.getLayoutInflater().inflate(R.layout.book_pop, null);//显示的弹出窗口
+		//mPopupWindow = new PopupWindow(popupWindwowView, LayoutParams.MATCH_PARENT, BeanTools.getDeviceWidthAndHeight(mContext)[1] / 10 * 1);
+		mPopupWindow = new PopupWindow(popupWindwowView, LayoutParams.MATCH_PARENT, BeanTools.dip2px(mContext, Float.parseFloat("90")));
+		toolpopView = this.getLayoutInflater().inflate(R.layout.book_toolpop, null);//显示的图和文字
 		mToolpop = new PopupWindow(toolpopView, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		
 		toolpopView1 = this.getLayoutInflater().inflate(R.layout.book_tool11, null);

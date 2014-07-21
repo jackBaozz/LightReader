@@ -491,6 +491,10 @@ public class PageWidget extends View {
 		}
 	}
 
+	/**
+	 * 动画开始
+	 * @param delayMillis
+	 */
 	private void startAnimation(int delayMillis) {
 		int dx, dy;
 		// dx 水平方向滑动的距离，负值会使滚动向左滚动
@@ -508,6 +512,9 @@ public class PageWidget extends View {
 		mScroller.startScroll((int) mTouch.x, (int) mTouch.y, dx, dy, delayMillis);
 	}
 
+	/**
+	 * 动画取消
+	 */
 	public void abortAnimation() {
 		if (!mScroller.isFinished()) {
 			mScroller.abortAnimation();
@@ -520,7 +527,7 @@ public class PageWidget extends View {
 	 * @return
 	 */
 	public boolean canDragOver() {
-		if (mTouchToCornerDis > mScreenWidth / 10)
+		if (mTouchToCornerDis > mScreenWidth /10)
 			return true;
 		return false;
 	}
