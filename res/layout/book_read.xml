@@ -1,14 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/readlayout"
+    android:id="@+id/book_read_id"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/brown_login_background" >
 
-    <TextView
-        android:id="@+id/bookshow"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:text="123123123123123123123123123123123213213123123123123213123123123123123232132321312321312312312312312312312312312312321312" />
+    <RelativeLayout
+        android:id="@+id/book_read_top_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <!-- 中间的阅读显示字体区域 -->
+        <TextView
+            android:id="@+id/bookshow_id"
+            android:layout_alignParentTop="true"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/app_name_cn" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/book_read_bottom_id"
+        android:layout_alignParentBottom="true"
+        android:paddingLeft="10px"
+        android:paddingRight="10px"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <TextView
+            android:id="@+id/book_read_bottom_textview1_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:text="@string/app_name_cn"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/book_read_bottom_textview2_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:text="@string/app_name_cn"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/book_read_bottom_textview3_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:text="@string/app_name_cn"
+            android:textSize="12sp" />
+    </RelativeLayout>
 
 </RelativeLayout>

@@ -14,6 +14,9 @@ import java.nio.channels.FileChannel;
 import java.text.DecimalFormat;
 import java.util.Vector;
 
+import com.lightreader.bzz.Application.AllApplication;
+import com.lightreader.bzz.Utils.BeanTools;
+
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -28,7 +31,8 @@ public class BookPageFactory {
 	private File book_file = null;
 	private int m_backColor = 0xffff9e85; // 背景颜色
 	private Bitmap m_book_bg = null;
-	private int m_fontSize = 20;
+	private int m_fontSize = 20;//全局的字体大小
+	private final int m_fontSize_bottom = 30;//底部字体的大小
 	private boolean m_isfirstPage, m_islastPage;
 	private Vector<String> m_lines = new Vector<String>();
 	private MappedByteBuffer m_mbBuf = null;// 内存中的图书字符
@@ -37,22 +41,34 @@ public class BookPageFactory {
 	private int m_mbBufLen = 0; // 图书总长度
 	private String m_strCharsetName = "GBK";
 	private int m_textColor = Color.rgb(28, 28, 28);//偏黑
+	private final int m_textColor_bottom = Color.rgb(215, 99, 215);//纯黑
 	private int marginHeight = 15; // 上下与边缘的距离
 	private int marginWidth = 15; // 左右与边缘的距离
 	private int mHeight;
 	private int mLineCount; // 每页可以显示的行数
-	private Paint mPaint;
+	private Paint mPaint;//全局的画笔
+	private Paint mPaint_bottom;//页面显示底部的画笔
 	private float mVisibleHeight; // 绘制内容的宽
 	private float mVisibleWidth; // 绘制内容的宽
 	private int mWidth;
-
+	private int totalPagesCount;//总页数
+	private int currentPageCount;//当前页
+	private String battery;//当前电量
+	
 	public BookPageFactory(int w, int h) {
 		mWidth = w;
 		mHeight = h;
-		mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);// 画笔
+		//画笔1
+		mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		mPaint.setTextAlign(Align.LEFT);// 左对其
 		mPaint.setTextSize(m_fontSize);// 字体大小
 		mPaint.setColor(m_textColor);// 字体颜色
+		//画笔2
+		mPaint_bottom = new Paint(Paint.ANTI_ALIAS_FLAG);
+		mPaint_bottom.setTextAlign(Align.LEFT);// 左对其
+		mPaint_bottom.setTextSize(m_fontSize_bottom);// 字体大小
+		mPaint_bottom.setColor(m_textColor_bottom);// 字体颜色
+		
 		mVisibleWidth = mWidth - marginWidth * 2;
 		mVisibleHeight = mHeight - marginHeight * 2;
 		mLineCount = (int) (mVisibleHeight / m_fontSize) - 1; // 可显示的行数,-1是因为底部显示进度的位置容易被遮住
@@ -94,6 +110,29 @@ public class BookPageFactory {
 		this.m_textColor = m_textColor;
 	}
 
+	//设置总页数
+	public void setTotalPagesCount(int totalPagesCount) {
+		this.totalPagesCount = totalPagesCount;
+	}
+	
+	//设置当期页数
+	public void setCurrentPageCount(int currentPageCount) {
+		this.currentPageCount = currentPageCount;
+	}
+	
+	//设置获取到的电池电量
+	public void setBattery(String battery) {
+		this.battery = battery;
+	}
+	
+	public int getTotalPagesCount() {
+		return totalPagesCount;
+	}
+	
+	public int getCurrentPageCount() {
+		return currentPageCount;
+	}
+
 	public int getM_mbBufBegin() {
 		return m_mbBufBegin;
 	}
@@ -121,9 +160,13 @@ public class BookPageFactory {
 	public int getmLineCount() {
 		return mLineCount;
 	}
+	
+	public String getBattery() {
+		return battery;
+	}
 
 	
-	
+
 	/**
 	 * 下一页
 	 * 
@@ -146,32 +189,94 @@ public class BookPageFactory {
 	}
 
 	/**
-	 * 绘图
-	 * @param c
+	 * 绘图更新
+	 * @param canvas
 	 */
-	public void onDraw(Canvas c) {
+	@SuppressLint("DrawAllocation")
+	public void onDrawUpdate(Canvas canvas) {
+		//TODO 绘图方法2,重要
 		mPaint.setTextSize(m_fontSize);
 		mPaint.setColor(m_textColor);
 		if (m_lines.size() == 0)
 			m_lines = pageDown();
 		if (m_lines.size() > 0) {
-			if (m_book_bg == null)
-				c.drawColor(m_backColor);
-			else
-				c.drawBitmap(m_book_bg, 0, 0, null);
+			if (m_book_bg == null){
+				canvas.drawColor(m_backColor);
+			}else{
+				canvas.drawBitmap(m_book_bg, 0, 0, null);
+			}
 			int y = marginHeight;// 上下与边缘的距离
 			for (String strLine : m_lines) {
 				y += m_fontSize;
-				c.drawText(strLine, marginWidth, y, mPaint);
+				//canvas.drawText(strLine, marginWidth, y, mPaint);//写全局汉字的画布
 			}
 		}
 		float fPercent = (float) (m_mbBufBegin * 1.0 / m_mbBufLen);
 		DecimalFormat df = new DecimalFormat("#0.0");
-		String strPercent = df.format(fPercent * 100) + "%";
-		int nPercentWidth = (int) mPaint.measureText("999.9%") + 1;
-		c.drawText(strPercent, mWidth - nPercentWidth, mHeight - 5, mPaint);
+		String strPercent = df.format(fPercent * 100) + "%";//底部要写入的字符串
+		//int nPercentWidth = (int) mPaint.measureText("999.9%") + 1;
+		int nPercentWidth = (int) mPaint_bottom.measureText("999.9%") + 1; //阅读百分比 [计算位置]
+		String totalPagesCountText = String.valueOf(999999);
+		String currentPageCountText = String.valueOf(123);
+		String pagesText = currentPageCountText.concat("/").concat(totalPagesCountText);//变成了最后的文字 123/9999
+		int totalPagesNumberWidth = (int) mPaint_bottom.measureText(pagesText) + 1;//当前页显示位置 [计算位置]
+		
+		String timeText = BeanTools.getSystemCurrentTime(AllApplication.getInstance());
+		//int timeWidth = (int) mPaint_bottom.measureText(timeText) + 1;//时间的宽度[计算位置]
+		//int power = (int) mPaint_bottom.measureText(getBattery()) + 1;//电量文字的显示宽度 [计算位置]
+		
+		
+		//canvas.drawText(strPercent, mWidth - nPercentWidth, mHeight - 5, mPaint_bottom);//写底部汉字的画布
+		//canvas.drawText(pagesText, (mWidth - totalPagesNumberWidth) / 2 , mHeight - 5, mPaint_bottom);//写底部汉字的画布
+		canvas.drawText(getBattery()+" "+timeText, marginWidth , mHeight - 5, mPaint_bottom);//写底部时间的画布
+		
 	}
 
+	
+	/**
+	 * 特定的更新
+	 * @param canvas
+	 */
+	public void onDraw(Canvas canvas) {
+		//TODO 绘图方法,重要
+		mPaint.setTextSize(m_fontSize);
+		mPaint.setColor(m_textColor);
+		if (m_lines.size() == 0)
+			m_lines = pageDown();
+		if (m_lines.size() > 0) {
+			if (m_book_bg == null){
+				canvas.drawColor(m_backColor);
+			}else{
+				canvas.drawBitmap(m_book_bg, 0, 0, null);
+			}
+			int y = marginHeight;// 上下与边缘的距离
+			for (String strLine : m_lines) {
+				y += m_fontSize;
+				canvas.drawText(strLine, marginWidth, y, mPaint);//写全局汉字的画布
+			}
+		}
+		float fPercent = (float) (m_mbBufBegin * 1.0 / m_mbBufLen);
+		DecimalFormat df = new DecimalFormat("#0.0");
+		String strPercent = df.format(fPercent * 100) + "%";//底部要写入的字符串
+		//int nPercentWidth = (int) mPaint.measureText("999.9%") + 1;
+		int nPercentWidth = (int) mPaint_bottom.measureText("999.9%") + 1; //阅读百分比 [计算位置]
+		String totalPagesCountText = String.valueOf(999999);
+		String currentPageCountText = String.valueOf(123);
+		String pagesText = currentPageCountText.concat("/").concat(totalPagesCountText);//变成了最后的文字 123/9999
+		int totalPagesNumberWidth = (int) mPaint_bottom.measureText(pagesText) + 1;//当前页显示位置 [计算位置]
+		String timeText = BeanTools.getSystemCurrentTime(AllApplication.getInstance());
+		//int timeWidth = (int) mPaint_bottom.measureText(timeText) + 1;//时间的宽度[计算位置]
+		//int power = (int) mPaint_bottom.measureText(getBattery()) + 1;//电量文字的显示宽度 [计算位置]
+		
+		
+		//canvas.drawText(strPercent, mWidth - nPercentWidth, mHeight - 5, mPaint_bottom);//写底部汉字的画布
+		//canvas.drawText(pagesText, (mWidth - totalPagesNumberWidth) / 2 , mHeight - 5, mPaint_bottom);//写底部汉字的画布
+		//canvas.drawText(getBattery()+" "+timeText, marginWidth , mHeight - 5, mPaint_bottom);//写底部时间的画布
+		
+	}
+	
+	
+	
 	/**
 	 * 
 	 * @param strFilePath

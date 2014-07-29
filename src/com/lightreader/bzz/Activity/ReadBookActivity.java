@@ -8,8 +8,10 @@ import java.util.Date;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -22,23 +24,22 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.lightreader.bzz.Dialog.MarkDialog;
 import com.lightreader.bzz.Entity.BookPageFactory;
@@ -65,11 +66,11 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 	private String bookPath;// 记录读入书的路径
 	private String ccc = null;// 记录是否为快捷方式调用
 	private SharedPreferences.Editor editor; // 读取SharedPreferences信息的编辑器
-	private SharedPreferences sp;// SharedPreferences
+	private SharedPreferences sharedPreferences;// SharedPreferences
 	private Boolean isNight; // 亮度模式,白天和晚上
 	protected int jumpPage;// 记录跳转进度条
 	private int light; // 亮度值
-	private WindowManager.LayoutParams lp;// 布局管理
+	private WindowManager.LayoutParams layoutParams;// 布局管理
 	private MarkHelper markhelper;// 操作书签的数据库
 	private Bitmap mCurPageBitmap, mNextPageBitmap;// 位图
 	private MarkDialog mDialog = null;
@@ -86,6 +87,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 	private String txtName, txtName1;// 文字
 	public static Canvas mCurPageCanvas, mNextPageCanvas;// 画布
 
+	
 	// 实例化Handler
 	@SuppressLint("HandlerLeak")
 	Handler mHandler = new Handler() {
@@ -108,11 +110,36 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 			}
 		}
 	};
-
+	
+	//创建一个广播接受对象    接受广播,更新手机电池的电量信息
+    private BroadcastReceiver batteryChangedReceiver = new BroadcastReceiver() {
+    	@Override
+		public void onReceive(Context context, Intent intent) {
+			if(Intent.ACTION_BATTERY_CHANGED.equals(intent.getAction())) {
+				int level = intent.getIntExtra("level", 0);
+				int scale = intent.getIntExtra("scale", 100);
+				//tvBatteryChanged.setText("电池电量：" + (level * 100 / scale) + "%");
+				pagefactory.onDrawUpdate(mCurPageCanvas);
+				pagefactory.setBattery("P:"+(level * 100 / scale) + "%");
+			}
+		}
+    };
 	
 	
-	
-	
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -134,11 +161,14 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		mNextPageBitmap = Bitmap.createBitmap(screenWidth, screenHeight, Bitmap.Config.ARGB_8888);
 		mCurPageCanvas = new Canvas(mCurPageBitmap);
 		mNextPageCanvas = new Canvas(mNextPageBitmap);
-		mPageWidget = new PageWidget(this, screenWidth, readHeight);// 页面
+		mPageWidget = new PageWidget(this, screenWidth, readHeight);// 画出贝塞尔曲线的页面
 		
 		
-		RelativeLayout rlayout = (RelativeLayout) findViewById(R.id.readlayout);
+		RelativeLayout rlayout = (RelativeLayout) findViewById(R.id.book_read_top_id);//贝塞尔曲线效果附加到 book_read.xml布局上
 		rlayout.addView(mPageWidget);
+		//TextView tx1 = (TextView)findViewById(R.id.readlayout_bottom_textview1_id);
+		//tx1.setText("3333333333333333333333333333333333333333");
+		
 
 		Intent intent = getIntent();
 		bookPath = intent.getStringExtra("txtName1");
@@ -153,6 +183,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		
 		
 		mPageWidget.setBitmaps(mCurPageBitmap, mCurPageBitmap);
+		//翻页触发方法的监听器
 		mPageWidget.setOnTouchListener(new OnTouchListener() {
 			
 			@Override
@@ -205,19 +236,19 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 			}
 		});
 
-		initPop();//初始化
+		initPop();//初始化弹出的菜单栏
 		
 		
 		// 提取记录在sharedpreferences的各种状态
-		sp = getSharedPreferences("config", MODE_PRIVATE);
-		editor = sp.edit();
+		sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
+		editor = sharedPreferences.edit();
 		getSize();// 获取配置文件中的size大小
 		getLight();// 获取配置文件中的light值
-		count = sp.getLong(bookPath + "count", 1);
+		count = sharedPreferences.getLong(bookPath + "count", 1);
 
-		lp = getWindow().getAttributes();
-		lp.screenBrightness = light / 10.0f < 0.01f ? 0.01f : light / 10.0f;
-		getWindow().setAttributes(lp);
+		layoutParams = getWindow().getAttributes();
+		layoutParams.screenBrightness = light / 10.0f < 0.01f ? 0.01f : light / 10.0f;
+		getWindow().setAttributes(layoutParams);
 		pagefactory = new BookPageFactory(screenWidth, readHeight);// 书工厂
 		if (isNight) {
 			Bitmap bmp = BitmapFactory.decodeResource(this.getResources(), R.drawable.main_bg);//获取源位图
@@ -230,7 +261,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 			pagefactory.setBgBitmap(bmp);
 			pagefactory.setM_textColor(Color.rgb(28, 28, 28));
 		}
-		begin = sp.getInt(bookPath + "begin", 0);
+		begin = sharedPreferences.getInt(bookPath + "begin", 0);
 		try {
 			Intent intent2 = getIntent();
 			txtName = intent2.getStringExtra("txtName1");
@@ -257,6 +288,9 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		}
 		markhelper = new MarkHelper(this);
 
+		
+		//注册一个接受广播类型,获取手机电池的电量信息
+        registerReceiver(batteryChangedReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 	}
 	
 	
@@ -315,15 +349,15 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 	 * 读取配置文件中亮度值
 	 */
 	private void getLight() {
-		light = sp.getInt("light", 5);
-		isNight = sp.getBoolean("night", false);
+		light = sharedPreferences.getInt("light", 5);
+		isNight = sharedPreferences.getBoolean("night", false);
 	}
 
 	/**
 	 * 读取配置文件中字体大小
 	 */
 	private void getSize() {
-		size = sp.getInt("size", defaultSize);
+		size = sharedPreferences.getInt("size", defaultSize);
 	}
 	
 
@@ -497,8 +531,8 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		case R.id.seekBar2:
 			light = seekBar2.getProgress();
 			setLight();
-			lp.screenBrightness = light / 10.0f < 0.01f ? 0.01f : light / 10.0f;
-			getWindow().setAttributes(lp);
+			layoutParams.screenBrightness = light / 10.0f < 0.01f ? 0.01f : light / 10.0f;
+			getWindow().setAttributes(layoutParams);
 			break;
 		// 跳转进度条
 		case R.id.seekBar4:
@@ -673,7 +707,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 				if (a == 1) {
 					mToolpop1.showAtLocation(mPageWidget, Gravity.BOTTOM, 0, screenWidth * 45 / 320);
 					seekBar1 = (SeekBar) toolpopView1.findViewById(R.id.seekBar1);
-					size = sp.getInt("size", 20);
+					size = sharedPreferences.getInt("size", 20);
 					seekBar1.setProgress((size - 15));
 					seekBar1.setOnSeekBarChangeListener(this);
 				}
@@ -729,7 +763,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 			if (a == 1) {
 				mToolpop1.showAtLocation(mPageWidget, Gravity.BOTTOM, 0, screenWidth * 45 / 320);
 				seekBar1 = (SeekBar) toolpopView1.findViewById(R.id.seekBar1);
-				size = sp.getInt("size", 20);
+				size = sharedPreferences.getInt("size", 20);
 				seekBar1.setProgress(size - 15);
 				seekBar1.setOnSeekBarChangeListener(this);
 			}

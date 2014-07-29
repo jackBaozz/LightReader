@@ -112,6 +112,11 @@ public class PageWidget extends View {
 			mIsRTandLB = false;
 	}
 
+	/**
+	 * 处理点击事件
+	 * @param event
+	 * @return
+	 */
 	public boolean doTouchEvent(MotionEvent event) {
 
 		if (event.getAction() == MotionEvent.ACTION_MOVE) {
@@ -140,6 +145,9 @@ public class PageWidget extends View {
 		return true;
 	}
 
+	
+	
+	
 	/**
 	 * 求解直线P1P2和直线P3P4的交点坐标
 	 * 
@@ -250,6 +258,11 @@ public class PageWidget extends View {
 		canvas.restore();
 	}
 
+	/**
+	 * 画下一页区域的阴影
+	 * @param canvas
+	 * @param bitmap
+	 */
 	private void drawNextPageAreaAndShadow(Canvas canvas, Bitmap bitmap) {
 		mPath1.reset();
 		mPath1.moveTo(mBezierStart1.x, mBezierStart1.y);
@@ -292,14 +305,18 @@ public class PageWidget extends View {
 		mScreenHeight = h;
 	}
 
+	/**
+	 * 绘图
+	 */
 	@Override
 	protected void onDraw(Canvas canvas) {
+		//TODO 
 		canvas.drawColor(0xFFAAAAAA);
 		calcPoints();
 		drawCurrentPageArea(canvas, mCurPageBitmap, mPath0);
-		drawNextPageAreaAndShadow(canvas, mNextPageBitmap);
 		drawCurrentPageShadow(canvas);
 		drawCurrentBackArea(canvas, mCurPageBitmap);
+		drawNextPageAreaAndShadow(canvas, mNextPageBitmap);
 	}
 
 	/**
