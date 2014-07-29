@@ -4,8 +4,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Calendar;
 import java.util.HashMap;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.util.DisplayMetrics;
 
@@ -163,5 +165,51 @@ public abstract class BeanTools {
 		final float scale = context.getResources().getDisplayMetrics().density;
 		return (int) (pxValue / scale + 0.5f);
 	}
+	
+	
+	/**
+	 * 获取系统时间是否是24小时制
+	 * @param context
+	 * @return
+	 */
+	private static boolean isOrNot24Time(Context context){
+		ContentResolver cv = context.getContentResolver();  
+	    String strTimeFormat = android.provider.Settings.System.getString(cv,android.provider.Settings.System.TIME_12_24);  
+	    if(strTimeFormat.equals("24")){  
+	       //Log.i("activity","24");
+	    	return true;
+	    }else{
+	    	return false;
+	    }
+	}
+	
+	/**
+	 * 返回最终的系统当前时间     格式: 13:50
+	 * @param context
+	 * @return
+	 */
+	@SuppressWarnings("unused")
+	public static String getSystemCurrentTime(Context context){
+		Calendar c = Calendar.getInstance();
+		//取得系统日期:
+		int year = c.get(Calendar.YEAR);
+		int month = c.get(Calendar.MONTH) + 1;
+		int day = c.get(Calendar.DAY_OF_MONTH);
+		//取得系统时间：
+		int hour = c.get(Calendar.HOUR_OF_DAY);
+		int minute = c.get(Calendar.MINUTE);
+		
+		boolean timeType = isOrNot24Time(context);
+		if(!timeType){
+			if(hour >= 12){
+				hour -= 12;
+			}
+		}
+		return String.valueOf(hour).concat(":").concat(String.valueOf(minute));
+	}
+	
+	
+	
+	
     
 }
