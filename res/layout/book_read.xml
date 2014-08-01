@@ -37,9 +37,18 @@
             android:layout_alignParentLeft="true"
             android:text="@string/app_name_cn"
             android:textSize="12sp" />
-
-        <TextView
+		<TextView
             android:id="@+id/book_read_bottom_textview2_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="5dp"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@id/book_read_bottom_textview1_id"
+            android:text="@string/app_name_cn"
+            android:textSize="12sp" />
+        
+        <TextView
+            android:id="@+id/book_read_bottom_textview3_id"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -48,7 +57,7 @@
             android:textSize="12sp" />
 
         <TextView
-            android:id="@+id/book_read_bottom_textview3_id"
+            android:id="@+id/book_read_bottom_textview4_id"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"

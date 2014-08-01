@@ -5,6 +5,8 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -41,11 +43,13 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.lightreader.bzz.Application.AllApplication;
 import com.lightreader.bzz.Dialog.MarkDialog;
 import com.lightreader.bzz.Entity.BookPageFactory;
 import com.lightreader.bzz.Pojo.Mark;
 import com.lightreader.bzz.Sqlite.MarkHelper;
 import com.lightreader.bzz.Utils.BeanTools;
+import com.lightreader.bzz.Utils.Constant;
 import com.lightreader.bzz.View.PageWidget;
 
 @SuppressLint("WrongCall")
@@ -88,6 +92,18 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 	public static Canvas mCurPageCanvas, mNextPageCanvas;// 画布
 
 	
+	//activity底部的显示信息的控件
+	public static TextView textViewBattery;
+	public static TextView textViewLeft ;
+	public static TextView textViewCenter ;
+	public static TextView textViewRight ;
+	
+	//定时器
+	private Timer mTimer = null;  
+    private TimerTask mTimerTask = null;
+	
+	
+	
 	// 实例化Handler
 	@SuppressLint("HandlerLeak")
 	Handler mHandler = new Handler() {
@@ -105,27 +121,74 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 				pagefactory.setM_mbBufEnd(begin);
 				postInvalidateUI();
 				break;
+			case Constant.INT_BOOK_UPDATE_TOTALPAGE:
+				float fPercent = (float) (pagefactory.getM_mbBufBegin() * 1.0 / pagefactory.getM_mbBufLength());
+				int a = (int)Math.floor(fPercent * Float.valueOf((String)msg.obj) + 0.5f);
+				if(a<=0)a=1;
+				String b = (String)msg.obj;
+				textViewCenter.setText(a+"/"+b);
+				break;
 			default:
 				break;
 			}
 		}
 	};
 	
-	//创建一个广播接受对象    接受广播,更新手机电池的电量信息
-    private BroadcastReceiver batteryChangedReceiver = new BroadcastReceiver() {
+	//专门用来更新时间的handler
+	Handler timeHandler = new Handler() {
+		// 接收子线程发来的消息，同时更新UI
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case Constant.INT_BOOK_TIMER:  //定时器的线程发过来的消息
+				String timeText = BeanTools.getSystemCurrentTime(AllApplication.getInstance());//获取当前系统时间
+				textViewBattery.setText(textViewBattery.getText());
+				textViewLeft.setText(timeText);
+				textViewCenter.setText(textViewCenter.getText());
+				textViewRight.setText(textViewRight.getText());
+				break;
+			default:
+				break;
+			}
+		}
+	};
+	
+	
+	
+	//创建一个广播接受对象    接受广播,更新手机电池的电量信息以及时间信息
+    BroadcastReceiver batteryChangedReceiver = new BroadcastReceiver() {
     	@Override
 		public void onReceive(Context context, Intent intent) {
 			if(Intent.ACTION_BATTERY_CHANGED.equals(intent.getAction())) {
 				int level = intent.getIntExtra("level", 0);
 				int scale = intent.getIntExtra("scale", 100);
 				//tvBatteryChanged.setText("电池电量：" + (level * 100 / scale) + "%");
-				pagefactory.onDrawUpdate(mCurPageCanvas);
-				pagefactory.setBattery("P:"+(level * 100 / scale) + "%");
+				textViewBattery.setText("P:"+(level * 100 / scale) + "%");
+				//pagefactory.onDraw(mCurPageCanvas);
 			}
 		}
     };
 	
 	
+    
+    class TotlePageRunnable implements Runnable {
+		@Override
+		public void run() {
+			String totlePage = pagefactory.getTotalPagesCount()+"";
+			Message msg = Message.obtain();
+			msg.what = Constant.INT_BOOK_UPDATE_TOTALPAGE;
+			msg.obj = totlePage;//需要传送的数据
+			mHandler.sendMessage(msg);
+		}
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
@@ -148,11 +211,19 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		setContentView(R.layout.book_read);//[必须]
 		//mContext = getBaseContext();
 		
+		startTimer();//更新时间数据的线程
+		textViewBattery = (TextView)findViewById(R.id.book_read_bottom_textview1_id);
+		textViewLeft = (TextView)findViewById(R.id.book_read_bottom_textview2_id);
+		textViewCenter = (TextView)findViewById(R.id.book_read_bottom_textview3_id);
+		textViewRight = (TextView)findViewById(R.id.book_read_bottom_textview4_id);
+		
+		
+		
 
 		
-		screenWidth = BeanTools.getDeviceWidthAndHeight(mContext)[0];
-		screenHeight = BeanTools.getDeviceWidthAndHeight(mContext)[1];
-		defaultSize = (screenWidth * 20) / 320;
+		screenWidth = BeanTools.getDeviceWidthAndHeight(mContext)[0];//设备的显示宽度
+		screenHeight = BeanTools.getDeviceWidthAndHeight(mContext)[1];//设备的显示高度
+		defaultSize = (screenWidth * 20) / 320;//默认屏幕的
 		//readHeight = screenHeight - (50 * screenWidth) / 320;//阅读的高度,去掉广告
 		readHeight = screenHeight;
 		
@@ -166,8 +237,6 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		
 		RelativeLayout rlayout = (RelativeLayout) findViewById(R.id.book_read_top_id);//贝塞尔曲线效果附加到 book_read.xml布局上
 		rlayout.addView(mPageWidget);
-		//TextView tx1 = (TextView)findViewById(R.id.readlayout_bottom_textview1_id);
-		//tx1.setText("3333333333333333333333333333333333333333");
 		
 
 		Intent intent = getIntent();
@@ -182,10 +251,12 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		
 		
 		
+		
+		
+		
 		mPageWidget.setBitmaps(mCurPageBitmap, mCurPageBitmap);
 		//翻页触发方法的监听器
 		mPageWidget.setOnTouchListener(new OnTouchListener() {
-			
 			@Override
 			public boolean onTouch(View view, MotionEvent e) {
 				boolean ret = false;
@@ -240,7 +311,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		
 		
 		// 提取记录在sharedpreferences的各种状态
-		sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
+		sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);//创建文件为 config.xml的SharedPreferences
 		editor = sharedPreferences.edit();
 		getSize();// 获取配置文件中的size大小
 		getLight();// 获取配置文件中的light值
@@ -248,7 +319,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 
 		layoutParams = getWindow().getAttributes();
 		layoutParams.screenBrightness = light / 10.0f < 0.01f ? 0.01f : light / 10.0f;
-		getWindow().setAttributes(layoutParams);
+		getWindow().setAttributes(layoutParams);//设置显示屏的亮度
 		pagefactory = new BookPageFactory(screenWidth, readHeight);// 书工厂
 		if (isNight) {
 			Bitmap bmp = BitmapFactory.decodeResource(this.getResources(), R.drawable.main_bg);//获取源位图
@@ -271,17 +342,17 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 			
 			pagefactory.openbook(bookPath, begin);
 			
-			
 			//pagefactory.openbook("mnt/sdcard/" + txtName, begin);
-			//
 			// Intent intent3=getIntent();
 			// txtName1=intent3.getStringExtra("txtName2");
 			// String strFilePath=Finaltxt.TXTPA+txtName;
 			// pagefactory.opennerbook(strFilePath);
 
 			// pagefactory.openbook(bookPath, begin);// 从指定位置打开书籍，默认从开始打开
+			//TODO
 			pagefactory.setM_fontSize(size);
 			pagefactory.onDraw(mCurPageCanvas);
+			new Thread(new TotlePageRunnable()).start();//创建Thread线程
 		} catch (Exception e1) {
 			Log.e(TAG, "打开电子书失败", e1);
 			Toast.makeText(this, "打开电子书失败", Toast.LENGTH_SHORT).show();
@@ -290,47 +361,14 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 
 		
 		//注册一个接受广播类型,获取手机电池的电量信息
+		//可以用于刷新页面的 电池信息和时间信息
         registerReceiver(batteryChangedReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 	}
 	
 	
 	
 	
-	/*@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		this.requestWindowFeature(Window.FEATURE_NO_TITLE);// 去掉程序名的title
-		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);// 全屏
 
-		
-		 * BookLayout bookLayout = new BookLayout(this);//view的子类 Intent intent
-		 * = getIntent(); ArrayList<String> bookContents =
-		 * intent.getExtras().getStringArrayList("texts"); BookAdapter
-		 * bookAdapter = new BookAdapter(this);
-		 * bookAdapter.addItem(bookContents);//Adapter里装入数据
-		 * 
-		 * bookLayout.setPageAdapter(bookAdapter);//layout里装入刚才的数据
-		 * ReadBookActivity.this.setContentView(bookLayout);//往Activity里面装入这个布局
-		 * [必须]
-		 
-
-		ReadBookActivity.this.setContentView(R.layout.book_read);// 添加布局
-
-		// 获取传递过来的书的绝对路径
-		Intent intent = getIntent();
-		String book_path = intent.getExtras().get("book_path").toString();// 获取书籍的路径
-
-		screenWidth = BeanTools.getDeviceWidthAndHeight(this)[0];
-		readHeight = BeanTools.getDeviceWidthAndHeight(this)[1];
-		pagefactory = new BookPageFactory(screenWidth, readHeight);// 书工厂
-		try {
-			pagefactory.openbook(book_path, 0);
-		} catch (IOException e) {
-			Log.e(TAG, "打开电子书失败", e);
-			Toast.makeText(this, "打开电子书失败", Toast.LENGTH_SHORT).show();
-		}
-
-	}*/
 	
 	
 	
@@ -522,7 +560,9 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		// 字体进度条
 		case R.id.seekBar1:
 			size = seekBar1.getProgress() + 15;
+			//TODO
 			pagefactory.setM_fontSize(size);
+			new Thread(new TotlePageRunnable()).start();//创建Thread线程
 			pagefactory.setM_mbBufBegin(begin);
 			pagefactory.setM_mbBufEnd(begin);
 			postInvalidateUI();
@@ -538,7 +578,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		case R.id.seekBar4:
 			int s = seekBar4.getProgress();
 			markEdit4.setText(s + "%");
-			begin = (pagefactory.getM_mbBufLen() * s) / 100;
+			begin = (pagefactory.getM_mbBufLength() * s) / 100;
 			editor.putInt(bookPath + "begin", begin).commit();
 			pagefactory.setM_mbBufBegin(begin);
 			pagefactory.setM_mbBufEnd(begin);
@@ -743,7 +783,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 					seekBar4 = (SeekBar) toolpopView4.findViewById(R.id.seekBar4);
 					markEdit4 = (TextView) toolpopView4.findViewById(R.id.markEdit4);
 					// begin = sp.getInt(bookPath + "begin", 1);
-					float fPercent = (float) (begin * 1.0 / pagefactory.getM_mbBufLen());
+					float fPercent = (float) (begin * 1.0 / pagefactory.getM_mbBufLength());
 					DecimalFormat df = new DecimalFormat("#0");
 					String strPercent = df.format(fPercent * 100) + "%";
 					markEdit4.setText(strPercent);
@@ -809,7 +849,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 				seekBar4 = (SeekBar) toolpopView4.findViewById(R.id.seekBar4);
 				markEdit4 = (TextView) toolpopView4.findViewById(R.id.markEdit4);
 				// jumpPage = sp.getInt(bookPath + "jumpPage", 1);
-				float fPercent = (float) (begin * 1.0 / pagefactory.getM_mbBufLen());
+				float fPercent = (float) (begin * 1.0 / pagefactory.getM_mbBufLength());
 				DecimalFormat df = new DecimalFormat("#0");
 				String strPercent = df.format(fPercent * 100) + "%";
 				markEdit4.setText(strPercent);
@@ -848,6 +888,46 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 	
 	
 	
+	
+	
+	
+	/**
+	 * 定时器获取时间 ----- 开
+	 */
+	private void startTimer() {
+		if (mTimer == null) {
+			mTimer = new Timer();
+		}
+
+		if (mTimerTask == null) {
+			mTimerTask = new TimerTask() {
+				@Override
+				public void run() {
+				    	Message message = Message.obtain(timeHandler, Constant.INT_BOOK_TIMER);
+				    	timeHandler.sendMessage(message);
+				}
+			};
+		}
+
+		if (mTimer != null && mTimerTask != null){
+			mTimer.schedule(mTimerTask, 500, 30000);//循环执行TimerTask里面的run方法   [60秒钟执行一次]
+		}
+	}
+  
+	/**
+	 * 定时器获取时间 ----- 关
+	 */
+	private void stopTimer() {
+		if (mTimer != null) {
+			mTimer.cancel();
+			mTimer = null;
+		}
+
+		if (mTimerTask != null) {
+			mTimerTask.cancel();
+			mTimerTask = null;
+		}
+	}
 	
 	
 }

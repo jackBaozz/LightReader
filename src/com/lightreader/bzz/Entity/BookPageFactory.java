@@ -1,22 +1,14 @@
 package com.lightreader.bzz.Entity;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Vector;
-
-import com.lightreader.bzz.Application.AllApplication;
-import com.lightreader.bzz.Utils.BeanTools;
-
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -24,6 +16,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.util.Log;
+import com.lightreader.bzz.Activity.ReadBookActivity;
+import com.lightreader.bzz.Application.AllApplication;
+import com.lightreader.bzz.Utils.BeanTools;
 
 public class BookPageFactory {
 
@@ -34,26 +29,29 @@ public class BookPageFactory {
 	private int m_fontSize = 20;//全局的字体大小
 	private final int m_fontSize_bottom = 30;//底部字体的大小
 	private boolean m_isfirstPage, m_islastPage;
-	private Vector<String> m_lines = new Vector<String>();
-	private MappedByteBuffer m_mbBuf = null;// 内存中的图书字符
+	private Vector<String> m_lines = new Vector<String>();//本页计算最后需要显示的文本
+	private MappedByteBuffer m_mbBuff = null;// 内存中的图书字符
 	private int m_mbBufBegin = 0;// 当前页起始位置
 	private int m_mbBufEnd = 0;// 当前页终点位置
-	private int m_mbBufLen = 0; // 图书总长度
+	private int m_mbBufLength = 0; // 图书总长度
 	private String m_strCharsetName = "GBK";
 	private int m_textColor = Color.rgb(28, 28, 28);//偏黑
 	private final int m_textColor_bottom = Color.rgb(215, 99, 215);//纯黑
 	private int marginHeight = 15; // 上下与边缘的距离
 	private int marginWidth = 15; // 左右与边缘的距离
-	private int mHeight;
-	private int mLineCount; // 每页可以显示的行数
+	private int mHeight;//屏幕高度
+	private int mWidth;//屏幕宽度
+	private int mPreLineCount;// 每页可以显示的行数
 	private Paint mPaint;//全局的画笔
 	private Paint mPaint_bottom;//页面显示底部的画笔
 	private float mVisibleHeight; // 绘制内容的宽
 	private float mVisibleWidth; // 绘制内容的宽
-	private int mWidth;
-	private int totalPagesCount;//总页数
+	
+	private int totalPagesCount = -1;//总页数
 	private int currentPageCount;//当前页
-	private String battery;//当前电量
+	private int mPrePageLength;//每一页的长度
+	private ArrayList<Integer> pageHeadlists = null;//每一页开头的index构建的列表
+	
 	
 	public BookPageFactory(int w, int h) {
 		mWidth = w;
@@ -71,7 +69,7 @@ public class BookPageFactory {
 		
 		mVisibleWidth = mWidth - marginWidth * 2;
 		mVisibleHeight = mHeight - marginHeight * 2;
-		mLineCount = (int) (mVisibleHeight / m_fontSize) - 1; // 可显示的行数,-1是因为底部显示进度的位置容易被遮住
+		mPreLineCount = (int) (mVisibleHeight / m_fontSize) - 1; // 每页可显示的行数,-1是因为底部显示进度的位置容易被遮住
 	}
 
 	//是否是第一页
@@ -92,7 +90,7 @@ public class BookPageFactory {
 	// 设置字体大小
 	public void setM_fontSize(int m_fontSize) {
 		this.m_fontSize = m_fontSize;
-		mLineCount = (int) (mVisibleHeight / m_fontSize) - 1;
+		mPreLineCount = (int) (mVisibleHeight / m_fontSize) - 1;// 每页可显示的行数,-1是因为底部显示进度的位置容易被遮住
 	}
 
 	// 设置页面起始点
@@ -120,13 +118,22 @@ public class BookPageFactory {
 		this.currentPageCount = currentPageCount;
 	}
 	
-	//设置获取到的电池电量
-	public void setBattery(String battery) {
-		this.battery = battery;
+	//设置每一页的长度
+	public void setmPrePageLength(int mPrePageLength) {
+		this.mPrePageLength = mPrePageLength;
 	}
 	
+	public int getmPrePageLength() {
+		return mPrePageLength;
+	}
+
 	public int getTotalPagesCount() {
-		return totalPagesCount;
+		if(totalPagesCount != -1){//-1为初始化时候的值
+			return totalPagesCount;
+		}else{
+			this.totalPagesCount = getTotlePages();
+			return getTotlePages();//根据方法求出总页数
+		}
 	}
 	
 	public int getCurrentPageCount() {
@@ -145,8 +152,8 @@ public class BookPageFactory {
 		return m_textColor;
 	}
 
-	public int getM_mbBufLen() {
-		return m_mbBufLen;
+	public int getM_mbBufLength() {
+		return m_mbBufLength;
 	}
 
 	public int getM_mbBufEnd() {
@@ -158,85 +165,25 @@ public class BookPageFactory {
 	}
 
 	public int getmLineCount() {
-		return mLineCount;
+		return mPreLineCount;
+	}
+
+	//强制更新总页数
+	public int forcedUpdateTotalPagesCount(){
+		this.totalPagesCount = getTotlePages();
+		return getTotlePages();//根据方法求出总页数
 	}
 	
-	public String getBattery() {
-		return battery;
-	}
 
 	
 
-	/**
-	 * 下一页
-	 * 
-	 * @throws IOException
-	 */
-	public void nextPage() throws IOException {
-		if (m_mbBufEnd >= m_mbBufLen) {
-			m_islastPage = true;
-			return;
-		} else
-			m_islastPage = false;
-		m_lines.clear();
-		m_mbBufBegin = m_mbBufEnd;// 下一页页起始位置=当前页结束位置
-		m_lines = pageDown();
-	}
-
-	public void currentPage() throws IOException {
-		m_lines.clear();
-		m_lines = pageDown();
-	}
-
-	/**
-	 * 绘图更新
-	 * @param canvas
-	 */
-	@SuppressLint("DrawAllocation")
-	public void onDrawUpdate(Canvas canvas) {
-		//TODO 绘图方法2,重要
-		mPaint.setTextSize(m_fontSize);
-		mPaint.setColor(m_textColor);
-		if (m_lines.size() == 0)
-			m_lines = pageDown();
-		if (m_lines.size() > 0) {
-			if (m_book_bg == null){
-				canvas.drawColor(m_backColor);
-			}else{
-				canvas.drawBitmap(m_book_bg, 0, 0, null);
-			}
-			int y = marginHeight;// 上下与边缘的距离
-			for (String strLine : m_lines) {
-				y += m_fontSize;
-				//canvas.drawText(strLine, marginWidth, y, mPaint);//写全局汉字的画布
-			}
-		}
-		float fPercent = (float) (m_mbBufBegin * 1.0 / m_mbBufLen);
-		DecimalFormat df = new DecimalFormat("#0.0");
-		String strPercent = df.format(fPercent * 100) + "%";//底部要写入的字符串
-		//int nPercentWidth = (int) mPaint.measureText("999.9%") + 1;
-		int nPercentWidth = (int) mPaint_bottom.measureText("999.9%") + 1; //阅读百分比 [计算位置]
-		String totalPagesCountText = String.valueOf(999999);
-		String currentPageCountText = String.valueOf(123);
-		String pagesText = currentPageCountText.concat("/").concat(totalPagesCountText);//变成了最后的文字 123/9999
-		int totalPagesNumberWidth = (int) mPaint_bottom.measureText(pagesText) + 1;//当前页显示位置 [计算位置]
-		
-		String timeText = BeanTools.getSystemCurrentTime(AllApplication.getInstance());
-		//int timeWidth = (int) mPaint_bottom.measureText(timeText) + 1;//时间的宽度[计算位置]
-		//int power = (int) mPaint_bottom.measureText(getBattery()) + 1;//电量文字的显示宽度 [计算位置]
-		
-		
-		//canvas.drawText(strPercent, mWidth - nPercentWidth, mHeight - 5, mPaint_bottom);//写底部汉字的画布
-		//canvas.drawText(pagesText, (mWidth - totalPagesNumberWidth) / 2 , mHeight - 5, mPaint_bottom);//写底部汉字的画布
-		canvas.drawText(getBattery()+" "+timeText, marginWidth , mHeight - 5, mPaint_bottom);//写底部时间的画布
-		
-	}
 
 	
 	/**
 	 * 特定的更新
 	 * @param canvas
 	 */
+	@SuppressLint("DrawAllocation")
 	public void onDraw(Canvas canvas) {
 		//TODO 绘图方法,重要
 		mPaint.setTextSize(m_fontSize);
@@ -255,7 +202,7 @@ public class BookPageFactory {
 				canvas.drawText(strLine, marginWidth, y, mPaint);//写全局汉字的画布
 			}
 		}
-		float fPercent = (float) (m_mbBufBegin * 1.0 / m_mbBufLen);
+		float fPercent = (float) (m_mbBufBegin * 1.0 / m_mbBufLength);
 		DecimalFormat df = new DecimalFormat("#0.0");
 		String strPercent = df.format(fPercent * 100) + "%";//底部要写入的字符串
 		//int nPercentWidth = (int) mPaint.measureText("999.9%") + 1;
@@ -264,15 +211,25 @@ public class BookPageFactory {
 		String currentPageCountText = String.valueOf(123);
 		String pagesText = currentPageCountText.concat("/").concat(totalPagesCountText);//变成了最后的文字 123/9999
 		int totalPagesNumberWidth = (int) mPaint_bottom.measureText(pagesText) + 1;//当前页显示位置 [计算位置]
-		String timeText = BeanTools.getSystemCurrentTime(AllApplication.getInstance());
+		String timeText = BeanTools.getSystemCurrentTime(AllApplication.getInstance());//获取当前系统时间
 		//int timeWidth = (int) mPaint_bottom.measureText(timeText) + 1;//时间的宽度[计算位置]
 		//int power = (int) mPaint_bottom.measureText(getBattery()) + 1;//电量文字的显示宽度 [计算位置]
-		
 		
 		//canvas.drawText(strPercent, mWidth - nPercentWidth, mHeight - 5, mPaint_bottom);//写底部汉字的画布
 		//canvas.drawText(pagesText, (mWidth - totalPagesNumberWidth) / 2 , mHeight - 5, mPaint_bottom);//写底部汉字的画布
 		//canvas.drawText(getBattery()+" "+timeText, marginWidth , mHeight - 5, mPaint_bottom);//写底部时间的画布
 		
+		ReadBookActivity.textViewBattery.setText(ReadBookActivity.textViewBattery.getText());
+		ReadBookActivity.textViewLeft.setText(timeText);
+		if(totalPagesCount == -1){//第一次进来,总页数还没计算出来的时候
+			ReadBookActivity.textViewCenter.setText("计算中...");
+		}else{
+			int a = (int)Math.floor(fPercent * Float.valueOf(getTotalPagesCount()) + 0.5f);
+			if(a <= 0 )a=1;
+			String b = getTotalPagesCount()+"";
+			ReadBookActivity.textViewCenter.setText(a+"/"+b);
+		}
+		ReadBookActivity.textViewRight.setText(strPercent);//进度百分比
 	}
 	
 	
@@ -289,62 +246,135 @@ public class BookPageFactory {
 	public void openbook(String strFilePath, int begin) throws IOException {
 		book_file = new File(strFilePath);
 		// book_file=new File("mnt/sdcard/s.txt");
-		long lLenngth = book_file.length();
-		m_mbBufLen = (int) lLenngth;
-		m_mbBuf = new RandomAccessFile(book_file, "r").getChannel().map(FileChannel.MapMode.READ_ONLY, 0, lLenngth);
-		Log.d(TAG, "total lenth：" + m_mbBufLen);
+		long length = book_file.length();
+		m_mbBufLength = (int) length;
+		m_mbBuff = new RandomAccessFile(book_file, "r").getChannel().map(FileChannel.MapMode.READ_ONLY, 0, length);//把文件所有字节放入内存
+		Log.d(TAG, "total lenth：" + m_mbBufLength);
 		// 设置已读进度
 		if (begin >= 0) {
 			m_mbBufBegin = begin;
 			m_mbBufEnd = begin;
 		} else {
+			
 		}
+		
 	}
 
 	/**
-	 * 画指定页的下一页
-	 * @return 下一页的内容 Vector<String>
+	 * 获取当前书本总页数
+	 * 根据 :
+	 * 1.当前字体大小 
 	 */
-	protected Vector<String> pageDown() {
+	protected int getTotlePages(){
 		mPaint.setTextSize(m_fontSize);
 		mPaint.setColor(m_textColor);
-		String strParagraph = "";
+		String tempString = "";
 		Vector<String> lines = new Vector<String>();
-		while (lines.size() < mLineCount && m_mbBufEnd < m_mbBufLen) {
-			byte[] paraBuf = readParagraphForward(m_mbBufEnd);
-			m_mbBufEnd += paraBuf.length;// 每次读取后，记录结束点位置，该位置是段落结束位置
+		int _mbBufEnd = 0;
+		int pageTotla = 0;
+		pageHeadlists = new ArrayList<Integer>();
+		while(_mbBufEnd < m_mbBufLength){
+			pageHeadlists.add(_mbBufEnd);//存入每一页的结尾的长度
+			
+			while (lines.size() < mPreLineCount) {
+				byte[] paraBuff = readParagraphForward(_mbBufEnd);
+				_mbBufEnd += paraBuff.length;// 每次读取后，记录结束点位置，该位置是段落结束位置
+				try {
+					tempString = new String(paraBuff, m_strCharsetName);// 转换成制定GBK编码
+				} catch (UnsupportedEncodingException e) {
+					Log.e(TAG, "pageDown->转换编码失败", e);
+				}
+				String strReturn = "";
+				// 替换掉回车换行符
+				if (tempString.indexOf("\r\n") != -1) {
+					strReturn = "\r\n";
+					tempString = tempString.replaceAll("\r\n", "");
+				} else if (tempString.indexOf("\n") != -1) {
+					strReturn = "\n";
+					tempString = tempString.replaceAll("\n", "");
+				}
+	
+				if (tempString.length() == 0) {
+					lines.add(tempString);
+				}
+				
+				while (tempString.length() > 0) {
+					// 画一行文字
+					int nSize = mPaint.breakText(tempString, true, mVisibleWidth, null);
+					lines.add(tempString.substring(0, nSize));
+					tempString = tempString.substring(nSize);// 得到剩余的文字
+					// 超出最大行数则不再画
+					if (lines.size() >= mPreLineCount) {
+						break;
+					}
+				}
+				// 如果该页最后一段只显示了一部分，则从新定位结束点位置
+				if (tempString.length() != 0) {
+					try {
+						_mbBufEnd -= (tempString + strReturn).getBytes(m_strCharsetName).length;
+					} catch (UnsupportedEncodingException e) {
+						Log.e(TAG, "pageDown->记录结束点位置失败", e);
+					}
+				}
+			}
+			System.out.println(BeanTools.getSystemCurrentTime2(AllApplication.getInstance()));
+			pageTotla++;
+			lines.clear();
+		}
+		System.out.println("执行完毕时间:");
+		System.out.println(BeanTools.getSystemCurrentTime2(AllApplication.getInstance()));
+		return pageTotla;
+	}
+	
+	
+	
+	/**
+	 * 画指定页的内容
+	 * @return 
+	 *          显示的内容 Vector<String>
+	 */
+	protected Vector<String> pageDown() {
+		//getTotlePages();
+		mPaint.setTextSize(m_fontSize);
+		mPaint.setColor(m_textColor);
+		
+		String tempString = "";
+		Vector<String> lines = new Vector<String>();
+		while (lines.size() < mPreLineCount && m_mbBufEnd < m_mbBufLength) {
+			byte[] paraBuff = readParagraphForward(m_mbBufEnd);
+			m_mbBufEnd += paraBuff.length;// 每次读取后，记录结束点位置，该位置是段落结束位置
 			try {
-				strParagraph = new String(paraBuf, m_strCharsetName);// 转换成制定GBK编码
+				tempString = new String(paraBuff, m_strCharsetName);// 转换成制定GBK编码
 			} catch (UnsupportedEncodingException e) {
 				Log.e(TAG, "pageDown->转换编码失败", e);
 			}
 			String strReturn = "";
 			// 替换掉回车换行符
-			if (strParagraph.indexOf("\r\n") != -1) {
+			if (tempString.indexOf("\r\n") != -1) {
 				strReturn = "\r\n";
-				strParagraph = strParagraph.replaceAll("\r\n", "");
-			} else if (strParagraph.indexOf("\n") != -1) {
+				tempString = tempString.replaceAll("\r\n", "");
+			} else if (tempString.indexOf("\n") != -1) {
 				strReturn = "\n";
-				strParagraph = strParagraph.replaceAll("\n", "");
+				tempString = tempString.replaceAll("\n", "");
 			}
 
-			if (strParagraph.length() == 0) {
-				lines.add(strParagraph);
+			if (tempString.length() == 0) {
+				lines.add(tempString);
 			}
-			while (strParagraph.length() > 0) {
+			while (tempString.length() > 0) {
 				// 画一行文字
-				int nSize = mPaint.breakText(strParagraph, true, mVisibleWidth, null);
-				lines.add(strParagraph.substring(0, nSize));
-				strParagraph = strParagraph.substring(nSize);// 得到剩余的文字
+				int nSize = mPaint.breakText(tempString, true, mVisibleWidth, null);
+				lines.add(tempString.substring(0, nSize));
+				tempString = tempString.substring(nSize);// 得到剩余的文字
 				// 超出最大行数则不再画
-				if (lines.size() >= mLineCount) {
+				if (lines.size() >= mPreLineCount) {
 					break;
 				}
 			}
 			// 如果该页最后一段只显示了一部分，则从新定位结束点位置
-			if (strParagraph.length() != 0) {
+			if (tempString.length() != 0) {
 				try {
-					m_mbBufEnd -= (strParagraph + strReturn).getBytes(m_strCharsetName).length;
+					m_mbBufEnd -= (tempString + strReturn).getBytes(m_strCharsetName).length;
 				} catch (UnsupportedEncodingException e) {
 					Log.e(TAG, "pageDown->记录结束点位置失败", e);
 				}
@@ -353,15 +383,18 @@ public class BookPageFactory {
 		return lines;
 	}
 
+	
+	
 	/**
 	 * 得到上上页的结束位置
 	 */
 	protected void pageUp() {
-		if (m_mbBufBegin < 0)
+		if (m_mbBufBegin < 0){
 			m_mbBufBegin = 0;
+		}
 		Vector<String> lines = new Vector<String>();
 		String strParagraph = "";
-		while (lines.size() < mLineCount && m_mbBufBegin > 0) {
+		while (lines.size() < mPreLineCount && m_mbBufBegin > 0) {
 			Vector<String> paraLines = new Vector<String>();
 			byte[] paraBuf = readParagraphBack(m_mbBufBegin);
 			m_mbBufBegin -= paraBuf.length;// 每次读取一段后,记录开始点位置,是段首开始的位置
@@ -385,7 +418,7 @@ public class BookPageFactory {
 			lines.addAll(0, paraLines);
 		}
 
-		while (lines.size() > mLineCount) {
+		while (lines.size() > mPreLineCount) {
 			try {
 				m_mbBufBegin += lines.get(0).getBytes(m_strCharsetName).length;
 				lines.remove(0);
@@ -397,6 +430,12 @@ public class BookPageFactory {
 		return;
 	}
 
+	
+	
+	
+	
+	
+	
 	/**
 	 * 向前翻页
 	 * 
@@ -407,13 +446,48 @@ public class BookPageFactory {
 			m_mbBufBegin = 0;
 			m_isfirstPage = true;
 			return;
-		} else
+		} else{
 			m_isfirstPage = false;
+		}
 		m_lines.clear();
 		pageUp();
 		m_lines = pageDown();
 	}
 
+	/**
+	 * 下一页
+	 * 
+	 * @throws IOException
+	 */
+	public void nextPage() throws IOException {
+		if (m_mbBufEnd >= m_mbBufLength) {
+			m_islastPage = true;
+			return;
+		} else{
+			m_islastPage = false;
+		}
+		m_lines.clear();
+		m_mbBufBegin = m_mbBufEnd;// 下一页页起始位置=当前页结束位置
+		m_lines = pageDown();
+	}
+	
+	/**
+	 * 当前页
+	 * @throws IOException
+	 */
+	public void currentPage() throws IOException {
+		m_lines.clear();
+		m_lines = pageDown();
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	/**
 	 * 读取指定位置的上一个段落
 	 * @param nFromPos
@@ -422,13 +496,13 @@ public class BookPageFactory {
 	protected byte[] readParagraphBack(int nFromPos) {
 		int nEnd = nFromPos;
 		int i;
-		byte b0, b1;
+		byte byte0, byte1;
 		if (m_strCharsetName.equals("UTF-16LE")) {
 			i = nEnd - 2;
 			while (i > 0) {
-				b0 = m_mbBuf.get(i);
-				b1 = m_mbBuf.get(i + 1);
-				if (b0 == 0x0a && b1 == 0x00 && i != nEnd - 2) {
+				byte0 = m_mbBuff.get(i);
+				byte1 = m_mbBuff.get(i + 1);
+				if (byte0 == 0x0a && byte1 == 0x00 && i != nEnd - 2) {
 					i += 2;
 					break;
 				}
@@ -437,9 +511,9 @@ public class BookPageFactory {
 		} else if (m_strCharsetName.equals("UTF-16BE")) {
 			i = nEnd - 2;
 			while (i > 0) {
-				b0 = m_mbBuf.get(i);
-				b1 = m_mbBuf.get(i + 1);
-				if (b0 == 0x00 && b1 == 0x0a && i != nEnd - 2) {
+				byte0 = m_mbBuff.get(i);
+				byte1 = m_mbBuff.get(i + 1);
+				if (byte0 == 0x00 && byte1 == 0x0a && i != nEnd - 2) {
 					i += 2;
 					break;
 				}
@@ -448,8 +522,8 @@ public class BookPageFactory {
 		} else {
 			i = nEnd - 1;
 			while (i > 0) {
-				b0 = m_mbBuf.get(i);
-				if (b0 == 0x0a && i != nEnd - 1) {// 0x0a表示换行符
+				byte0 = m_mbBuff.get(i);
+				if (byte0 == 0x0a && i != nEnd - 1) {// 0x0a表示换行符
 					i++;
 					break;
 				}
@@ -462,7 +536,7 @@ public class BookPageFactory {
 		int j;
 		byte[] buf = new byte[nParaSize];
 		for (j = 0; j < nParaSize; j++) {
-			buf[j] = m_mbBuf.get(i + j);
+			buf[j] = m_mbBuff.get(i + j);
 		}
 		return buf;
 	}
@@ -473,42 +547,48 @@ public class BookPageFactory {
 	 * 
 	 * @param nFromPos
 	 * @return byte[]
+	 * 
+	 *  0x0A LF表示换行
+		0x0D CR表示回车
+		0x1A SUB在文本文件中表示文件结果
+		0x00 16进制的0
 	 */
 	protected byte[] readParagraphForward(int nFromPos) {
 		int nStart = nFromPos;
 		int i = nStart;
-		byte b0, b1;
+		byte byte0, byte1;
 		// 根据编码格式判断换行
 		if (m_strCharsetName.equals("UTF-16LE")) {
-			while (i < m_mbBufLen - 1) {
-				b0 = m_mbBuf.get(i++);
-				b1 = m_mbBuf.get(i++);
-				if (b0 == 0x0a && b1 == 0x00) {
+			while (i < m_mbBufLength - 1) {
+				byte0 = m_mbBuff.get(i++);
+				byte1 = m_mbBuff.get(i++);
+				if (byte0 == 0x0a && byte1 == 0x00) {
 					break;
 				}
 			}
 		} else if (m_strCharsetName.equals("UTF-16BE")) {
-			while (i < m_mbBufLen - 1) {
-				b0 = m_mbBuf.get(i++);
-				b1 = m_mbBuf.get(i++);
-				if (b0 == 0x00 && b1 == 0x0a) {
+			while (i < m_mbBufLength - 1) {
+				byte0 = m_mbBuff.get(i++);
+				byte1 = m_mbBuff.get(i++);
+				if (byte0 == 0x00 && byte1 == 0x0a) {
 					break;
 				}
 			}
 		} else {
-			while (i < m_mbBufLen) {
-				b0 = m_mbBuf.get(i++);
-				if (b0 == 0x0a) {
+			while (i < m_mbBufLength) {// m_mbBufLength图书总长度
+				byte0 = m_mbBuff.get(i++);
+				if (byte0 == 0x0a) {
 					break;
 				}
 			}
 		}
+		//i循环后达到最大值
 		int nParaSize = i - nStart;
-		byte[] buf = new byte[nParaSize];
+		byte[] buff = new byte[nParaSize];//构建一个byte[]组
 		for (i = 0; i < nParaSize; i++) {
-			buf[i] = m_mbBuf.get(nFromPos + i);
+			buff[i] = m_mbBuff.get(nFromPos + i);//从内存中获取从指定位置到目标位置的byte[]
 		}
-		return buf;
+		return buff;
 	}
 
 	

@@ -39,8 +39,7 @@ public class MarkDialog extends Dialog implements OnItemClickListener {
 	private Handler mHandler;
 	private static Dialog dialog;
 
-	public MarkDialog(Context context, ArrayList<Mark> list,
-			Handler mHandler, int theme) {
+	public MarkDialog(Context context, ArrayList<Mark> list,Handler mHandler, int theme) {
 		super(context, theme);
 		this.context = context;
 		this.list = list;

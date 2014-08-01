@@ -235,10 +235,34 @@ public abstract class BeanTools {
 				hour -= 12;
 			}
 		}
-		return String.valueOf(hour).concat(":").concat(String.valueOf(minute));
+		return String.valueOf(hour).concat(":").concat(minute < 10 ? "0"+String.valueOf(minute) : String.valueOf(minute));
 	}
 	
-	
+	/**
+	 * 返回最终的系统当前时间     格式: 13:50
+	 * @param context
+	 * @return
+	 */
+	@SuppressWarnings("unused")
+	public static String getSystemCurrentTime2(Context context){
+		Calendar c = Calendar.getInstance();
+		//取得系统日期:
+		int year = c.get(Calendar.YEAR);
+		int month = c.get(Calendar.MONTH) + 1;
+		int day = c.get(Calendar.DAY_OF_MONTH);
+		//取得系统时间：
+		int hour = c.get(Calendar.HOUR_OF_DAY);
+		int minute = c.get(Calendar.MINUTE);
+		int Second = c.get(Calendar.SECOND);
+		
+		boolean timeType = isOrNot24Time(context);
+		if(!timeType){
+			if(hour >= 12){
+				hour -= 12;
+			}
+		}
+		return String.valueOf(hour).concat(":").concat(minute < 10 ? "0"+String.valueOf(minute) : String.valueOf(minute)).concat(":"+Second);
+	}
 	
 	
     
