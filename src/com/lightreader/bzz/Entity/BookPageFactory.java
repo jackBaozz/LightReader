@@ -35,7 +35,7 @@ public class BookPageFactory {
 	private int m_mbBufEnd = 0;// 当前页终点位置
 	private int m_mbBufLength = 0; // 图书总长度
 	private String m_strCharsetName = "GBK";
-	private int m_textColor = Color.rgb(28, 28, 28);//偏黑
+	private int m_textColor = Color.rgb(28, 28, 28);//偏黑   文字颜色
 	private final int m_textColor_bottom = Color.rgb(215, 99, 215);//纯黑
 	private int marginHeight = 15; // 上下与边缘的距离
 	private int marginWidth = 15; // 左右与边缘的距离
@@ -58,12 +58,12 @@ public class BookPageFactory {
 		mHeight = h;
 		//画笔1
 		mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		mPaint.setTextAlign(Align.LEFT);// 左对其
+		mPaint.setTextAlign(Align.LEFT);// 左对齐
 		mPaint.setTextSize(m_fontSize);// 字体大小
 		mPaint.setColor(m_textColor);// 字体颜色
 		//画笔2
 		mPaint_bottom = new Paint(Paint.ANTI_ALIAS_FLAG);
-		mPaint_bottom.setTextAlign(Align.LEFT);// 左对其
+		mPaint_bottom.setTextAlign(Align.LEFT);// 左对齐
 		mPaint_bottom.setTextSize(m_fontSize_bottom);// 字体大小
 		mPaint_bottom.setColor(m_textColor_bottom);// 字体颜色
 		
@@ -222,7 +222,8 @@ public class BookPageFactory {
 		ReadBookActivity.textViewBattery.setText(ReadBookActivity.textViewBattery.getText());
 		ReadBookActivity.textViewLeft.setText(timeText);
 		if(totalPagesCount == -1){//第一次进来,总页数还没计算出来的时候
-			ReadBookActivity.textViewCenter.setText("计算中...");
+			//ReadBookActivity.textViewCenter.setText("计算中...");
+			ReadBookActivity.textViewCenter.setText("???");
 		}else{
 			int a = (int)Math.floor(fPercent * Float.valueOf(getTotalPagesCount()) + 0.5f);
 			if(a <= 0 )a=1;
@@ -248,6 +249,15 @@ public class BookPageFactory {
 		// book_file=new File("mnt/sdcard/s.txt");
 		long length = book_file.length();
 		m_mbBufLength = (int) length;
+		/* 
+         * 内存映射文件能让你创建和修改那些因为太大而无法放入内存的文件。有了内存映射文件，你就可以认为文件已经全部读进了内存， 
+         * 然后把它当成一个非常大的数组来访问。这种解决办法能大大简化修改文件的代码。  
+         *  
+         * fileChannel.map(FileChannel.MapMode mode, long position, long size)将此通道的文件区域直接映射到内存中。但是，你必 
+         * 须指明，它是从文件的哪个位置开始映射的，映射的范围又有多大 
+         */  
+		
+		//文件通道的可读可写要建立在文件流本身可读写的基础之上    
 		m_mbBuff = new RandomAccessFile(book_file, "r").getChannel().map(FileChannel.MapMode.READ_ONLY, 0, length);//把文件所有字节放入内存
 		Log.d(TAG, "total lenth：" + m_mbBufLength);
 		// 设置已读进度

@@ -23,8 +23,8 @@ import android.widget.Scroller;
  */
 public class PageWidget extends View {
 
-	private int mScreenWidth = 480; // 屏幕宽
-	private int mScreenHeight = 800; // 屏幕高
+	private int mScreenWidth = 0; // 屏幕宽
+	private int mScreenHeight = 0; // 屏幕高
 	private int mCornerX = 1; // 拖拽点对应的页脚
 	private int mCornerY = 1;
 	private Path mPath0;
@@ -74,7 +74,8 @@ public class PageWidget extends View {
 		mPath1 = new Path();
 		mScreenWidth = width;
 		mScreenHeight = height;
-
+		mMaxLength = (float) Math.hypot(width, height);
+		
 		mPaint = new Paint();
 		mPaint.setStyle(Paint.Style.FILL);
 

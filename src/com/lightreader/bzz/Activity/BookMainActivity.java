@@ -271,6 +271,7 @@ public class BookMainActivity extends FragmentActivity implements LayoutChangeLi
 					HashMap<String,Object> map = listItems.get(position);
 					String bookPath = map.get("book_path").toString();
 					//Toast.makeText(getApplicationContext(), "这次妖精把" + bookPath + "抓住了!", Toast.LENGTH_SHORT).show();
+					
 					Intent intent = new Intent(BookMainActivity.this, ReadBookActivity.class);
 					intent.putExtra("book_path", bookPath);
 					startActivity(intent);

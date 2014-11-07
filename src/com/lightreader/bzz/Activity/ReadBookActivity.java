@@ -56,8 +56,8 @@ import com.lightreader.bzz.View.PageWidget;
 public class ReadBookActivity extends Activity implements OnClickListener, OnSeekBarChangeListener{
 	private static final String TAG = "ReadBookActivity";
 	private BookPageFactory pagefactory;// 书工厂
-	private int screenWidth;// 宽
-	private int screenHeight;//高
+	private int screenWidth;// 屏幕宽
+	private int screenHeight;//屏幕高
 	private int readHeight; // 电子书显示高度
 
 	private static int begin = 0;// 记录的书籍开始位置
@@ -88,7 +88,6 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 	private int defaultSize = 0;// 默认字体大小
 	protected long count = 1;
 	protected int PAGE = 1;// 第几页
-	private String txtName, txtName1;// 文字
 	public static Canvas mCurPageCanvas, mNextPageCanvas;// 画布
 
 	
@@ -163,7 +162,6 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 				int scale = intent.getIntExtra("scale", 100);
 				//tvBatteryChanged.setText("电池电量：" + (level * 100 / scale) + "%");
 				textViewBattery.setText("P:"+(level * 100 / scale) + "%");
-				//pagefactory.onDraw(mCurPageCanvas);
 			}
 		}
     };
@@ -203,6 +201,8 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
     
     
     
+    
+    ////////////////////////////////////////////////////////////逻辑开始/////////////////////////////////////////////////////////////////////////
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -212,12 +212,10 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		//mContext = getBaseContext();
 		
 		startTimer();//更新时间数据的线程
-		textViewBattery = (TextView)findViewById(R.id.book_read_bottom_textview1_id);
-		textViewLeft = (TextView)findViewById(R.id.book_read_bottom_textview2_id);
-		textViewCenter = (TextView)findViewById(R.id.book_read_bottom_textview3_id);
-		textViewRight = (TextView)findViewById(R.id.book_read_bottom_textview4_id);
-		
-		
+		textViewBattery = (TextView)findViewById(R.id.book_read_bottom_textview1_id);//电量信息
+		textViewLeft = (TextView)findViewById(R.id.book_read_bottom_textview2_id);//时间信息
+		textViewCenter = (TextView)findViewById(R.id.book_read_bottom_textview3_id);//总页数信息
+		textViewRight = (TextView)findViewById(R.id.book_read_bottom_textview4_id);//进度信息
 		
 
 		
@@ -228,25 +226,21 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		readHeight = screenHeight;
 		
 
+		//采用低内存占用量的编码方式。比如Bitmap.Config.ARGB_4444比Bitmap.Config.ARGB_8888更省内存
 		mCurPageBitmap = Bitmap.createBitmap(screenWidth, screenHeight, Bitmap.Config.ARGB_8888);
 		mNextPageBitmap = Bitmap.createBitmap(screenWidth, screenHeight, Bitmap.Config.ARGB_8888);
 		mCurPageCanvas = new Canvas(mCurPageBitmap);
 		mNextPageCanvas = new Canvas(mNextPageBitmap);
 		mPageWidget = new PageWidget(this, screenWidth, readHeight);// 画出贝塞尔曲线的页面
 		
-		
 		RelativeLayout rlayout = (RelativeLayout) findViewById(R.id.book_read_top_id);//贝塞尔曲线效果附加到 book_read.xml布局上
 		rlayout.addView(mPageWidget);
 		
 
-		Intent intent = getIntent();
-		bookPath = intent.getStringExtra("txtName1");
-		ccc = intent.getStringExtra("ccc");
-
 		
 		// 获取传递过来的书的绝对路径
 		Intent _intent = getIntent();
-		String book_path = _intent.getExtras().get("book_path").toString();// 获取书籍的路径
+		String book_path = _intent.getExtras().get("book_path").toString();// 获取书籍的绝对路径
 		bookPath = book_path;
 		
 		
@@ -269,7 +263,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 							mPageWidget.abortAnimation();//取消动画
 							mPageWidget.calcCornerXY(e.getX(), e.getY());
 							pagefactory.onDraw(mCurPageCanvas);
-							if (mPageWidget.DragToRight()) {// 左翻
+							if (mPageWidget.DragToRight()) {//是否从左边翻向右边
 								try {
 									pagefactory.prePage();
 									begin = pagefactory.getM_mbBufBegin();// 获取当前阅读位置
@@ -278,11 +272,11 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 									Log.e(TAG, "onTouch->prePage error", e1);
 								}
 								if (pagefactory.isfirstPage()) {
-									Toast.makeText(mContext, "当前是第一页", Toast.LENGTH_SHORT).show();
+									//Toast.makeText(mContext, "当前是第一页", Toast.LENGTH_SHORT).show();
 									return false;
 								}
 								pagefactory.onDraw(mNextPageCanvas);
-							} else {// 右翻
+							} else {// 从右向左翻
 								try {
 									pagefactory.nextPage();
 									begin = pagefactory.getM_mbBufBegin();// 获取当前阅读位置
@@ -291,7 +285,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 									Log.e(TAG, "onTouch->nextPage error", e1);
 								}
 								if (pagefactory.islastPage()) {
-									Toast.makeText(mContext, "已经是最后一页了", Toast.LENGTH_SHORT).show();
+									//Toast.makeText(mContext, "已经是最后一页了", Toast.LENGTH_SHORT).show();
 									return false;
 								}
 								pagefactory.onDraw(mNextPageCanvas);
@@ -334,21 +328,11 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		}
 		begin = sharedPreferences.getInt(bookPath + "begin", 0);
 		try {
-			Intent intent2 = getIntent();
-			txtName = intent2.getStringExtra("txtName1");
-			// String strFilePath=Finaltxt.TXTPA+txtName;
-			// pagefactory.openbook(strFilePath, begin);
-			
+			//Intent intent2 = getIntent();
+			//txtName = intent2.getStringExtra("txtName1");
 			
 			pagefactory.openbook(bookPath, begin);
 			
-			//pagefactory.openbook("mnt/sdcard/" + txtName, begin);
-			// Intent intent3=getIntent();
-			// txtName1=intent3.getStringExtra("txtName2");
-			// String strFilePath=Finaltxt.TXTPA+txtName;
-			// pagefactory.opennerbook(strFilePath);
-
-			// pagefactory.openbook(bookPath, begin);// 从指定位置打开书籍，默认从开始打开
 			//TODO
 			pagefactory.setM_fontSize(size);
 			pagefactory.onDraw(mCurPageCanvas);
