@@ -4,11 +4,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.graphics.Point;
 import android.util.DisplayMetrics;
 
 
@@ -140,6 +143,39 @@ public abstract class BeanTools {
         intArray[1] = height;
         return intArray;
     }
+    
+    
+    /**
+     * 获取当前设备的屏幕的中间区域的一个正方形[左上,右上,右下,左下]四个点,判断传入的坐标点是否位于整个区间内
+     * @param context
+     * @return
+     */
+    public static boolean getDevicePointsFlag(Context context,float x,float y){
+    	DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+    	int height = displayMetrics.heightPixels / 2;
+    	int width = displayMetrics.widthPixels / 2;
+
+    	float a1_x = width - width / 4 ;
+    	float a1_y  = height - height / 4;
+
+    	float a2_x = width + width / 4 ;
+    	float a2_y = height - height / 4;
+
+    	float a3_x = width + width / 4 ;
+    	float a3_y = height + height / 4;
+    	
+    	float a4_x = width - width / 4 ;
+    	float a4_y = height + height / 4;
+    	
+    	if(a1_x < x && a2_x > x && a3_x > x && a4_x < x){
+    		if(a1_y < y && a2_y < y && a3_y > y && a4_y > y){
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
+    
     
     
 

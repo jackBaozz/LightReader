@@ -467,6 +467,11 @@ public class BookMainActivity extends FragmentActivity implements LayoutChangeLi
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
+		//menu.add(0, 1, 1, "添加书签");
+		//menu.add(0, 2, 2, "选择书签");
+		//menu.add(0, 3, 3, "背景音乐");
+		//menu.add(0, 4, 4, "返回章节");
+		//return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
@@ -543,7 +548,7 @@ public class BookMainActivity extends FragmentActivity implements LayoutChangeLi
 	
 	
 	/**
-	 * 清楚背景为灰的定时器 ----- 开
+	 * 清除背景为灰的定时器 ----- 开
 	 */
 	private void startTimer() {
 		if (mTimer == null) {
@@ -742,6 +747,7 @@ public class BookMainActivity extends FragmentActivity implements LayoutChangeLi
 
 		@Override
 		public void finishUpdate(View arg0) {
+			
 		}
 
 		/**

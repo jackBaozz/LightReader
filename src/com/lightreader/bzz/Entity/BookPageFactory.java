@@ -327,12 +327,12 @@ public class BookPageFactory {
 					}
 				}
 			}
-			System.out.println(BeanTools.getSystemCurrentTime2(AllApplication.getInstance()));
+			//System.out.println(BeanTools.getSystemCurrentTime2(AllApplication.getInstance()));
 			pageTotla++;
 			lines.clear();
 		}
-		System.out.println("执行完毕时间:");
-		System.out.println(BeanTools.getSystemCurrentTime2(AllApplication.getInstance()));
+		//System.out.println("执行完毕时间:");
+		//System.out.println(BeanTools.getSystemCurrentTime2(AllApplication.getInstance()));
 		return pageTotla;
 	}
 	
