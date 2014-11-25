@@ -68,6 +68,16 @@
     <string name="book_tab3_text">其他</string>
     
     
+    
+    <!-- 按钮上的文字 -->
+    <string name="btn_back">返回</string>
+    <string name="btn_back_uplevel">上一级</string>
+    <string name="btn_sdcard_list">存储目录</string>
+    
+    
+    
+    
+    
     <string name="tab_1">R</string>
     <string name="tab_2">G</string>
     <string name="tab_3">B</string>
@@ -100,6 +110,8 @@
     <string name="bookpop_light">亮度</string>
     <string name="bookpop_card">书签</string>
     <string name="bookpop_send">跳转</string>
+    <string name="bookpop_more">更多</string>
+    <string name="bookpop_setting">设置</string>
     <!-- 设置 -->
     <string name="btn_color_picker">91PandaReader</string>
     <string name="btn_color_picker2">网龙出品</string>

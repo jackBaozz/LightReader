@@ -57,7 +57,7 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 	private String clickedFileName = "";
 	private TextView titleTextView;
 	private Bundle bundle;
-	private Button btnBack, btnHome,btnMkdir,btnPaste,btnCancel;
+	private Button btnFinish,btnBack, btnHome,btnMkdir,btnPaste,btnCancel;
 	private String btnFlag = "";//按钮的操作类型的flag
 	private ProgressDialog progressDialog;//进度条
 	private TableLayout tableLayout ;//隐藏或则显示的按钮条
@@ -82,11 +82,14 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 	private void init() {
 		btnBack = (Button) findViewById(R.id.back);
 		btnHome = (Button) findViewById(R.id.home);
+		btnFinish = (Button)findViewById(R.id.finish);
+		
 		btnMkdir = (Button) findViewById(R.id.file_list_btn_createdir);
 		btnPaste = (Button) findViewById(R.id.file_list_btn_paste);
 		btnCancel = (Button) findViewById(R.id.file_list_btn_cancel);
 		btnBack.setOnClickListener(this);//绑定按下监听器
 		btnHome.setOnClickListener(this);//绑定按下监听器
+		btnFinish.setOnClickListener(this);//绑定按下监听器
 		btnMkdir.setOnClickListener(this);//绑定按下监听器
 		btnPaste.setOnClickListener(this);//绑定按下监听器
 		btnCancel.setOnClickListener(this);//绑定按下监听器
@@ -390,6 +393,9 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 		case R.id.home:
 			browseRoot();
 			break;
+		case R.id.finish:
+			this.finish();
+			break;
 		case R.id.file_list_btn_createdir:
 			// 如果单击创建文件夹，弹出对话框
 			builder = new Builder(this);
@@ -499,18 +505,20 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 	}
 	
 	// 浏览指定目录
-	private void browseTo(File dir) {
+	private synchronized void browseTo(File dir) {
 		// 如果dir对象是一个目录
-		if (dir.isDirectory()) {
+		//if (dir.isDirectory()) {
+		if(dir.exists() && dir.isDirectory() && dir.canRead()){
 			// 改变标题栏的路径文字
 			titleTextView.setText(dir.getAbsolutePath());
 			// 更改当前目录为指定目录
 			this.current_dir = dir;
 			// 查找dir目录中的所有子目录和文件 填充到items集合
-			fill(current_dir.listFiles());//获取所有文件列表集合fileItemsList
+			fill(current_dir.listFiles());//获取所有文件列表的集合fileItemsList
+			
+			Collections.sort(fileItemsList, new FileComparator());// 对文件夹进行排序
+			//Collections.reverse(fileItemsList);//对文件夹倒序(反转)排序
 		}
-		Collections.sort(fileItemsList, new FileComparator());// 对文件夹进行排序
-		//Collections.reverse(fileItemsList);//倒序排序
 	}
 
 	
@@ -618,11 +626,12 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// 向menu中添加menuitem
 		//getMenuInflater().inflate(R.menu.menu, menu);
-		menu.add(0, Constant.INT_MENU_BACK, 1, Constant.STRING_FILE_BACK_UPLEVEL).setIcon(android.R.drawable.ic_menu_revert);
-		menu.add(0, Constant.INT_MENU_BACKHOME, 2, Constant.STRING_FILE_SDCARD_LIST).setIcon(android.R.drawable.ic_menu_myplaces);
-		menu.add(0, Constant.INT_MENU_FRESH, 3, Constant.STRING_FILE_REFLASH).setIcon(android.R.drawable.ic_menu_rotate);
-		menu.add(0, Constant.INT_MENU_CRETEDIR, 4, Constant.STRING_FILE_MKDIR).setIcon(android.R.drawable.ic_menu_add);
-		menu.add(0, Constant.INT_MENU_EXIT, 5, Constant.STRING_FILE_CANCEL).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+		menu.add(0, Constant.INT_MENU_BACK, 1, Constant.STRING_FILE_BACK).setIcon(android.R.drawable.ic_menu_revert);
+		menu.add(0, Constant.INT_MENU_BACK_LEVEL, 2, Constant.STRING_FILE_BACK_UPLEVEL).setIcon(android.R.drawable.ic_menu_revert);
+		menu.add(0, Constant.INT_MENU_BACKHOME, 3, Constant.STRING_FILE_SDCARD_LIST).setIcon(android.R.drawable.ic_menu_myplaces);
+		menu.add(0, Constant.INT_MENU_FRESH, 4, Constant.STRING_FILE_REFLASH).setIcon(android.R.drawable.ic_menu_rotate);
+		menu.add(0, Constant.INT_MENU_CRETEDIR, 5, Constant.STRING_FILE_MKDIR).setIcon(android.R.drawable.ic_menu_add);
+		menu.add(0, Constant.INT_MENU_EXIT, 6, Constant.STRING_FILE_CANCEL).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
 		return super.onCreateOptionsMenu(menu);
 	}
 	
@@ -633,6 +642,9 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 		final EditText etInput = new EditText(this);
 		switch (item.getItemId()) {
 		case Constant.INT_MENU_BACK:
+			this.finish();
+			break;
+		case Constant.INT_MENU_BACK_LEVEL:
 			browseUpLevel();
 			break;
 		case Constant.INT_MENU_BACKHOME:

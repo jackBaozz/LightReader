@@ -33,15 +33,16 @@ public interface Constant {
 	public static final String STRING_FILE_NAME_CANNOT_EMPTY = "名字不能为空";
 	public static final String STRING_FILE_RENAME_FIAL= "重命名失败";
 	public static final String STRING_FILE_MKDIR= "新建文件夹";
-	public static final String STRING_FILE_BACK_UPLEVEL= "返回上一级";
-	public static final String STRING_FILE_SDCARD_LIST= "SDCARD目录";
+	public static final String STRING_FILE_BACK_UPLEVEL= "上一级";
+	public static final String STRING_FILE_BACK= "返回";
+	public static final String STRING_FILE_SDCARD_LIST= "存储目录";
 	public static final String STRING_FILE_REFLASH= "刷新";
 	public static final String STRING_FILE_PLEASE_INPUT_NAME = "请输入名字";
 	public static final String STRING_FILE_CHMOD_FAIL = "获取文件权限失败";
 	public static final String STRING_FILE_ADDTOBOOKSHELF = "添加到书架";
 	public static final String STRING_FILE_DELETEFROMBOOKSHELF = "从书架下架";
 	public static final String STRING_FILE_REMOVEBOOKFROMBOOKSHELF = "下架该书本";
-	
+	public static final String STRING_MORE = "更多";
 	
 	
 	public static final int INT_MENU_CRETEDIR = 1;//新建目录
@@ -64,6 +65,9 @@ public interface Constant {
 	public static final int INT_MENU_OFF = 18;//开关 关
 	public static final int INT_BOOK_TIMER = 19;//定时器
 	public static final int INT_BOOK_UPDATE_TOTALPAGE = 20;//更新总页数
+	public static final int INT_MENU_BACK_LEVEL = 21;//返回上一级
+	
+	
 	//阅读器支持解码的后缀名文件类型
 	public static final String[] BOOK_SUFFIX = {".txt",".epub",".pdf"};
 	//默认访问SD卡的路径

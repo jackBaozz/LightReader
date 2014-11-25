@@ -558,7 +558,15 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 			a = 4;
 			setToolPop(a);
 			break;
-
+		case R.id.bookBtn5:
+			a = 5;
+			//setToolPop(a);
+			System.out.println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+			break;
+		case R.id.book_pop_setting:
+			a = 8;
+			setToolPop(a);
+			break;
 		// 夜间模式按钮
 		case R.id.imageBtn2:
 			if (isNight) {
@@ -879,6 +887,12 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 					imageBtn4_1.setOnClickListener(this);
 					imageBtn4_2.setOnClickListener(this);
 				}
+				//跳转到另一个setting的activity来进行设置
+				if(a == 8){
+					Intent intent = new Intent(ReadBookActivity.this, ReadBookSettingActivity.class);
+					//intent.putExtra("book_path", bookPath);
+					startActivity(intent);
+				}
 			}
 		} else {
 			if (mToolpop.isShowing()) {
@@ -944,6 +958,12 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 				seekBar4.setOnSeekBarChangeListener(this);
 				imageBtn4_1.setOnClickListener(this);
 				imageBtn4_2.setOnClickListener(this);
+			}
+			//跳转到另一个setting的activity来进行设置
+			if(a == 8){
+				Intent intent = new Intent(ReadBookActivity.this, ReadBookSettingActivity.class);
+				//intent.putExtra("book_path", bookPath);
+				startActivity(intent);
 			}
 		}
 		// 记录上次点击的是哪一个

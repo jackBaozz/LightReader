@@ -94,15 +94,16 @@
             android:gravity="center"
             android:text="@string/bookpop_card" />
 
-        <!-- 跳转 -->
+        <!-- 更多 -->
         <TextView
-            android:id="@+id/bookBtn8"
+            android:id="@+id/book_pop_setting"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:drawableTop="@drawable/menu_icon_jump_nor"
+            android:drawableTop="@drawable/menu_icon_setting_nor"
             android:gravity="center"
-            android:text="@string/bookpop_send" />
+            android:text="@string/bookpop_setting" />
+        
 	</LinearLayout>        
     
     
