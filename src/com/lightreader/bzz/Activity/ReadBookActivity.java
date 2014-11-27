@@ -106,7 +106,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 	// 实例化Handler
 	@SuppressLint("HandlerLeak")
 	Handler mHandler = new Handler() {
-		// 接收子线程发来的消息，同时更新UI
+		// 接收子线程发来的消息，在主线程更新UI
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case 0:
@@ -127,6 +127,13 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 				String b = (String)msg.obj;
 				textViewCenter.setText(a+"/"+b);
 				break;
+			case Constant.INT_BOOK_TIMER:  //定时器的线程发过来的消息
+				String timeText = BeanTools.getSystemCurrentTime(AllApplication.getInstance());//获取当前系统时间
+				textViewBattery.setText(textViewBattery.getText());
+				textViewLeft.setText(timeText);
+				textViewCenter.setText(textViewCenter.getText());
+				textViewRight.setText(textViewRight.getText());
+				break;
 			default:
 				break;
 			}
@@ -140,10 +147,10 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 			switch (msg.what) {
 			case Constant.INT_BOOK_TIMER:  //定时器的线程发过来的消息
 				String timeText = BeanTools.getSystemCurrentTime(AllApplication.getInstance());//获取当前系统时间
-				textViewBattery.setText(textViewBattery.getText());
-				textViewLeft.setText(timeText);
-				textViewCenter.setText(textViewCenter.getText());
-				textViewRight.setText(textViewRight.getText());
+				//textViewBattery.setText(textViewBattery.getText());
+//				textViewLeft.setText(timeText);
+//				textViewCenter.setText(textViewCenter.getText());
+//				textViewRight.setText(textViewRight.getText());
 				break;
 			default:
 				break;
@@ -167,7 +174,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
     };
 	
 	
-    
+    //开启线程来更新书本的当前总页数
     class TotlePageRunnable implements Runnable {
 		@Override
 		public void run() {
@@ -211,7 +218,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		setContentView(R.layout.book_read);//[必须]
 		//mContext = getBaseContext();
 		
-		startTimer();//更新时间数据的线程
+		
 		textViewBattery = (TextView)findViewById(R.id.book_read_bottom_textview1_id);//电量信息
 		textViewLeft = (TextView)findViewById(R.id.book_read_bottom_textview2_id);//时间信息
 		textViewCenter = (TextView)findViewById(R.id.book_read_bottom_textview3_id);//总页数信息
@@ -321,7 +328,6 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 						}
 						//-----------------------------------次要翻页逻辑结束------------------------------------
 						
-						//------------------------------------主要翻页逻辑开始------------------------------------
 						if (e.getAction() == MotionEvent.ACTION_DOWN) {		
 							if (e.getY() > readHeight) {// 超出范围了，表示单击到广告条，则不做翻页
 								return false;
@@ -428,11 +434,10 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 			//Intent intent2 = getIntent();
 			//txtName = intent2.getStringExtra("txtName1");
 			
-			pagefactory.openbook(bookPath, begin);
-			
-			//TODO
-			pagefactory.setM_fontSize(size);
+			pagefactory.openbook(bookPath, begin);//打开书本,按起始页
+			pagefactory.setM_fontSize(size);//设置字体
 			pagefactory.onDraw(mCurPageCanvas);
+			
 			new Thread(new TotlePageRunnable()).start();//创建Thread线程
 		} catch (Exception e1) {
 			Log.e(TAG, "打开电子书失败", e1);
@@ -441,6 +446,8 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		markhelper = new MarkHelper(this);
 
 		
+		
+		startTimer();//更新时间数据的线程
 		//注册一个接受广播类型,获取手机电池的电量信息
 		//可以用于刷新页面的 电池信息和时间信息
         registerReceiver(batteryChangedReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
@@ -659,7 +666,6 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		// 字体进度条
 		case R.id.seekBar1:
 			size = seekBar1.getProgress() + 15;
-			//TODO
 			pagefactory.setM_fontSize(size);
 			new Thread(new TotlePageRunnable()).start();//创建Thread线程
 			pagefactory.setM_mbBufBegin(begin);
@@ -1011,14 +1017,16 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 			mTimerTask = new TimerTask() {
 				@Override
 				public void run() {
-				    	Message message = Message.obtain(timeHandler, Constant.INT_BOOK_TIMER);
-				    	timeHandler.sendMessage(message);
+				    //Message message = Message.obtain(timeHandler, Constant.INT_BOOK_TIMER);
+					//timeHandler.sendMessage(message);
+					Message message = Message.obtain(mHandler, Constant.INT_BOOK_TIMER);
+					mHandler.sendMessage(message);
 				}
 			};
 		}
 
 		if (mTimer != null && mTimerTask != null){
-			mTimer.schedule(mTimerTask, 500, 30000);//循环执行TimerTask里面的run方法   [60秒钟执行一次]
+			mTimer.schedule(mTimerTask, 500, 30000);//循环执行TimerTask里面的run方法   [30秒钟执行一次]
 		}
 	}
   
