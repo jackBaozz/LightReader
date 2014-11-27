@@ -158,6 +158,8 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 									isShow = cursor.getInt(flag1);
 								}
 							}
+							cursor.close();//用完就关闭游标
+							
 							if(isShow == 1){//如果该书本已经添加到书架了
 								menu.add(0, Constant.INT_MENU_REMOVEBOOKFROMBOOKSHELF, 1, Constant.STRING_FILE_DELETEFROMBOOKSHELF);// 从书架下架
 								menu.add(0, Constant.INT_MENU_RENAME, 2, Constant.STRING_FILE_RENAME);// 重命名
@@ -217,6 +219,7 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 			Cursor cursor = databaseServer.selectBook(clickedFile.getAbsolutePath());
 			int isShow = 0;//该书本是否显示,是否上架下架
 			int countBook = cursor.getCount();//总共有几条数据
+			cursor.close();//用完就关闭游标
 			if(countBook == 1){//只有唯一的一条数据的时候
 				//2.update 
 				boolean bookShowOperation = databaseServer.updateBook(clickedFile.getAbsolutePath(), 1);//更新该条数据为"上架"
@@ -589,6 +592,7 @@ public class FileBrowserActivity extends BaseActivity implements android.view.Vi
 						isShow = cursor.getInt(flag);
 					}
 				}
+				cursor.close();//用完就关闭游标
 				
 				// 创建fileitem对象，并添加到集合
 				//FileInfo item = new FileInfo(fileName, icon);

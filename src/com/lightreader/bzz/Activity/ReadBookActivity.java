@@ -610,16 +610,16 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		case R.id.imageBtn3_2:
 			SQLiteDatabase dbSelect = markhelper.getReadableDatabase();
 			String col[] = { "begin", "word", "time" };
-			Cursor cur = dbSelect.query("markhelper", col, "path = '" + bookPath + "'", null, null, null, null);
-			Integer num = cur.getCount();
+			Cursor cursor = dbSelect.query("markhelper", col, "path = '" + bookPath + "'", null, null, null, null);
+			Integer num = cursor.getCount();
 			if (num == 0) {
 				Toast.makeText(this, "您还没有书签", Toast.LENGTH_SHORT).show();
 			} else {
 				ArrayList<Mark> markList = new ArrayList<Mark>();
-				while (cur.moveToNext()) {
-					String s1 = cur.getString(cur.getColumnIndex("word"));
-					String s2 = cur.getString(cur.getColumnIndex("time"));
-					int b1 = cur.getInt(cur.getColumnIndex("begin"));
+				while (cursor.moveToNext()) {
+					String s1 = cursor.getString(cursor.getColumnIndex("word"));
+					String s2 = cursor.getString(cursor.getColumnIndex("time"));
+					int b1 = cursor.getInt(cursor.getColumnIndex("begin"));
 					int p = 0;
 					int count = 10;
 					Mark mv = new Mark(s1, p, count, b1, s2, bookPath);
@@ -631,7 +631,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 				mDialog.show();
 			}
 			dbSelect.close();
-			cur.close();
+			cursor.close();
 			mToolpop.dismiss();
 			mToolpop3.dismiss();
 			break;

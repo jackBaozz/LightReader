@@ -291,8 +291,6 @@ public class BookMainActivity extends FragmentActivity implements LayoutChangeLi
 				return true;
 			}
 		});
-		
-		
 	}
 
 	

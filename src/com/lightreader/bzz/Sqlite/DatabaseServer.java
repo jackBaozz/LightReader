@@ -31,6 +31,7 @@ public class DatabaseServer {
 		cv.put("number", number);
 		// 插入数据,返回插入数据ID
 		long id = db.insert(DatabaseDaoHelper.T_DEMO, null, cv);
+		
 		if (id != 0) {
 			return true;
 		}
@@ -75,6 +76,7 @@ public class DatabaseServer {
 		cv.put("isShow", isShow);
 		// 插入数据,返回插入数据ID
 		long id = db.insert(DatabaseDaoHelper.T_BOOKS, null, cv);
+		
 		if (id != 0) {
 			return true;
 		}
@@ -92,6 +94,7 @@ public class DatabaseServer {
 		SQLiteDatabase db = databaseDaoHelper.getReadableDatabase();
 		// 查询数据表中所有字段
 		Cursor cursor = db.query(databaseDaoHelper.T_BOOKS, new String[]{"id","name","path"}, "name=?  AND  path=?", new String[] {name,path}, null, null, "id asc");
+		
 		return cursor;
 	}
 	
@@ -100,6 +103,7 @@ public class DatabaseServer {
 		SQLiteDatabase db = databaseDaoHelper.getReadableDatabase();
 		// 查询数据表中所有字段
 		Cursor cursor = db.query(databaseDaoHelper.T_BOOKS, new String[]{"id","name","path","isShow"}, "path=?", new String[] {path}, null, null, "id asc");
+		
 		return cursor;
 	}
 	
@@ -108,6 +112,7 @@ public class DatabaseServer {
 		/* 与数据库获得连接，获得只读属性 */
 		SQLiteDatabase db = databaseDaoHelper.getReadableDatabase();
 		Cursor cursor = db.rawQuery("select * from " + databaseDaoHelper.T_BOOKS + " where isShow = 1 " , null);
+		
 		return cursor;
 	}
 	
@@ -146,7 +151,7 @@ public class DatabaseServer {
 		//Cursor cursor = db.query(databaseDao.T_BOOKS, new String[]{"name","path"}, null, null, null, null, "_id desc");
 		Cursor cursor = db.query(true, "student", new String[] { "_id", "name", "age" }, "_id>?", new String[] { "1" }, null, null, "age desc", "1,5");
 		//Cursor cursor = sqliteDatabase.query(true, "student", new String[] { "_id", "name", "age" }, "_id>?", new String[] { "1" }, null, null, "age desc", "1,5");
-
+		
 		/* 使用游标---获取游标中的数据 */
 		while (cursor.moveToNext()) {
 			String id = cursor.getString(cursor.getColumnIndex("_id"));
@@ -174,14 +179,13 @@ public class DatabaseServer {
 	public boolean update(int id, String number) {
 		// 创建或打开数据库
 		SQLiteDatabase db = databaseDaoHelper.getWritableDatabase();
-
 		// Android自带的ContetValues,类似于Map,提供了put(String key, XXX value)的方法存入数据
 		ContentValues cv = new ContentValues();
 		cv.put("number", number);
 
 		// 通过ContentValues更新数据表,返回更新的ID值
 		int result = db.update(databaseDaoHelper.T_DEMO, cv, "_id=?", new String[] { String.valueOf(id) });
-
+		
 		if (result != 0) {
 			return true;
 		}
@@ -201,6 +205,7 @@ public class DatabaseServer {
 		cv.put("isShow", isShow);
 		// 通过ContentValues更新数据表,返回更新的ID值
 		int result = db.update(databaseDaoHelper.T_BOOKS, cv, "path=?", new String[] { path });
+		
 		if (result != 0) {
 			return true;
 		}
@@ -223,6 +228,7 @@ public class DatabaseServer {
 		SQLiteDatabase db = databaseDaoHelper.getWritableDatabase();
 		// 删除指定ID值
 		int result = db.delete(databaseDaoHelper.T_DEMO, "_id=?", new String[] { String.valueOf(id) });
+		
 		if (result != 0) {
 			return true;
 		}

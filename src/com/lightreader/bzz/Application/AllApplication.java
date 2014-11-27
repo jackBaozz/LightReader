@@ -110,6 +110,7 @@ public class AllApplication extends Application {
     		Book book = getBooksDao().getEntityFromCursor(cursor);
             list.add(book);//源数据转换为实体对象
         }
+    	cursor.close();
         return list;
     }
     
