@@ -251,6 +251,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		mPageWidget.setOnTouchListener(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View view, MotionEvent e) {
+				boolean returnFlag = false;//默认返回false,直接跳到下一个逻辑处理
 				long allTime = e.getEventTime() - e.getDownTime();//按下和释放,持续了多长时间[毫秒]
 				boolean popEnableFlag = BeanTools.getDevicePointsFlag(mContext,e.getX(),e.getY());//判断事件点,能否弹出菜单的标志位
 				//Log.w(TAG, "onTouch -> !!!!!!!!!!!");
@@ -259,7 +260,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 				/*
 				if (view == mPageWidget) {
 					if (!popwindowIsShow) {
-						if (e.getAction() == MotionEvent.ACTION_DOWN && popEnableFlag == false) {
+						if (e.getAction() == MotionEvent.ACTION_DOWN) {
 							if (e.getY() > readHeight) {// 超出范围了，表示单击到广告条，则不做翻页
 								return false;
 							}
@@ -295,103 +296,103 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 							}
 							mPageWidget.setBitmaps(mCurPageBitmap, mNextPageBitmap);
 							
-						}else if(e.getAction() == MotionEvent.ACTION_DOWN && popEnableFlag == true){
-							//true为允许弹出菜单栏menu 1是单手的起来,6是多点触摸的起来 e.getActionMasked()
-						    //其他情况,默认是长按,弹出menu窗口,逻辑直接调用menu的监听方法------onKeyUp
-							if (popwindowIsShow) {
-								getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-								popwindowIsShow = false;
-								mPopupWindow.dismiss();
-								popDismiss();
-							} else {
-								getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-								getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-								popwindowIsShow = true;
-								pop();
-							}
-							return true;
 						}
 						editor.putInt(bookPath + "begin", begin).commit();
 						ret = mPageWidget.doTouchEvent(e);
 						return ret;
 					}
 				}
-				System.out.println("bbbbbbbbbbbbbbbbbb");
 				return false;
 				*/
 				
 				
+				
 				if (view == mPageWidget) {
-					if (e.getAction() == MotionEvent.ACTION_DOWN && popEnableFlag == false) {
-						if (e.getY() > readHeight) {// 超出范围了，表示单击到广告条，则不做翻页
-							return false;
-						}
-						mPageWidget.abortAnimation();//取消动画
-						mPageWidget.calcCornerXY(e.getX(), e.getY());
-						pagefactory.onDraw(mCurPageCanvas);
-						if (mPageWidget.DragToRight()) {//是否从左边翻向右边
-							try {
-								pagefactory.prePage();
-								begin = pagefactory.getM_mbBufBegin();// 获取当前阅读位置
-								word = pagefactory.getFirstLineText();// 获取当前阅读位置的首行文字
-							} catch (IOException e1) {
-								Log.e(TAG, "onTouch->prePage error", e1);
-							}
-							if (pagefactory.isfirstPage()) {
-								//Toast.makeText(mContext, "当前是第一页", Toast.LENGTH_SHORT).show();
-								return false;
-							}
-							pagefactory.onDraw(mNextPageCanvas);
-						} else {// 从右向左翻
-							try {
-								pagefactory.nextPage();
-								begin = pagefactory.getM_mbBufBegin();// 获取当前阅读位置
-								word = pagefactory.getFirstLineText();// 获取当前阅读位置的首行文字
-							} catch (IOException e1) {
-								Log.e(TAG, "onTouch->nextPage error", e1);
-							}
-							if (pagefactory.islastPage()) {
-								//Toast.makeText(mContext, "已经是最后一页了", Toast.LENGTH_SHORT).show();
-								return false;
-							}
-							pagefactory.onDraw(mNextPageCanvas);
-						}
-						mPageWidget.setBitmaps(mCurPageBitmap, mNextPageBitmap);
+					if (popwindowIsShow == false) {
 						
-					}else if(e.getAction() == MotionEvent.ACTION_DOWN && popEnableFlag == true){
-						//true为允许弹出菜单栏menu 1是单手的起来,6是多点触摸的起来 e.getActionMasked()
-					    //其他情况,默认是长按,弹出menu窗口,逻辑直接调用menu的监听方法------onKeyUp
-						if (popwindowIsShow) {
-							//已经弹出,就清除干净
-							clear();
-						} else {
-							//未弹出,就弹出对话框
-							fill();
+						//-----------------------------------次要翻页逻辑开始------------------------------------
+						if(popEnableFlag == true){
+							if(e.getAction() == MotionEvent.ACTION_DOWN){
+								//在这个区域内,弹出menu菜单
+								fill();
+								returnFlag = true;//break该点击事件,没有后续
+								return true;
+							}
 						}
-						return false;
+						//-----------------------------------次要翻页逻辑结束------------------------------------
+						
+						//------------------------------------主要翻页逻辑开始------------------------------------
+						if (e.getAction() == MotionEvent.ACTION_DOWN) {		
+							if (e.getY() > readHeight) {// 超出范围了，表示单击到广告条，则不做翻页
+								return false;
+							}
+							mPageWidget.abortAnimation();//取消动画
+							mPageWidget.calcCornerXY(e.getX(), e.getY());
+							pagefactory.onDraw(mCurPageCanvas);
+							if (mPageWidget.DragToRight()) {//是否从左边翻向右边
+								try {
+									pagefactory.prePage();
+									begin = pagefactory.getM_mbBufBegin();// 获取当前阅读位置
+									word = pagefactory.getFirstLineText();// 获取当前阅读位置的首行文字
+								} catch (IOException e1) {
+									Log.e(TAG, "onTouch->prePage error", e1);
+								}
+								if (pagefactory.isfirstPage()) {
+									//Toast.makeText(mContext, "当前是第一页", Toast.LENGTH_SHORT).show();
+									return false;
+								}
+								pagefactory.onDraw(mNextPageCanvas);
+							} else {// 从右向左翻
+								try {
+									pagefactory.nextPage();
+									begin = pagefactory.getM_mbBufBegin();// 获取当前阅读位置
+									word = pagefactory.getFirstLineText();// 获取当前阅读位置的首行文字
+								} catch (IOException e1) {
+									Log.e(TAG, "onTouch->nextPage error", e1);
+								}
+								if (pagefactory.islastPage()) {
+									//Toast.makeText(mContext, "已经是最后一页了", Toast.LENGTH_SHORT).show();
+									return false;
+								}
+								pagefactory.onDraw(mNextPageCanvas);
+							}
+							mPageWidget.setBitmaps(mCurPageBitmap, mNextPageBitmap);
+							
+						}/*else if(e.getAction() == MotionEvent.ACTION_DOWN && popEnableFlag == true){
+							//true为允许弹出菜单栏menu 1是单手的起来,6是多点触摸的起来 e.getActionMasked()
+						    //其他情况,默认是长按,弹出menu窗口,逻辑直接调用menu的监听方法------onKeyUp
+							if (popwindowIsShow) {
+								//已经弹出,就清除干净
+								clear();
+							} else {
+								//未弹出,就弹出对话框
+								fill();
+							}
+							return true;//返回true终止以下的代码的执行
+						}*/
+						editor.putInt(bookPath + "begin", begin).commit();
+						ret = mPageWidget.doTouchEvent(e);
+						return ret;
+					
+					}else{
+						//这里,已经弹出了menu菜单
+						if(e.getAction() == MotionEvent.ACTION_DOWN && popEnableFlag == true){
+							//这里将关闭弹出的menu菜单
+							clear();
+							returnFlag = true;//break该点击事件,没有后续
+							return true;
+						}
+						
 					}
-					editor.putInt(bookPath + "begin", begin).commit();
-					ret = mPageWidget.doTouchEvent(e);
-					return ret;
 				}
-				return false;
-				
-				
+				return returnFlag;
 				
 				
 			}
-			
 		});
 
 		
-		//一次单击完整事件[按下,和抬起].事件是在MotionEvent.ACTION_DOWN和MotionEvent.ACTION_UP之后处理
-		mPageWidget.setOnClickListener(new OnClickListener(){
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
+		
 		
 		
 		
