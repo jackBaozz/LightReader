@@ -66,6 +66,7 @@ public interface Constant {
 	public static final int INT_BOOK_TIMER = 19;//定时器
 	public static final int INT_BOOK_UPDATE_TOTALPAGE = 20;//更新总页数
 	public static final int INT_MENU_BACK_LEVEL = 21;//返回上一级
+	public static final int INT_ACTION_BATTERY_CHANGED = 22;//电池电量
 	
 	
 	//阅读器支持解码的后缀名文件类型

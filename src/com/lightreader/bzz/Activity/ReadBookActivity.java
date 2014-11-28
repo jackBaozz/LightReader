@@ -100,7 +100,8 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 	//定时器
 	private Timer mTimer = null;  
     private TimerTask mTimerTask = null;
-	
+    private Timer mTimer2 = null;  
+    private TimerTask mTimerTask2 = null;
 	
 	
 	// 实例化Handler
@@ -134,11 +135,17 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 				textViewCenter.setText(textViewCenter.getText());
 				textViewRight.setText(textViewRight.getText());
 				break;
+			case Constant.INT_ACTION_BATTERY_CHANGED:
+				String text = (String)msg.obj;
+				textViewBattery.setText(text);
+				break;
 			default:
 				break;
 			}
 		}
 	};
+	
+	
 	
 	//专门用来更新时间的handler
 	Handler timeHandler = new Handler() {
@@ -147,10 +154,10 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 			switch (msg.what) {
 			case Constant.INT_BOOK_TIMER:  //定时器的线程发过来的消息
 				String timeText = BeanTools.getSystemCurrentTime(AllApplication.getInstance());//获取当前系统时间
-				//textViewBattery.setText(textViewBattery.getText());
-//				textViewLeft.setText(timeText);
-//				textViewCenter.setText(textViewCenter.getText());
-//				textViewRight.setText(textViewRight.getText());
+				textViewBattery.setText(textViewBattery.getText());
+				textViewLeft.setText(timeText);
+				textViewCenter.setText(textViewCenter.getText());
+				textViewRight.setText(textViewRight.getText());
 				break;
 			default:
 				break;
@@ -168,7 +175,12 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 				int level = intent.getIntExtra("level", 0);
 				int scale = intent.getIntExtra("scale", 100);
 				//tvBatteryChanged.setText("电池电量：" + (level * 100 / scale) + "%");
-				textViewBattery.setText("P:"+(level * 100 / scale) + "%");
+				//textViewBattery.setText("P:"+(level * 100 / scale) + "%");
+				
+				Message msg = Message.obtain();
+				msg.what = Constant.INT_ACTION_BATTERY_CHANGED;
+				msg.obj = "P:"+(level * 100 / scale) + "%";//需要传送的数据[电量信息]
+				mHandler.sendMessage(msg);
 			}
 		}
     };
@@ -364,18 +376,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 							}
 							mPageWidget.setBitmaps(mCurPageBitmap, mNextPageBitmap);
 							
-						}/*else if(e.getAction() == MotionEvent.ACTION_DOWN && popEnableFlag == true){
-							//true为允许弹出菜单栏menu 1是单手的起来,6是多点触摸的起来 e.getActionMasked()
-						    //其他情况,默认是长按,弹出menu窗口,逻辑直接调用menu的监听方法------onKeyUp
-							if (popwindowIsShow) {
-								//已经弹出,就清除干净
-								clear();
-							} else {
-								//未弹出,就弹出对话框
-								fill();
-							}
-							return true;//返回true终止以下的代码的执行
-						}*/
+						}
 						editor.putInt(bookPath + "begin", begin).commit();
 						ret = mPageWidget.doTouchEvent(e);
 						return ret;
@@ -436,9 +437,11 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 			
 			pagefactory.openbook(bookPath, begin);//打开书本,按起始页
 			pagefactory.setM_fontSize(size);//设置字体
-			pagefactory.onDraw(mCurPageCanvas);
+			//pagefactory.setM_mbBufBegin(begin);
+			//pagefactory.setM_mbBufEnd(begin);
 			
-			new Thread(new TotlePageRunnable()).start();//创建Thread线程
+			//postInvalidateUI();
+			pagefactory.onDraw(mCurPageCanvas);
 		} catch (Exception e1) {
 			Log.e(TAG, "打开电子书失败", e1);
 			Toast.makeText(this, "打开电子书失败", Toast.LENGTH_SHORT).show();
@@ -446,10 +449,11 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		markhelper = new MarkHelper(this);
 
 		
-		
+		//new Thread(new TotlePageRunnable()).start();//创建Thread线程 [执行有bug]
+		//mHandler.post(new TotlePageRunnable()); //执行的线程堵塞 速度慢
+		startTotalPages();//更新总页数,另起一个runnable线程来跑
 		startTimer();//更新时间数据的线程
-		//注册一个接受广播类型,获取手机电池的电量信息
-		//可以用于刷新页面的 电池信息和时间信息
+		//注册一个接受广播类型,获取手机电池的电量信息,可以用于刷新页面的 电池信息和时间信息
         registerReceiver(batteryChangedReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 	}
 	
@@ -1026,7 +1030,7 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		}
 
 		if (mTimer != null && mTimerTask != null){
-			mTimer.schedule(mTimerTask, 500, 30000);//循环执行TimerTask里面的run方法   [30秒钟执行一次]
+			mTimer.schedule(mTimerTask, 1000, 30000);//循环执行TimerTask里面的run方法   [30秒钟执行一次]
 		}
 	}
   
@@ -1045,5 +1049,45 @@ public class ReadBookActivity extends Activity implements OnClickListener, OnSee
 		}
 	}
 	
+	/**
+	 * 定时器获取总页数 ----- 开
+	 */
+	private void startTotalPages() {
+		if (mTimer2 == null) {
+			mTimer2 = new Timer();
+		}
+
+		if (mTimerTask2 == null) {
+			mTimerTask2 = new TimerTask() {
+				@Override
+				public void run() {
+					String totlePage = pagefactory.getTotalPagesCount()+"";
+					Message msg = Message.obtain();
+					msg.what = Constant.INT_BOOK_UPDATE_TOTALPAGE;
+					msg.obj = totlePage;//需要传送的数据
+					mHandler.sendMessage(msg);
+				}
+			};
+		}
+
+		if (mTimer2 != null && mTimerTask2 != null){
+			mTimer2.schedule(mTimerTask2, 500);//循环执行TimerTask2里面的run方法   [只执行一次]
+		}
+	}
+	
+	/**
+	 * 定时器获取总页数----- 关
+	 */
+	private void stopTotalPages() {
+		if (mTimer2 != null) {
+			mTimer2.cancel();
+			mTimer2 = null;
+		}
+
+		if (mTimerTask2 != null) {
+			mTimerTask2.cancel();
+			mTimerTask2 = null;
+		}
+	}
 	
 }

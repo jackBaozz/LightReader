@@ -301,5 +301,28 @@ public abstract class BeanTools {
 	}
 	
 	
-    
+    /**
+     * 根据Integer数组,获取每个数之间的差(平均)
+     * @param list
+     * @return
+     */
+	public static Integer getAvgNumber(ArrayList<Integer> list){
+		ArrayList<Integer> list2 = new ArrayList<Integer>();
+		for(int i = 1; i<list.size(); i++){
+			Integer avg = list.get(i) - list.get(i-1);
+			list2.add(avg);
+		}
+		Integer all = 0;
+		for(int i = 0; i<list2.size(); i++){
+			all += list2.get(i);
+		}
+		//System.out.println("总数:"+ all);
+		//System.out.println("个数:"+ list2.size());
+		//System.out.println("平均:"+ (all / list2.size()+ 1));
+		return all / list2.size();
+	}
+	
+	
+	
+	
 }

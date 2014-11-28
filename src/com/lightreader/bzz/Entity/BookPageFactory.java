@@ -222,8 +222,8 @@ public class BookPageFactory {
 		ReadBookActivity.textViewBattery.setText(ReadBookActivity.textViewBattery.getText());
 		ReadBookActivity.textViewLeft.setText(timeText);
 		if(totalPagesCount == -1){//第一次进来,总页数还没计算出来的时候
-			//ReadBookActivity.textViewCenter.setText("计算中...");
-			ReadBookActivity.textViewCenter.setText("???");
+			ReadBookActivity.textViewCenter.setText("计算中...");
+			//ReadBookActivity.textViewCenter.setText("1/"+getTotlePagesLike()+"");
 		}else{
 			int a = (int)Math.floor(fPercent * Float.valueOf(getTotalPagesCount()) + 0.5f);
 			if(a <= 0 )a=1;
@@ -271,7 +271,7 @@ public class BookPageFactory {
 	}
 
 	/**
-	 * 获取当前书本总页数
+	 * 获取当前书本总页数(精算)
 	 * 根据 :
 	 * 1.当前字体大小 
 	 */
@@ -283,10 +283,11 @@ public class BookPageFactory {
 		int _mbBufEnd = 0;
 		int pageTotla = 0;
 		pageHeadlists = new ArrayList<Integer>();
+		//System.out.println("执行开始时间:"+BeanTools.getSystemCurrentTime2(AllApplication.getInstance()));
 		while(_mbBufEnd < m_mbBufLength){
 			pageHeadlists.add(_mbBufEnd);//存入每一页的结尾的长度
 			
-			while (lines.size() < mPreLineCount) {
+			while (lines.size() < mPreLineCount) {// 每页可以显示的行数
 				byte[] paraBuff = readParagraphForward(_mbBufEnd);
 				_mbBufEnd += paraBuff.length;// 每次读取后，记录结束点位置，该位置是段落结束位置
 				try {
@@ -318,6 +319,7 @@ public class BookPageFactory {
 						break;
 					}
 				}
+				//System.out.println(BeanTools.getSystemCurrentTime2(AllApplication.getInstance()));
 				// 如果该页最后一段只显示了一部分，则从新定位结束点位置
 				if (tempString.length() != 0) {
 					try {
@@ -331,10 +333,81 @@ public class BookPageFactory {
 			pageTotla++;
 			lines.clear();
 		}
-		//System.out.println("执行完毕时间:");
 		//System.out.println(BeanTools.getSystemCurrentTime2(AllApplication.getInstance()));
+		//System.out.println("执行完毕时间:");
+		//System.out.println("执行完毕时间:"+BeanTools.getSystemCurrentTime2(AllApplication.getInstance()));
 		return pageTotla;
 	}
+	
+	
+	/**
+	 * 获取当前书本总页数(模糊初步计算)
+	 * 根据 :
+	 * 1.当前字体大小 
+	 */
+	protected int getTotlePagesLike(){
+		mPaint.setTextSize(m_fontSize);
+		mPaint.setColor(m_textColor);
+		String tempString = "";
+		Vector<String> lines = new Vector<String>();
+		int _mbBufEnd = 0;
+		int pageTotla = 0;
+		pageHeadlists = new ArrayList<Integer>();
+		while(_mbBufEnd < m_mbBufLength){
+			pageHeadlists.add(_mbBufEnd);//存入每一页的结尾的长度
+			//快速计算 模糊计算
+			if(pageHeadlists.size() > 10){
+				Integer avg = BeanTools.getAvgNumber(pageHeadlists);
+				return m_mbBufLength / avg + 1;
+			}
+			
+			while (lines.size() < mPreLineCount) {// 每页可以显示的行数
+				byte[] paraBuff = readParagraphForward(_mbBufEnd);
+				_mbBufEnd += paraBuff.length;// 每次读取后，记录结束点位置，该位置是段落结束位置
+				try {
+					tempString = new String(paraBuff, m_strCharsetName);// 转换成制定GBK编码
+				} catch (UnsupportedEncodingException e) {
+					Log.e(TAG, "pageDown->转换编码失败", e);
+				}
+				String strReturn = "";
+				// 替换掉回车换行符
+				if (tempString.indexOf("\r\n") != -1) {
+					strReturn = "\r\n";
+					tempString = tempString.replaceAll("\r\n", "");
+				} else if (tempString.indexOf("\n") != -1) {
+					strReturn = "\n";
+					tempString = tempString.replaceAll("\n", "");
+				}
+	
+				if (tempString.length() == 0) {
+					lines.add(tempString);
+				}
+				while (tempString.length() > 0) {
+					// 画一行文字
+					int nSize = mPaint.breakText(tempString, true, mVisibleWidth, null);
+					lines.add(tempString.substring(0, nSize));
+					tempString = tempString.substring(nSize);// 得到剩余的文字
+					// 超出最大行数则不再画
+					if (lines.size() >= mPreLineCount) {
+						break;
+					}
+				}
+				// 如果该页最后一段只显示了一部分，则从新定位结束点位置
+				if (tempString.length() != 0) {
+					try {
+						_mbBufEnd -= (tempString + strReturn).getBytes(m_strCharsetName).length;
+					} catch (UnsupportedEncodingException e) {
+						Log.e(TAG, "pageDown->记录结束点位置失败", e);
+					}
+				}
+			}
+			pageTotla++;
+			lines.clear();
+		}
+		
+		return pageTotla;
+	}
+	
 	
 	
 	
@@ -586,7 +659,7 @@ public class BookPageFactory {
 			}
 		} else {
 			while (i < m_mbBufLength) {// m_mbBufLength图书总长度
-				byte0 = m_mbBuff.get(i++);
+				byte0 = m_mbBuff.get(i++);//m_mbBuff 内存中的图书字符
 				if (byte0 == 0x0a) {
 					break;
 				}

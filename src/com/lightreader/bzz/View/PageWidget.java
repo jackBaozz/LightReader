@@ -123,6 +123,11 @@ public class PageWidget extends View {
 		if (event.getAction() == MotionEvent.ACTION_MOVE) {
 			mTouch.x = event.getX();
 			mTouch.y = event.getY();
+			/* Android提供了Invalidate和postInvalidate方法实现界面刷新，但是Invalidate不能直接在线程中调用，因为他是违背了单线程模型： 
+             * Android UI操作并不是线程安全的，并且这些操作必须在UI线程中调用。  
+             * invalidate()的调用是把之前的旧的view从主UI线程队列中pop掉 
+             * 而postInvalidate()在工作者线程中被调用 
+            */  
 			this.postInvalidate();
 		}
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -315,8 +320,8 @@ public class PageWidget extends View {
 		canvas.drawColor(0xFFAAAAAA);
 		calcPoints();
 		drawCurrentPageArea(canvas, mCurPageBitmap, mPath0);
-		drawCurrentPageShadow(canvas);
 		drawCurrentBackArea(canvas, mCurPageBitmap);
+		drawCurrentPageShadow(canvas);
 		drawNextPageAreaAndShadow(canvas, mNextPageBitmap);
 	}
 
